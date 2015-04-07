@@ -1,0 +1,19 @@
+<ion-view view-title="Slide Library">
+
+  <ion-content      has-bouncing="false"
+                    flow-init="{target: '/api/upload',
+                    testChunks:false,
+                    permanentErrors: [415, 500, 501]}"
+                    ng-controller="libraryCtrl"
+                    class="slideshow-container">
+
+    <div class="row ">
+        <div class="{{navClass}}">
+            <ng-include src="'../templates/navItems.html'"></ng-include>
+        </div>
+        <div class="{{thumbClass}}">
+            <ng-include src="'../templates/slideItems.html'"></ng-include>
+    </div>
+  </ion-content>
+    <div class="presence-message centered-container" appear-up="show_message">""</div>   
+</ion-view>

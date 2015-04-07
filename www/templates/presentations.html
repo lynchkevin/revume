@@ -1,0 +1,15 @@
+<ion-view title="Presentations">
+  <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+  <ion-content class="has-header">
+      <ion-list>
+          <ion-item class="item-thumbnail-left" ng-repeat="deck in presentations" 
+                    href="#/app/presentations/{{deck.id}}">
+              <img ng-src="{{deck.slides[0].source}}">
+              <h2>{{deck.name}}</h2>
+              <p> {{deck.slides.length}} total slides</p>
+          </ion-item>
+      </ion-list>
+  </ion-content>
+</ion-view>

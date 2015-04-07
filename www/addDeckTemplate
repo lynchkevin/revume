@@ -1,0 +1,22 @@
+<ion-popover-view>
+    <ion-header-bar> <h1 class="title">My Popover Title</h1> </ion-header-bar> 
+    <ion-content> 
+        <ion-list >
+            <ion-item ng-repeat="deck in decks" class="item-thumbnail-left " 
+                      ng-click="selectDeck($index)">
+                <img ng-src="{{item.thumb}}" alt="New" class="alt">
+                <h2>{{item.name}}</h2>
+                <p>{{item.user.firstName}} {{item.user.lastName}}</p>
+                <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
+                <button class="button button-small" ng-click="editContainer($index)" 
+                        ng-class="{'button-assertive':item.beingEdited}" 
+                        class="button right" ng-show="showEdit">{{editButton($index)}}
+                </button>
+                <button ng-if="modelName=='decks'" class="button button-small" 
+                        ng-click="sb.build($index)">
+                    New Session
+                </button>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-popover-view>

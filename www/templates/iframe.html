@@ -1,0 +1,37 @@
+<ion-view title="iFrame">
+    <ion-content class="has-header slideshow-container" scroll="false">
+        <div class="centered-container slide" >
+            <div class="row">
+                <div class="col col-10">
+                </div>
+                <div class="col col-80" elem-height="0.90">
+                        <ion-slide-box disable-scroll="true"  class="bordered-drop-shadow" elem-height="0.9">
+<!--                            <ion-slide ng-repeat="slide in presentation.slides">
+
+                              <div ng-switch on="slide.type">
+                                    <div ng-switch-when="img">
+                                        <img ng-src="{{slide.source}}" class="slide-content" >
+                                    </div>
+                                    <div ng-switch-when="video">                            
+                                        <video class="slide-content" controls="controls"  v-follow={{$index}}>
+                                         <source src="http://static.videogular.com/assets/videos/videogular.mp4" type='video/mp4' />
+                                         <source src="http://static.videogular.com/assets/videos/videogular.webm" type='video/webm' />
+                                         <source src="http://static.videogular.com/assets/videos/videogular.ogg" type='video/ogg' />
+                                        </video>                      
+                                     </div> 
+-->
+                                    <iframe  src="http://www.apple.com" class="slide-content" elem-height="0.9" mirror-it>
+                                    </iframe>
+<!--
+                                </div>                    
+                            </ion-slide>
+-->                     </ion-slide-box>
+                     <div class="presence-message" appear-up="show_message">""</div>
+                    </div>
+                </div>
+                <div class="col col-10 ">
+                </div>  
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

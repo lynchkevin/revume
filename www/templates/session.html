@@ -1,0 +1,90 @@
+<ion-view view-title="{{session.name}}">
+    <ion-content class="has-header">
+        <div class="list card">
+            <div class="item item-divider">
+                Session Detalis
+            </div>
+            <div ng-show="user.id!=session.organizer._id"
+                 class="item item-thumbnail-left item-button-right">
+                <img ng-src="{{session.decks[0].thumb}}">
+                <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
+                <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
+                <p><strong>Organizer:</strong>    
+                    {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
+                <p><strong>session id: </strong>    {{session._id}}</p>
+                <button class="button button-positive"
+                        ng-click="go()">
+                    Join
+                </button>
+            </div>
+            <div ng-show="user.id==session.organizer._id"
+                 class="item item-button-right">
+                <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
+                <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
+                <p><strong>Organizer:</strong>    
+                    {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
+                <p><strong>session id: </strong>    {{session._id}}</p>
+            </div>
+            <div ng-show="user.id == session.organizer._id" class="item item-divider">
+                Presentations Decks
+            </div>
+              <div ng-show="user.id == session.organizer._id"
+                   class="item item-thumbnail-left item-button-right" 
+                   ng-repeat="deck in session.decks" >
+                  <img ng-src="{{deck.thumb}}">
+                  <h2>{{deck.name}}</h2>
+                  <p> {{deck.slides.length}} total slides</p>
+                    <div class="buttons session-item-button">
+                        <button class="button button-balanced"
+                                ng-click="go('{{session._id}}',{{$index}})">
+                            Start
+                        </button>
+                        <button class="button button-positive" ng-disabled="reportDisabled($index)" ng-click="showResults($index)">
+                            Report
+                        </button>
+                  </div>
+              </div>
+            <div class="item item-divider">
+                Attendees
+            </div>
+            <div class="item" >
+                <span><strong>Organizer: </strong>{{session.organizer.firstName}} {{session.organizer.lastName}}</span><br>
+                <span ng-repeat="attendee in session.attendees">
+                {{attendee.firstName}} {{attendee.lastName}}  e: {{attendee.email}} <br>
+                </span>
+            </div>
+            <div class="item item-body">
+                {{session.description}}
+            </div>
+
+
+        </div>
+        
+<!--        
+        <div class="list card">
+            <div class="item">
+                <h3>{{session.time}}</h3>
+                <h2>{{session.title}}</h2>
+                <p>{{session.speaker}}</p>
+            </div>
+            <div class="item item-body">
+                <p>{{session.description}}</p>
+            </div>
+            <div class="item tabs tabs-secondary tabs-icon-left">
+                <a class="tab-item">
+                    <i class="icon ion-thumbsup"></i>
+                    Like
+                </a>
+                <a class="tab-item">
+                    <i class="icon ion-chatbox"></i>
+                    Comment
+                </a>
+                <a class="tab-item">
+                    <i class="icon ion-share"></i>
+                    Share
+                </a>
+            </div>
+        </div>
+-->
+    </ion-content>
+</ion-view>

@@ -1,0 +1,58 @@
+<ion-view view-title="{{presentation.name}}">
+    <ion-nav-buttons side="right">
+      <button class="button button-assertive" ng-click="endPresentation()">
+          End
+      </button>
+      <button class="button icon-left" ng-click="toggleShowUsers()">
+        <i class="icon ion-person-stalker" ></i>
+          <div class="user-indicator">
+                {{channel.users.length}}         
+          </div>
+      </button>
+    </ion-nav-buttons>
+    
+    <ion-content class="has-header slideshow-container" scroll="false">
+        <div class="centered-container slide" elem-size>    
+        <div class="row">
+            <div class="col col-10">
+                <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" ng-click="prevSlide()">Back</a>
+            </div>
+            <div class="col col-80" >
+            <ion-slide-box class="bordered-drop-shadow" on-slide-changed="setSlide(index)">
+                <ion-slide ng-repeat="slide in presentation.slides">
+                    <div ng-switch on="slide.type">
+                        <div ng-switch-when="img">
+                            <img ng-src="{{slide.src}}" class="slide-content" >
+                        </div>
+                        <div ng-switch-when="video">                            
+                            <video class="slide-content" controls style="background:black"
+                                   poster="{{slide.poster}}" v-lead={{$index}}>
+                             <source ng-src="{{slide.src}}" type='video/mp4' />
+<!--
+                             <source src="http://static.videogular.com/assets/videos/videogular.webm" type='video/webm' />
+                             <source src="http://static.videogular.com/assets/videos/videogular.ogg" type='video/ogg' />
+                            </video>  
+-->
+                         </div> 
+                    </div>                    
+                </ion-slide>
+            </ion-slide-box>
+             <div class="presence-message" appear-up="show_message">""</div>
+            </div>
+            <div class="col col-10 ">
+                <a class="button icon-left ion-chevron-right button-clear button-dark slider-button right" ng-click="nextSlide()">Next</a>
+                <!-- add a list of users that can float in -->
+                <div class="user-status-bar" ng-if="showUsers">
+                    <div ng-repeat="attendee in everyone" class="user-item">
+                        <i class="icon user-item-avatar" ng-class="{'user-online': attendee.isOnline, 'ion-eye-disabled user-distracted': attendee.distracted,'ion-person':!attendee.distracted}"></i>
+                        <span ng-if="attendee.itsMe != true" class="user-item-text">{{attendee.firstName}} {{attendee.lastName}}</span>
+                        <span ng-if="attendee.itsMe" class="user-item-text">You</span>
+                    </div>
+
+                    </div>
+                </div>
+            </div>            
+        </div>
+        </div>
+    </ion-content>
+</ion-view>

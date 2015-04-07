@@ -1,0 +1,92 @@
+
+            <div class="lib-list-header">
+                <div class="button-bar bar-dark">
+                  <a class="button" ng-click="setModel('files')">Files</a>
+                  <a class="button" ng-click="setModel('categories')">Categories</a>                  
+                  <a class="button" ng-click="setModel('decks')">Decks</a>
+
+                </div>
+            </div>            
+            <div class="lib-list-header volerro-green">
+                <div class="lib-list-header-button lib-header-left">
+                    <i class="icon ion-minus-circled" ng-click="toggleListDelete()"></i>
+                </div>
+                {{listName}}
+                <div class="lib-list-header-button lib-header-right">
+                    <i class="icon ion-plus-circled" ng-click="addNavItem()"></i>
+                </div>
+            </div> 
+            <div ng-show="showAddItem" >
+                <div ng-switch on="modelName">
+                    <div ng-switch-when='files'>
+                        <div class="flow-drop-zone centered-container" 
+                             flow-drag-enter="class='flow-drag-enter'" 
+                             flow-drag-leave="class='flow-drag-leave'" 
+                             flow-drop ng-class="class">
+                            <i class="icon ion-close flow-drop-hide" ng-click="endNavAdd()"></i>
+                            <p ng-show="!spinner">Drop your file here</p>
+                            <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
+                            <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}">
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-switch-when='categories'>
+                        <form name="categoryForm">
+                        <div class="list">
+                          <div class="item item-input-inset">
+                            <label class="item-input-wrapper">
+                              <input type="text" ng-model="category.name" placeholder="Category Name:" required>
+                            </label>
+                            <button ng-click="addCategory()" ng-disabled="categoryForm.$invalid" class="button button-small">
+                              Submit
+                            </button>
+                            <button ng-click="endNavAdd()"  class="button button-small">
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                    </div>
+                    <div ng-switch-when='decks'>
+                        <form name="deckForm">
+                        <div class="list">
+                          <div class="item item-input-inset">
+                            <label class="item-input-wrapper">
+                              <input type="text" name="deckName" 
+                                     ng-model="deck.name" placeholder="Deck Name:" required>
+                            </label>
+                            <button ng-click="addDeck()" 
+                                    ng-disabled="deckForm.$invalid" 
+                                    class="button button-small">
+                              Submit
+                            </button>
+                            <button ng-click="endNavAdd()" class="button button-small">
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>                    
+            </div>
+            <ion-scroll elem-height="0.70" >
+            <ion-list show-delete="shouldShowDelete">
+                <ion-item ng-repeat="item in navItems" class="item-thumbnail-left " 
+                          ng-click="setNavSelection($index)">
+                        <ion-delete-button class="ion-minus-circled" ng-click="delNavItem($index)"></ion-delete-button>
+                    <img ng-src="{{item.thumb}}" alt="New" class="alt">
+                    <h2>{{item.name}}</h2>
+                    <p>{{item.user.firstName}} {{item.user.lastName}}</p>
+                    <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
+                    <button class="button button-small" ng-click="editContainer($index)" 
+                            ng-class="{'button-assertive':item.beingEdited}" 
+                            class="button right" ng-show="showEdit">{{editButton($index)}}
+                    </button>
+                    <button ng-if="modelName=='decks'" class="button button-small" 
+                            ng-click="buildSession($index)">
+                        New Session
+                    </button>
+                </ion-item>
+            </ion-list>
+            </ion-scroll>
+        
+

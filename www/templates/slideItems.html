@@ -1,0 +1,42 @@
+
+<ion-scroll elem-height="0.875" >
+    <div ng-repeat="slide in slides" 
+         class="thumbnail" 
+         ng-class="{'thumb-selected':tap.on && tap.index==$index}">
+        <div ng-switch on="slide.type"  >
+            <div ng-switch-when="img" >
+                <div style="position:relative" >
+                    <i class="icon ion-close-circled slide-deleter" 
+                       ng-show="slide.included && !slide.available"
+                       ng-click="deleteSlide($index)"></i>
+                    <i class="icon ion-checkmark-round slide-included" 
+                       ng-show="slide.included && slide.available"></i>
+                    <i class="icon ion-plus-circled slide-adder" 
+                       ng-show="isEditing && slide.available" 
+                       ng-click="addSlide($index)"></i>
+                    <img ng-src="{{slide.src}}"  
+                         style="width:100%" 
+                         class="rounded-corners shadow"
+                         ng-click="tapThumb($index)">
+                </div>
+            </div>
+            <div ng-switch-when="video" > 
+                <div style="position:relative" >
+                    <i class="icon ion-close-circled slide-deleter" 
+                       ng-show="slide.included && !slide.available"
+                       ng-click="deleteSlide($index)"></i>
+                    <i class="icon ion-checkmark-round slide-included" 
+                       ng-show="slide.included && slide.available"></i>
+                    <i class="icon ion-plus-circled slide-adder" 
+                       ng-show="isEditing && slide.available"  
+                       ng-click="addSlide($index)"></i>
+                    <img ng-src="{{slide.poster}}"  
+                         style="width:100%" class="rounded-corners shadow"
+                         ng-click="tapThumb($index)">
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-scroll>
+
+

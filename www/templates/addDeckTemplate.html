@@ -1,0 +1,34 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-dark"> <h1 class="title"> Add a Deck </h1> </ion-header-bar> 
+    <ion-content> 
+        <ion-list >
+            <ion-item ng-repeat="deck in sb.decks" class="item-thumbnail-left item-button-right" >
+                <img ng-src="{{deck.thumb}}" alt="New" class="alt">
+                <h2>{{deck.name}} <span ng-show="deck.added" class="add-color heavy">-Added-</span></h2>
+                <p>{{deck.user.firstName}} {{deck.user.lastName}}</p>
+                <p>{{deck.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
+                <button class="ion-plus-circled button icon button-icon add-color" 
+                        ng-click="sb.addDeck($index)"
+                        ng-show="!deck.added">
+                </button>
+                <button class="ion-minus-circled button icon button-icon del-color" 
+                        ng-click="sb.delDeck($index)"
+                        ng-show="deck.added">
+                </button>
+            </ion-item>
+        </ion-list>
+
+    </ion-content>
+    <ion-footer-bar>
+        <div class="centered-container">
+          <button ng-disabled="sb.session.decks.length==0"
+                  class="button button-positive"
+                  ng-click="sb.defer.pop().resolve()">
+              Ok
+          </button>
+          <button class="button button-stable" ng-click="sb.defer.pop().reject('cancel')">
+              Cancel
+          </button>
+        </div>
+    </ion-footer-bar>
+</ion-modal-view>

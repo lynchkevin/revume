@@ -1,0 +1,10 @@
+/platforms
+/plugins
+/hooks
+/scss
+/node_modules
+/server/img
+/server/tmp
+/server/results
+/server/node_modules
+/www/content

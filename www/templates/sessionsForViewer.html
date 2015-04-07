@@ -1,0 +1,14 @@
+<ion-view title="Viewer Sessions">
+  <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+  <ion-content class="has-header">
+      <ion-list>
+          <ion-item class="item-thumbnail-left" ng-repeat="session in sessions" href="#/app/viewerSessions/{{session.id}}">
+              <img ng-src="{{session.cover}}">
+              <h2>{{session.title}}</h2>
+              <p>{{session.date}} {{session.time}}</p>
+          </ion-item>
+      </ion-list>
+  </ion-content>
+</ion-view>

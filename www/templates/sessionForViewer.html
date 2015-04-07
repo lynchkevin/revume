@@ -1,0 +1,56 @@
+<ion-view title="Session">
+    <ion-content class="has-header">
+        <div class="list card">
+            <div class="item item-divider">
+                {{session.title}}
+            </div>
+            <a class="item item-button-right"   href="#/app/viewer/{{session.presentations[0]}}?sessionId={{session.uuid}}">
+                <p><strong>date:</strong>    {{session.date}}</p>  
+                <p><strong>time:</strong>    {{session.time}}</p>  
+                <p><strong>organizer:</strong>    {{session.organizer}}</p>
+                <p><strong>session id: </strong>    {{session.uuid}}</p>
+                <button class="button button-positive">
+                    Join
+                </button>
+            </a>
+            <div class="item item-divider">
+                Attendees
+            </div>
+            <div class="item" >
+                <span ng-repeat="attendee in session.attendees">
+                {{attendee.firstName}} {{attendee.lastName}} <span ng-if="attendee.role == 'organizer'"> : {{attendee.role}}</span><br>
+                </span>
+            </div>
+            <div class="item item-body">
+                {{session.description}}
+            </div>
+        </div>
+        
+<!--        
+        <div class="list card">
+            <div class="item">
+                <h3>{{session.time}}</h3>
+                <h2>{{session.title}}</h2>
+                <p>{{session.speaker}}</p>
+            </div>
+            <div class="item item-body">
+                <p>{{session.description}}</p>
+            </div>
+            <div class="item tabs tabs-secondary tabs-icon-left">
+                <a class="tab-item">
+                    <i class="icon ion-thumbsup"></i>
+                    Like
+                </a>
+                <a class="tab-item">
+                    <i class="icon ion-chatbox"></i>
+                    Comment
+                </a>
+                <a class="tab-item">
+                    <i class="icon ion-share"></i>
+                    Share
+                </a>
+            </div>
+        </div>
+-->
+    </ion-content>
+</ion-view>
