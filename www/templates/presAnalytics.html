@@ -22,11 +22,17 @@
             </div>
         <div class="item" >
             <div class="row" ng-repeat="view in sv.views">
-                <div class="col col-50">
+                <div ng-if="!smallScreen()" class="col col-50">
                     Viewer : {{view.userName}}
                 </div>
-                <div class="col col-50">
+                <div ng-if="smallScreen()" class="col col-50">
+                    {{view.userName}}
+                </div>                
+                <div ng-if="!smallScreen()" class="col col-50">
                     Time on Slide : {{view.viewed| number:2}}(sec) {{(view.viewed/sv.duration)*100|number:0}}%
+                </div>
+                <div ng-if="smallScreen()" class="col col-50">
+                  {{view.viewed| number:2}}(sec) {{(view.viewed/sv.duration)*100|number:0}}%
                 </div>
             </div>
         </div>

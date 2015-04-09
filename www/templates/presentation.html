@@ -1,12 +1,9 @@
 <ion-view view-title="{{presentation.name}}">
     <ion-nav-buttons side="right">
-      <button class="button button-assertive" ng-click="endPresentation()">
-          End
-      </button>
       <button class="button icon-left" ng-click="toggleShowUsers()">
         <i class="icon ion-person-stalker" ></i>
           <div class="user-indicator">
-                {{channel.users.length}}         
+                {{present.length+1}}         
           </div>
       </button>
     </ion-nav-buttons>
@@ -25,14 +22,7 @@
                             <img ng-src="{{slide.src}}" class="slide-content" >
                         </div>
                         <div ng-switch-when="video">                            
-                            <video class="slide-content" controls style="background:black"
-                                   poster="{{slide.poster}}" v-lead={{$index}}>
-                             <source ng-src="{{slide.src}}" type='video/mp4' />
-<!--
-                             <source src="http://static.videogular.com/assets/videos/videogular.webm" type='video/webm' />
-                             <source src="http://static.videogular.com/assets/videos/videogular.ogg" type='video/ogg' />
-                            </video>  
--->
+                            <video id="vid-slide" class="slide-content" v-source={{slide.src}} controls v-lead={{$index}} > </video>  
                          </div> 
                     </div>                    
                 </ion-slide>

@@ -29,7 +29,8 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
-.service('Library',['UploadedFiles','Decks','Categories','$q',function(uFiles,decks,categories,$q){
+.service('Library',['UploadedFiles','Decks','Categories','$q','baseUrl','$resource','$rootScope',
+                    function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope){
     var $ = this;
     var collection={};
     
@@ -111,8 +112,7 @@ angular.module('starter')
     $.updateNavItem = function($scope){
         var defer = $q.defer();
         if(collection.index != -1 ){
-            var model = collection.model;
-            model.update({id:collection.instance._id},collection.instance).$promise.then(function(){
+            var model = collection.model;                               model.update({id:collection.instance._id},collection.instance).$promise.then(function(){
                 return model.get({id:collection.instance._id}).$promise;
             }).then(function(item){
                 $scope.navItems[$scope.selectedNavId].user = item.user;
@@ -247,5 +247,19 @@ angular.module('starter')
             });
         }
     };  
-        
+    $.setUserId = function(file_id){
+        var defer = $q.defer();
+        var target = baseUrl.endpoint+'/api/library/uploadedFiles/setuser/:id';
+        var r = $resource(target,
+                        {id:'@id'},
+                        {   delete: {method:'DELETE', params:{id:'@id'}},
+                            update: {method:'PUT', params:{id:'@id'}}
+                        });
+        r.update({id:file_id},{id:$rootScope.user._id}).$promise.then(function(){
+            defer.resolve();
+        }).catch(function(err){
+            defer.reject(err);
+        });
+        return defer.promise; 
+    };
 }]);

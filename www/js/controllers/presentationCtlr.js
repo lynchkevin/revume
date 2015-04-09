@@ -14,15 +14,15 @@ angular.module('starter.controllers')
     // no need to calll init again - it's called when we log in
      // pnFactory.init("anonymous");    
     
-    //initialize the $scope
-    var current = 0;
+
     $scope.init = function(){
-        current = 0;
+        $scope.current = 0;
         $scope.showUsers = true;
         var everyone = $scope.session.attendees;
         everyone.push($scope.session.organizer);
         monitor.init(everyone);
         $scope.everyone=[];
+        $scope.present = [];
         $scope.mapShowing = false;
         $scope.buttonText = "Show All"
         var channelName = $stateParams.id.toString()+".view_channel";
@@ -31,7 +31,7 @@ angular.module('starter.controllers')
         recorder.setChannel($scope.channel);
         $scope.channel.subscribe(handleMessage,handlePresence);
         newPresentation($scope.presentation._id);
-        $scope.setSlide(current);
+        $scope.setSlide($scope.current);
         sbDelegate.update();
     }
 
@@ -86,6 +86,7 @@ angular.module('starter.controllers')
             }
             $timeout(function(){
                 $scope.everyone = monitor.everyone;
+                $scope.present = monitor.present;
                 $scope.$broadcast("show_message", statusMessage);
             },0);
             console.log($scope.everyone);
@@ -113,34 +114,34 @@ angular.module('starter.controllers')
       
     
     $scope.nextSlide = function() {
-        $scope.setSlide(++current);
-        sbDelegate.slide(current);
+        $scope.setSlide(++$scope.current);
+        sbDelegate.slide($scope.current);
         sbDelegate.update();
     };
     
     $scope.prevSlide = function() {
-        $scope.setSlide(--current);
-        sbDelegate.slide(current);
+        $scope.setSlide(--$scope.current);
+        sbDelegate.slide($scope.current);
         sbDelegate.update();
     };
       
     $scope.setSlide = function(slideNumber) {
         if(slideNumber >= $scope.presentation.slides.length-1) {
-            current = $scope.presentation.slides.length-1;
+            $scope.current = $scope.presentation.slides.length-1;
             $scope.nextEnabled = false;
             $scope.prevEnabled = true;
         } else if(slideNumber <= 0) {
-            current = 0;
+            $scope.current = 0;
             $scope.prevEnabled = false;
             $scope.nextEnabled = true;
         } else {   
-            current = slideNumber;
+            $scope.current = slideNumber;
             $scope.nextEnabled = true;
             $scope.prevEnabled = true;
         }
-        $scope.viewingSlide = $scope.presentation.slides[current];
+        $scope.viewingSlide = $scope.presentation.slides[$scope.current];
         //tell the viewers to update their slide
-        var val = current.toString();
+        var val = $scope.current.toString();
         var m = {action:"set",value: val,caller:"setSlide"};
         recorder.record(m);
         $scope.channel.publish(m);  
@@ -148,7 +149,7 @@ angular.module('starter.controllers')
     };
     
     $scope.viewIdx = function() {
-        return current;
+        return $scope.current;
     };
       
     $scope.$on('$destroy', function(){
@@ -163,7 +164,13 @@ angular.module('starter.controllers')
      }).then(function(deck){
         $scope.session.decks[$scope.deckIdx]=deck;
         $scope.presentation=$scope.session.decks[$scope.deckIdx];
-        $scope.init();
+        // if the user is not set then listen for the event
+        if($rootScope.user._id == undefined)
+            $rootScope.$on('Revu.Me:Ready',function(event, data){
+                $scope.init();
+            });
+         else
+             $scope.init();
      }).catch(function(err){
             var str = "PresentationCtrl: error:"+err;
             alert(str);

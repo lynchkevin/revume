@@ -30,7 +30,7 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
     }
   });
     var userInit = function(user){
-        $rootScope.user.id = user._id;   
+        $rootScope.user._id = user._id;   
         $rootScope.user.name = user.firstName+' '+user.lastName;
         $rootScope.$broadcast("userID",$rootScope.user);
         //manage user presence on the rootScope so all controllers can use
@@ -47,6 +47,7 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
         $rootScope.mainChannel.setUser($rootScope.user.name);
         $rootScope.mainChannel.subscribe($rootScope.mHandler,
                                      $rootScope.pHandler);
+        $rootScope.$broadcast('Revu.Me:Ready');
     };
         
     //get a user.id then call init...
@@ -116,23 +117,6 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
       }
     }
   })
-  .state('app.testLead', {
-    url: "/testLead/:id?sessionId",
-    views: {
-      'menuContent': {
-        templateUrl: "templates/testLead.html"
-      }
-    }
-  })
-  
-  .state('app.testFollow', {
-    url: "/testFollow/:id?sessionId",
-    views: {
-      'menuContent': {
-        templateUrl: "templates/testFollow.html"
-      }
-    }
-  })
 
   .state('app.viewer', {
     url: "/viewer/:id?sessionId",
@@ -152,29 +136,20 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
       }
     }
   })
-    .state('app.viewerSession', {
-    url: "/viewerSessions/:sessionId",
-    resolve: {
-            Presentation : 'Presentation',
-            decks: function(Presentation){
-
-                // Return a promise to make sure the customer is completely
-                // resolved before the controller is instantiated
-                return Presentation.query().$promise;
-            }
-        },
-    views: {
-        'menuContent': {
-          templateUrl: "templates/sessionForViewer.html",
-          controller: 'SessionDeferCtrl'
-      }
-    },
-})
     .state('app.sessions', {
       url: "/sessions",
       views: {
           'menuContent': {
               templateUrl: "templates/sessions.html",
+              controller: 'SessionsCtrl'
+          }
+      }
+    })
+    .state('app.attendeeSessions', {
+      url: "/attendeeSessions",
+      views: {
+          'menuContent': {
+              templateUrl: "templates/attendeeSessions.html",
               controller: 'SessionsCtrl'
           }
       }

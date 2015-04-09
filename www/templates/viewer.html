@@ -13,11 +13,21 @@
                                         <img ng-src="{{slide.src}}" class="slide-content" >
                                     </div>
                                     <div ng-switch-when="video">                            
+                                        <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}></video>                      
+                                     </div>                                     
+                                    
+                                    
+<!--
+                                    <div ng-switch-when="video">                            
                                         <video class="slide-content" controls="controls"
                                                style="background:black"
                                                poster="{{slide.poster}}" v-follow={{$index}}>
                                          <source ng-src="{{slide.src}}" type='video/mp4'/>
 <!--
+                                         <source src="http://static.videogular.com/assets/videos/videogular.mp4" type='video/mp4' />
+                                         <source src="http://static.videogular.com/assets/videos/videogular.webm" type='video/webm' />
+                                         <source src="http://static.videogular.com/assets/videos/videogular.ogg" type='video/ogg' />
+
                                          <source src="http://static.videogular.com/assets/videos/videogular.webm" type='video/webm' />
                                          <source src="http://static.videogular.com/assets/videos/videogular.ogg" type='video/ogg' />
                                         </video>  

@@ -297,7 +297,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         saveSession.date = $.session.date;
         saveSession.invite = $.session.invite;
         saveSession.bridge = $.session.bridge;
-        saveSession.organizer = $rootScope.user.id;
+        saveSession.organizer = $rootScope.user._id;
         
         saveSession.$save().then(function(){
             defer.resolve();

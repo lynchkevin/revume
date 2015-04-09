@@ -233,6 +233,18 @@
     font-weight: 600;
     position:relative;
 }
+.lib-list-subheader{
+  position: absolute;
+  top: 30%;
+  font-size: 75%;
+  left: 0;
+  right:0;
+}
+.lib-list-back{
+    color:white;
+    font-size:100%;
+    padding-top:5px;
+}
 .volerro-green{
     background:#a6bd39;
 }

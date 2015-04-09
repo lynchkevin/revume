@@ -59,6 +59,7 @@ function savePowerpointUpload(job){
             return uFile.saveAsync()
         }).spread(function(uf){
                 console.log("uFile saved - resolving job: ",job);
+                job.file_id = uf._id;
                 resolve(job);
         }).catch(function(err){
                 reject(err);
@@ -69,6 +70,7 @@ function savePowerpointUpload(job){
 
 //save uploaded slides to the database
 function saveVideoUpload(job){
+    return new Promise(function(resolve, reject){ 
     var slide = new Slide;
     var uFile = new UploadedFile;
     uFile.name = job.filename;
@@ -88,11 +90,12 @@ function saveVideoUpload(job){
         uFile.slides.push(sld._id)
         return uFile.saveAsync();
     }).spread(function(uf){
-        console.log(uf);
+        job.file_id = uf._id;
+        resolve(job);
     }).catch(function(err){
-        console.log(err);
+        reject(err);
     });
-
+    });
 }
     
 //initialize the pubnub channel for pub/sub with the client
@@ -164,8 +167,11 @@ function handleVideo(status, params){
     job.filename = f;
     job.identifier = f;
     job.poster = file+'.png';
-    saveVideoUpload(job);
-    channel.publish(job);
+    saveVideoUpload(job).then(function(job){
+        channel.publish(job);
+    }).catch(function(err){
+        channel.publish(err);
+    });
     
 };
 
@@ -328,7 +334,7 @@ function doSave(model,req){
     var newItem = req.body;
     var newDoc = new model;
     newDoc.name = newItem.name;
-    newDoc.user = newItem.user.id;
+    newDoc.user = newItem.user._id;
     newDoc.slides = newItem.slides;
     newDoc.thumb = newItem.thumb;
     console.log(newDoc);
@@ -392,6 +398,22 @@ library.put('/library/uploadedFiles/:id',function(req,res){
     }).catch(function(err){
         console.log('Error:',err);
         res.send(err);
+    });
+});
+//update an  just the user uploaded file
+library.put('/library/uploadedFiles/setuser/:id',function(req,res){
+    console.log("Files: got set user!",req.params.id,req.body.id);
+    UploadedFile.findOneAsync(new ObjectId(req.params.id)).then(function(ufile){
+        console.log(ufile);
+        if(ufile != undefined){
+            ufile.user = new ObjectId(req.body.id);
+            ufile.saveAsync().then(function(){
+                res.send('success');
+            }).catch(function(err){
+                res.send(err);
+            });
+        }else
+            res.send('not found');
     });
 });
 //get all decks

@@ -2,17 +2,17 @@
   <ion-content  class="slideshow-container centered-container">
     <div class="lib-list-header volerro-green">
         <div class="lib-list-header-button lib-header-left">
-            <i class="icon ion-chevron-left" ng-click="slideBack()"></i>
+            <i class="button button-icon ion-chevron-left lib-list-back" ng-click="slideBack()"></i>
         </div>
         {{navItems[selectedNavId].name}}
     </div>
-        <ng-include src="'../templates/slideItems.html'"></ng-include>
+        <add-template template-url="templates/slideItems.html"></add-template>
+
     </div>
   </ion-content>
 
-  <ion-content slide-right="library::slide" style="background:white">
-            <ng-include src="'../templates/navItems.html'"></ng-include>
-
+ <ion-content slide-right="library::slide" style="background:white">
+        <add-template template-url="templates/navItems.html"></add-template>
   </ion-content>  
       
 

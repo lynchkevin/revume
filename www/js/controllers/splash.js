@@ -12,7 +12,7 @@ angular.module('starter')
       
    
     $timeout(function(){
-        $scope.user.id = $rootScope.user.id;
+        $scope.user.id = $rootScope.user._id;
         $scope.user.name = $rootScope.user.name;
         $scope.users = $rootScope.users;
     },0);

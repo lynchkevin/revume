@@ -110,7 +110,7 @@ function (Users,pnFactory,$q,$ionicPopup) {
         this.invited = attendees;
         this.invited.forEach(function(usr){
             usr.userName = usr.firstName+' '+usr.lastName;
-            if(usr._id == $rootScope.user.id)
+            if(usr._id == $rootScope.user._id)
                 usr.itsme = true;
             else
                 usr.itsme = false;
@@ -120,12 +120,16 @@ function (Users,pnFactory,$q,$ionicPopup) {
     
     this.rollCall = function(m){
         var found = false;
+        this.present = []
+        var $present = this.present;
         this.invited.forEach(function(usr){
             if(usr._id == m.uuid){
                 found = true;
                 m.userName = usr.userName;
-                if(m.action == 'join')
+                if(m.action == 'join'){
                     usr.isOnline = true;
+                    $present.push(usr);
+                }
                 else
                     usr.isOnline = false;
             }

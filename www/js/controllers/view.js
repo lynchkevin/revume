@@ -26,7 +26,7 @@ function ($scope, $rootScope, $stateParams,
 
     var filename = "";
     var current = 0;
-    var userId = $rootScope.user.id;
+    var userId = $rootScope.user._id;
     var userName = $rootScope.user.name;
     
  
@@ -129,7 +129,7 @@ function ($scope, $rootScope, $stateParams,
                         var msg = {action:'engagement',
                                    status: "engaged",
                                    who: userName,
-                                   id:$rootScope.user.id,
+                                   id:$rootScope.user._id,
                                   };
                         console.log("engaged");
                         $scope.channel.publish(msg);
@@ -139,7 +139,7 @@ function ($scope, $rootScope, $stateParams,
                         var msg = {action:'engagement',
                                    status: "distracted",
                                    who: userName,
-                                   id:$rootScope.user.id,
+                                   id:$rootScope.user._id,
                                   };
                         console.log("distracted");
                         $scope.channel.publish(msg);
@@ -154,7 +154,12 @@ function ($scope, $rootScope, $stateParams,
      $scope.session = Session.get({id: $stateParams.id}).$promise.then(function(session){
         $scope.session = session;
         $scope.deckId = session.decks[0]._id
-        $scope.init();
+        if($rootScope.user._id == undefined)
+            $rootScope.$on('Revu.Me:Ready',function(event, data){
+                $scope.init();
+            });
+         else
+             $scope.init();
      }).catch(function(err){
             var str = "PresentationCtrl: error:"+err;
             alert(str);

@@ -1,10 +1,10 @@
-<ion-view view-title="{{session.name}}">
+<ion-view view-title="{{session.name}}" >
     <ion-content class="has-header">
         <div class="list card">
             <div class="item item-divider">
                 Session Detalis
             </div>
-            <div ng-show="user.id!=session.organizer._id"
+            <div ng-show="user._id!=session.organizer._id"
                  class="item item-thumbnail-left item-button-right">
                 <img ng-src="{{session.decks[0].thumb}}">
                 <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
@@ -17,7 +17,7 @@
                     Join
                 </button>
             </div>
-            <div ng-show="user.id==session.organizer._id"
+            <div ng-show="user._id==session.organizer._id"
                  class="item item-button-right">
                 <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
@@ -25,10 +25,10 @@
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
                 <p><strong>session id: </strong>    {{session._id}}</p>
             </div>
-            <div ng-show="user.id == session.organizer._id" class="item item-divider">
+            <div ng-show="user._id == session.organizer._id" class="item item-divider">
                 Presentations Decks
             </div>
-              <div ng-show="user.id == session.organizer._id"
+              <div ng-show="user._id == session.organizer._id"
                    class="item item-thumbnail-left item-button-right" 
                    ng-repeat="deck in session.decks" >
                   <img ng-src="{{deck.thumb}}">

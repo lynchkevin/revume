@@ -19,15 +19,21 @@ angular.module('starter')
                              'pnFactory',
                              '$ionicPopup',
                              'SessionBuilder',
+                             'baseUrl',
+                             '$q',
 function ($scope,$rootScope,$state,
            $window,$timeout,Library,
            $ionicScrollDelegate,$listDel,
-           pnFactory,$ionicPopup,sb) {
+           pnFactory,$ionicPopup,sb,baseUrl,$q) {
       
     $scope.w = angular.element($window);
     
     $scope.init = function(){
         sb.init($scope);
+        $scope.baseUrl = baseUrl.endpoint;
+        $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
+        $scope.navPartial = baseUrl.endpoint+"/templates/navItems.html"
+        console.log($scope.slidePartial,$scope.navPartial);
         $scope.sb=sb;
         pnFactory.init(); 
         reAspect();
@@ -84,19 +90,26 @@ function ($scope,$rootScope,$state,
     };
                    
     function updateView(){
+        var defer = $q.defer();
         Library.updateModel($scope).then(function(){
+            defer.resolve();
             $timeout(function(){
                 $ionicScrollDelegate.scrollTop();
             },0);
-        });   
+        }).catch(function(err){defer.reject(err)});
+        return defer.promise;
     };
         
-
+   $scope.doRefresh = function(){
+       updateView().then(function(){
+            $scope.$broadcast('scroll.refreshComplete');
+       });
+   };
    $scope.addDeck=function(){
         $scope.addingTo = new Library.decks;
         $scope.addingTo.name = $scope.deck.name;
         $scope.addingTo.user ={};
-        $scope.addingTo.user.id = $rootScope.user.id;
+        $scope.addingTo.user.id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
         Library.newNavItem($scope).then(function(result){
@@ -120,7 +133,7 @@ function ($scope,$rootScope,$state,
         $scope.addingTo = new Library.categories;
         $scope.addingTo.name = $scope.category.name;
         $scope.addingTo.user={}
-        $scope.addingTo.user.id = $rootScope.user.id;
+        $scope.addingTo.user.id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
         Library.newNavItem($scope).then(function(result){
@@ -165,6 +178,12 @@ function ($scope,$rootScope,$state,
         });
     }
 
+    $scope.toggleNavAdd = function(){
+        if($scope.showAddItem)
+            $scope.endNavAdd();
+        else
+            $scope.addNavItem();
+    };
     $scope.addNavItem = function(){
         $scope.deck.name='';
         $scope.category.name='';
@@ -202,10 +221,12 @@ function ($scope,$rootScope,$state,
 
     function doFileEvents(job){
         console.log(job);
-        $scope.spinner = false;
-        $rootScope.$broadcast("show_message", job.message);
-        updateView();
-    }
+        Library.setUserId(job.file_id).then(function(){
+            $scope.spinner = false;
+            $rootScope.$broadcast("show_message", job.message);
+            updateView();
+        }).catch(function(err){console.log(err)});
+    };
 
     $scope.setNavSelection = function(id){
       $scope.slideOver();
@@ -264,7 +285,7 @@ function ($scope,$rootScope,$state,
     $scope.$on('flow::complete',function(event,$flow){
       $scope.progress = "0%";
       $scope.spinner = true;
-      for(var i = $flow.files.length-1;i>0;i--){
+      for(var i = $flow.files.length-1;i>=0;i--){
           if($flow.files[i].isComplete())
             $flow.removeFile($flow.files[i]);
       }

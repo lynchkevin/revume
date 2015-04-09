@@ -16,12 +16,26 @@ angular.module('starter')
 function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
     
     $scope.init = function(){
-        var _id = $rootScope.user.id;
+        var _id = $rootScope.user._id;
         if(_id != undefined){
             $scope.orgSessions = Sess.orgSessions.get({id:_id});
             $scope.attSessions = Sess.attSessions.get({id:_id});
             $scope.sb = sb;
             $scope.sb.init($scope);
+        };
+    };
+    
+    $scope.doRefresh = function(){
+        var _id = $rootScope.user._id;
+        if(_id != undefined){
+            Sess.orgSessions.get({id:_id}).$promise.then(function(os){
+                $scope.orgSessions = os;
+                return Sess.attSessions.get({id:_id}).$promise;
+            }).then(function(as){
+                $scope.attSessions = as;
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+            
         };
     };
        
@@ -127,7 +141,7 @@ function($scope,$rootScope, $stateParams,Session, Decks,analyzer,$ionicModal,$st
         });  
     
         $scope.go = function(id,index){
-            if($scope.session.organizer._id == $rootScope.user.id) 
+            if($scope.session.organizer._id == $rootScope.user._id) 
                 $state.transitionTo('app.presentation', {id:id,idx:index});
             else
                 $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
