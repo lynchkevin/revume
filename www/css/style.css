@@ -2,6 +2,10 @@
 .ios-kludge {
     -webkit-transform: translateZ(0);
 }
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
 .centered-container {
     margin-left:auto;
     margin-right:auto;    
@@ -223,7 +227,7 @@
     font-size: 170%;
 
 }
-.lib-list-header{
+.revu-list-header{
     line-height: 300%;
     font-size:130%;
     text-align: center;
@@ -233,17 +237,32 @@
     font-weight: 600;
     position:relative;
 }
-.lib-list-subheader{
-  position: absolute;
-  top: 30%;
-  font-size: 75%;
-  left: 0;
-  right:0;
+.sub-title{
+    position: absolute;
+    top: 30%;
+    font-size: 75%;
+    left:50%;
+    transform:translate(-50%,0);
+    -webkit-transform:translate(-50%,0);
+    -moz-transform:translate(-50%,0);
+    -ms-transform:translate(-50%,0);
 }
-.lib-list-back{
+.revu-header{
+    position:absolute;
+    top:40px;
+}
+.revu-list-button,.revu-list-button:hover{
     color:white;
     font-size:100%;
-    padding-top:5px;
+    margin-top:5px;
+}
+.revu-left{
+    position:absolute;
+    left:10px;
+}
+.revu-right{
+    position:absolute;
+    right:10px;
 }
 .volerro-green{
     background:#a6bd39;
@@ -279,6 +298,12 @@
 .thumb-small{
     width:80px;
     height:80px;
+}
+
+.splash-image{
+    height:200px;
+    margin-top:20%;
+    margin-bottom:20%;
 }
 <!-- MEDIA QUERIES --------->
 

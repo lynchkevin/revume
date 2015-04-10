@@ -22,11 +22,20 @@ function (Users,pnFactory,$q,$ionicPopup) {
     
     $.user = Users;
     
+    $.getAll = function($scope){
+        Users.byId.query().$promise.then(function(users){
+            $scope.allUsers = users;
+            $scope.user.email = 'klynch@volerro.com'
+        });
+    };
+    
     $.getUser = function($scope){
         var defer = $q.defer();
+        $.getAll($scope);
           var myPopup = $ionicPopup.show({
-            template: '<input type="email" ng-model="user.email">',
-            title: 'Enter You Email',
+//            template: '<input type="email" ng-model="user.email">',
+            template: '<select ng-model="user.email"><option ng-repeat="user in allUsers">{{user.email}}</option></select>',
+            title: 'Select Your Email',
             scope: $scope,
             buttons: [
               { text: 'Cancel' },

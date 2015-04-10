@@ -50,8 +50,8 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
         $rootScope.$broadcast('Revu.Me:Ready');
     };
         
-    //get a user.id then call init...
-    if($rootScope.user == undefined){
+
+    $rootScope.login = function(){
         $rootScope.user = {};
         $rootScope.user.email = 'klynch@volerro.com';
         userService.getUser($rootScope).then(function(user) {
@@ -63,6 +63,10 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
                 console.log(err);
             });
         });
+    };
+    //get a user.id then call init...
+    if($rootScope.user == undefined){
+        $rootScope.login();
     };
     $rootScope.fullUrl = function(src){
         return baseUrl+src;
@@ -154,6 +158,7 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
           }
       }
     })
+    // organizer session view
     .state('app.session', {
       url: "/sessions/:id",
       views: {
@@ -163,7 +168,16 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
           }
       }
     })
-  
+    //attendee session view
+    .state('app.attsession', {
+      url: "/attsessions/:id",
+      views: {
+          'menuContent': {
+              templateUrl: "templates/attendeesession.html",
+              controller: 'SessionCtrl'
+          }
+      }
+    })
     .state('app.presentations', {
       url: "/presentations",
       views: {

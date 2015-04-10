@@ -11,31 +11,12 @@
         </div>
 
     </div>
-    <div class="row row-center" elem-height="0.25" >
-        <div class="col col-10">
-        </div>
-        <div class="col col-80">
-          <h3>Viewers</h3>
-        <h4> <strong>View</strong> a presentation</h4>
-            <a class="button  button-positive" href="#/app/viewerSessions">
-              Go View
-            </a>       
-        </div>
-        <div class="col col-10">
-        </div>
+    <div class="row row-centerd">
+    <div class="centered-container">
+    
+        <img src="../img/splash.png" class="splash-image">
     </div>
-    <div class="row row-center" elem-height="0.25">
-        <div class="col col-10">
-        </div>
-        <div class="col col-80">
-          <h3>Presenters</h3>
-        <h4> <strong>Lead</strong> a presentation</h4>
-            <a class="button button-positive" href="#/app/sessions">
-              Go Lead
-            </a>       
-        </div>
-        <div class="col col-10">
-        </div>
+    
     </div>
     <div class="row row-center">
         <div class="col col-10">
@@ -47,7 +28,8 @@
               <div class="item item-divider">
                 Users Online
               </div>
-              <ion-item class="item-icon-left" ng-repeat="user in users">
+              <ion-item class="item-icon-left" ng-repeat="user in users"
+                        ng-click="login()">
                   <i class="icon ion-android-contact avatar_icon"></i>
                 <h2>{{user.name}}</h2>
               </ion-item>

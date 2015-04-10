@@ -4,31 +4,18 @@
             <div class="item item-divider">
                 Session Detalis
             </div>
-            <div class="item item-button-right">
+            <div class="item item-thumbnail-left item-button-right">
+                <img ng-src="{{session.decks[0].thumb}}">
                 <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
                 <p><strong>Organizer:</strong>    
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
                 <p><strong>session id: </strong>    {{session._id}}</p>
+                <button class="button button-positive"
+                        ng-click="go(session._id,0)">
+                    Join
+                </button>
             </div>
-            <div class="item item-divider">
-                Presentations Decks
-            </div>
-              <div class="item item-thumbnail-left item-button-right" 
-                   ng-repeat="deck in session.decks" >
-                  <img ng-src="{{deck.thumb}}">
-                  <h2>{{deck.name}}</h2>
-                  <p> {{deck.slides.length}} total slides</p>
-                    <div class="buttons session-item-button">
-                        <button class="button button-balanced"
-                                ng-click="go(session._id,$index)">
-                            Start
-                        </button>
-                        <button class="button button-positive" ng-disabled="reportDisabled($index)" ng-click="showResults($index)">
-                            Report
-                        </button>
-                  </div>
-              </div>
             <div class="item item-divider">
                 Attendees
             </div>
@@ -41,8 +28,6 @@
             <div class="item item-body">
                 {{session.description}}
             </div>
-
-
         </div>
         
     </ion-content>

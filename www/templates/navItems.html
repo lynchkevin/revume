@@ -7,15 +7,14 @@
 
                 </div>
             </div>            
-            <div class="lib-list-header volerro-green">
-                <div class="lib-list-header-button lib-header-left">
-                    <i class="icon ion-minus-circled" ng-click="toggleListDelete()"></i>
-                </div>
-                <p  class="lib-list-subheader"
+            <div class="revu-list-header volerro-green">
+            <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
+                    ng-click="toggleListDelete()"></button>
+                <p  class="sub-title"
                     ng-if="modelName=='decks'&&smallScreen()">(options:swipe left)</p>   
                 {{listName}}
-                <div class="lib-list-header-button lib-header-right">
-                    <i class="icon ion-plus-circled" ng-click="toggleNavAdd()"></i>
+            <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
+                    ng-click="toggleNavAdd()"></button>
                 </div>
             </div> 
             <div ng-show="showAddItem" >

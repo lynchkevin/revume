@@ -22,5 +22,7 @@ angular.module('starter')
             $scope.users = $rootScope.users;
         });
     });
+      
+        
     
   }]);

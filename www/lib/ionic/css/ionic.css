@@ -3116,6 +3116,15 @@ a.subdued {
       color: #fff; }
     .bar.bar-balanced.bar-footer {
       background-image: linear-gradient(180deg, #28a54c, #0c63ee 50%, transparent 50%); }
+  .bar.bar-volerro {
+    border-color: #a6bd39;
+    background-color: #a6bd39;
+    background-image: linear-gradient(0deg, #a6bd39, #a6bd39 50%, transparent 50%);
+    color: #fff; }
+    .bar.bar-volerro .title {
+      color: #fff; }
+    .bar.bar-volerro.bar-footer {
+      background-image: linear-gradient(180deg, #a6bd39, #0c63ee 50%, transparent 50%); }
   .bar.bar-energized {
     border-color: #e6b400;
     background-color: #ffc900;
@@ -3350,6 +3359,27 @@ a.subdued {
     color: #fff;
     font-size: 17px; }
   .bar-balanced .button.button-icon {
+    border-color: transparent;
+    background: none; }
+
+.bar-volerro .button {
+  border-color: #a6bd39
+  background-color: #a6bd39;
+  color: #fff; }
+  .bar-volerro .button:hover {
+    color: #fff;
+    text-decoration: none; }
+  .bar-volerro .button.active, .bar-volerro .button.activated {
+    border-color: #a6bd39;
+    background-color:#a6bd39;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1); }
+  .bar-volerro .button.button-clear {
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+    color: #fff;
+    font-size: 17px; }
+  .bar-volerro .button.button-icon {
     border-color: transparent;
     background: none; }
 
