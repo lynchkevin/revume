@@ -48,6 +48,7 @@ angular.module('starter.directives')
             var doSeek = function(time){
                 if(scope.myPlayer != undefined){
                     scope.myPlayer.currentTime = time;
+                    console.log('seek!',time);
                 }      
             };
 

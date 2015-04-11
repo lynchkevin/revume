@@ -11,8 +11,8 @@ angular.module('starter.directives')
           link : function(scope, element, attrs){
             var w = angular.element($window);
             var el = element[0];
-            var targetAspect = 0.75;
-            var targetWidth = 1.00;              
+            var targetAspect = 0.85;  //was 75
+            var targetWidth = 0.90;   //was 1.0           
             
             function reAspect(){
               var width = verge.viewportW();

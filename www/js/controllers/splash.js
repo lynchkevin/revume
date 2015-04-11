@@ -8,9 +8,9 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('splashCtrl', ['$scope', '$rootScope','$timeout', function ($scope,$rootScope,$timeout) {
-      
-   
+  .controller('splashCtrl', ['$scope', '$rootScope','$timeout','baseUrl',
+                             function ($scope,$rootScope,$timeout,baseUrl) {
+    $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $timeout(function(){
         $scope.user.id = $rootScope.user._id;
         $scope.user.name = $rootScope.user.name;
