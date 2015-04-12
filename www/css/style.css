@@ -53,7 +53,7 @@
 
 .avatar_icon{
     font-size:32px;
-    color:rgb(35,78,157);
+    color:  #234E9D;
 }
 
 .user_list {
@@ -71,7 +71,6 @@
     top:110%;
     left:35%;
     width:30%;
-    background:#424242;
     color: white;
     line-height: 300%;
     font-weight:600;
@@ -86,7 +85,6 @@
     width:7%;
     margin-left:2.5%;
     z-index: 10;
-    background:#424242;
     color: white;
     max-height:70%;
     overflow-y:scroll;
@@ -127,7 +125,7 @@
    font-size:80%;
 }
 .user-online{
-        color:#a6bd39;
+        color:white;
 }
 .user-distracted{
     color:#fcF00A;
@@ -271,7 +269,7 @@
     background:#a6bd39;
 }
 .add-color{
-    color:rgb(29,188,242);
+    color:#1894F2;
 }
 .del-color{
     color:#ef473a;

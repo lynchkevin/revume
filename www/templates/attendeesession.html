@@ -2,7 +2,7 @@
     <ion-content class="has-header">
         <div class="list card">
             <div class="item item-divider">
-                Session Detalis
+                Meeting Detalis
             </div>
             <div class="item item-thumbnail-left item-button-right">
                 <img ng-src="{{session.decks[0].thumb}}">
@@ -10,7 +10,7 @@
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
                 <p><strong>Organizer:</strong>    
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
-                <p><strong>session id: </strong>    {{session._id}}</p>
+                <p><strong>meeting id: </strong>    {{session._id}}</p>
                 <button class="button button-positive"
                         ng-click="go(session._id,0)">
                     Join
