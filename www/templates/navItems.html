@@ -1,13 +1,13 @@
 
             <div class="lib-list-header">
-                <div class="button-bar bar-dark">
+                <div class="button-bar bar-positive">
                   <a class="button" ng-click="setModel('files')">Files</a>
                   <a class="button" ng-click="setModel('categories')">Categories</a>                  
                   <a class="button" ng-click="setModel('decks')">Decks</a>
 
                 </div>
             </div>            
-            <div class="revu-list-header volerro-green">
+            <div class="revu-list-header calm-bg">
             <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
                     ng-click="toggleListDelete()"></button>
                 <p  class="sub-title"
@@ -85,6 +85,17 @@
                             ng-click="buildSession($index)">
                         New Session
                     </button>
+                  <ion-option-button    ng-if="smallScreen()" 
+                                        class="button button-positive" 
+                                        ng-click="editContainer($index)"
+                                        ng-class="{'button-assertive':item.beingEdited}" >
+                                        {{editButton($index)}}
+                  </ion-option-button>
+                  <ion-option-button ng-if="modelName=='decks'&&smallScreen()" 
+                                       class="button button-calm" 
+                                        ng-click="buildSession($index)">
+                        New Meeting
+                  </ion-option-button>                    
                 </ion-item>
             </ion-list>
             </ion-scroll>

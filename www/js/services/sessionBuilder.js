@@ -128,8 +128,8 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         var decks = Decks.query();
         $.decks=[];
         $.session.decks=[];
-        session.timeZone = tz.name();   
-        session.baseUrl = baseUrl.endpoint;
+        $.session.timeZone = tz.name();   
+        $.session.baseUrl = baseUrl.endpoint;
         decks.$promise.then(function(decks){
             if(decks.length>0){
                 $.decks = decks;

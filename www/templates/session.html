@@ -20,11 +20,11 @@
                   <h2>{{deck.name}}</h2>
                   <p> {{deck.slides.length}} total slides</p>
                     <div class="buttons session-item-button">
-                        <button class="button button-balanced"
+                        <button class="button button-positive"
                                 ng-click="go(session._id,$index)">
                             Start
                         </button>
-                        <button class="button button-positive" ng-disabled="reportDisabled($index)" ng-click="showResults($index)">
+                        <button class="button button-positive button-outline" ng-disabled="reportDisabled($index)" ng-click="showResults($index)">
                             Report
                         </button>
                   </div>

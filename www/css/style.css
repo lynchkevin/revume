@@ -1,4 +1,6 @@
 /* Empty. Add your own CSS if you like */
+/* background:rgba(79, 78, 7, 0.28); */
+
 .ios-kludge {
     -webkit-transform: translateZ(0);
 }
@@ -23,8 +25,9 @@
 .slide-content {
     width:100%;
 }
+
 .slideshow-container {
-    background:rgba(79, 78, 7, 0.28);
+  background-image: url("http://192.168.1.167:5000/img/sand2.png");
 }
 .vid-content{
 }
@@ -50,7 +53,7 @@
 
 .avatar_icon{
     font-size:32px;
-    color:#a6bd39;
+    color:rgb(35,78,157);
 }
 
 .user_list {
@@ -229,7 +232,7 @@
 }
 .revu-list-header{
     line-height: 300%;
-    font-size:130%;
+    font-size:115%;
     text-align: center;
     vertical-align:middle;
     font-family:inherit;
@@ -268,7 +271,7 @@
     background:#a6bd39;
 }
 .add-color{
-    color:#a6bd39;
+    color:rgb(29,188,242);
 }
 .del-color{
     color:#ef473a;

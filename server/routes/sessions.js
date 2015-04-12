@@ -84,7 +84,7 @@ function composeMessages(meeting,update){
             attMessage = "You\'re invited to a new meeting in Revu.Me \n\r";
         } else {
             orgMessage = "You changed your meeting in Revu.Me \n\r";
-            attMessage = "There has been a change to you\'re Revu.Me meeting \n\r";
+            attMessage = "There has been a change to your Revu.Me meeting \n\r";
         }    
         var dateStr = fullStart.toString();
         var attString = "";
