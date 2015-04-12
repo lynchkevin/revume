@@ -6,16 +6,16 @@
         </div>
     </ion-header-bar>
     <ion-content>
-        <form name="sessionForm">
-        <div class="lib-list-header volerro-green">
-            <div class="lib-list-header-button lib-header-left">
-                <i class="icon ion-minus-circled" ng-click="toggleListDelete('sb')"></i>
-            </div>
-            Add or Remove Decks
-            <div class="lib-list-header-button lib-header-right">
-                <i class="icon ion-plus-circled" ng-click="sb.subEdit()"></i>
-            </div>
+        <div class="revu-list-header volerro-green">
+            <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
+                    ng-click="toggleListDelete('sb')">
+            </button>
+                Add or Remove Decks
+            <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
+                    ng-click="sb.subEdit()">
+            </button>
         </div> 
+        <form name="sessionForm">
             <ion-list show-delete="shouldShowDelete" delegate-handle="sb" >
               <ion-item ng-repeat="deck in sb.session.decks" 
                         class="item item-thumbnail-left">
@@ -28,17 +28,33 @@
               </ion-item>
             </ion-list>
               <label class="item item-input">
+                <span class="input-label">Name</span>
                 <input type="text" name="sName" ng-model="sb.session.name" placeholder="Session Name" required>
               </label>
               <label class="item item-input">
+                <span class="input-label">Description</span>
                 <input type="text" ng-model="sb.session.description" placeholder="Description">
               </label>
               <label class="item item-input">
+                <span class="input-label">Date</span>
                 <input type="Date" name="date" ng-model="sb.session.date" placeholder="Date" required>
               </label>
-              <label class="item item-input">
-                <input type="Time" name="time" ng-model="sb.session.time" placeholder="Time" required>
-              </label>
+              <div class="row">
+                <div class="col col-50">
+                  <label class="item item-input">
+                    <span class="input-label">Time</span>
+                    <input type="Time" name="time" ng-model="sb.session.time" placeholder="Time" required>
+                  </label>
+                </div>
+                <div class="col col-50">
+                  <label class="item item-input">
+                    <span class="input-label">length</span>
+                    <select ng-model="sb.session.length">
+                        <option ng-repeat="l in sb.session.lengthOptions">{{l}}</option>
+                    </select>
+                  </label>    
+                </div>
+             </div>
             </div>
                 <div class="list">
                     <div class="item item-input-inset">

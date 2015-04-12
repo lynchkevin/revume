@@ -57,9 +57,12 @@ angular.module('starter')
                               '$ionicPopup',
                               '$q', 
                               '$timeout',
-function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout) {
+                              'baseUrl',
+function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl) {
     var $ = this;
     var $user = userService.user;
+    var lengthOptions = [30,60,90,120];
+    var tz = jstz.determine();
 
     function initSession(session){
         session.decks=[];
@@ -68,14 +71,19 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.date=new Date;
         session.attendees=[];
         session.attIds=[];
+        session.length = 60;
+        session.lengthOptions = lengthOptions;
         session.time= '';
         session.bridge=false;
         session.invite=true;
+        session.timeZone = tz.name();
+        session.baseUrl = baseUrl.endpoint;
     };
     
     $.init=function($scope){
         $.session = {}
         $.session.scope=$scope;
+        $.session.baseUrl = baseUrl.endpoint;
         $.builderCallback = function(){};
         $.deckCallback = function(){};
         $.defer = [];
@@ -120,6 +128,8 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         var decks = Decks.query();
         $.decks=[];
         $.session.decks=[];
+        session.timeZone = tz.name();   
+        session.baseUrl = baseUrl.endpoint;
         decks.$promise.then(function(decks){
             if(decks.length>0){
                 $.decks = decks;
@@ -133,6 +143,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         }).then(function(){
             $.deckModal.hide();
             $.session.date = new Date();
+            $.session.lengthOptions = lengthOptions;
             return $.show($.builderModal);
         }).then(function(){
             return $.saveSession();
@@ -173,8 +184,12 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         var d = session.date;
         session.time = new Date(t);
         session.date = new Date(d);
+        session.timeZone = tz.name();
+        session.baseUrl = baseUrl.endpoint;
+        session.scope = $.session.scope;
         $.session = session;
         $.session.attIds=[];
+        $.session.lengthOptions = lengthOptions;
         $.session.attendees.forEach(function(a){
             $.session.attIds.push(a._id);
             });
@@ -286,17 +301,12 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     $.saveSession=function(){
         var defer = $q.defer();
         var saveSession = new Session;
-        saveSession.name = $.session.name;
-        saveSession.description = $.session.description;
+        angular.extend(saveSession,$.session);
         saveSession.decks = [];
         $.session.decks.forEach(function(deck){
             saveSession.decks.push(deck._id);
         });
         saveSession.attendees = $.session.attIds;
-        saveSession.time = $.session.time;
-        saveSession.date = $.session.date;
-        saveSession.invite = $.session.invite;
-        saveSession.bridge = $.session.bridge;
         saveSession.organizer = $rootScope.user._id;
         
         saveSession.$save().then(function(){
