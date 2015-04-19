@@ -47,7 +47,6 @@ function ($scope, $rootScope, $stateParams,
         monitor.init(everyone);
         // subscribe and wait for presentation and slide number...
         $scope.channel.subscribe(handleMessage,handlePresence);
-        $scope.bridgeService.startBridge($scope.session.ufId);
     });
     };
     

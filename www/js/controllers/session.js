@@ -116,6 +116,7 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     
     $scope.init = function(){
         if(session._id != undefined){
+            $scope.bridgeService.findBridge($scope.session.ufId)
             if($scope.session.decks.length>0){
                 var sid = $scope.session._id;
                 $scope.deckIdx = 0;
@@ -145,8 +146,11 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     $scope.go = function(id,index){
         if($scope.session.organizer._id == $rootScope.user._id) 
             $state.transitionTo('app.presentation', {id:id,idx:index});
-        else
-            $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
+        else{
+            $scope.bridgeService.startBridge($scope.session.ufId).then(function(){   
+                $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
+            });
+        }
     }
 
     $scope.showResults = function(idx){
@@ -174,9 +178,16 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     };
 
     $scope.$on('$destroy', function() {
-    $scope.modal.remove();
+        $scope.modal.remove();
     });
-
+    //close the bridge if the presenter leaves the session and forgets to close
+    $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+            if(fromState.name == 'app.session' && toState.name != 'app.presentation'){
+                if($scope.bridgeService.activeBridge())
+                    $scope.bridgeService.endBridge($scope.session.ufId);
+            };
+    });
+        
     $scope.init();
 
     }])
