@@ -9,7 +9,8 @@
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
                 <p><strong>Organizer:</strong> &#160   
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
-                <p ng-if="session.bridge"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160    {{session.bridgeNumber}}</p>
+                <p ng-if="session.bridge && isMobile"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160    <a href="tel:{{session.bridgeNumber}},,,{{session.confId}}#">{{session.bridgeNumber}}</a></p>
+                <p ng-if="session.bridge && !isMobile"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160    {{session.bridgeNumber}}</p>
                 <p><strong>Meeting Id: </strong>&#160{{session.ufId}}</p>
                 <button class="button button-balanced"
                         ng-click="bridgeService.startBridge(session.ufId)"

@@ -64,6 +64,15 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
             });
         });
     };
+    //test to see if cordova.js is available if so - we're on a mobile device
+    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    if ( app ) {
+        // PhoneGap application
+        $rootScope.isMobile = true;        
+    } else {
+        // Web page
+        $rootScope.isMobile = false;
+    };
     //get a user.id then call init...
     if($rootScope.user == undefined){
         $rootScope.login();
@@ -74,6 +83,7 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
     $rootScope.screenSize = function(){
         var width = verge.viewportW();
         var height = verge.viewportH();
+        return {width:width, height:height};
     };
     $window.addEventListener("beforeunload", function (e) {
         $rootScope.mainChannel.unsubscribe();

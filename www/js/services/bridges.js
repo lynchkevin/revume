@@ -9,8 +9,8 @@ angular.module('starter.services')
     var target = baseUrl.endpoint+'/api/bridges/:id';  
     return $resource(target,{id:'@id'});
 }])
-.service('BridgeService', ['Bridges','$q','$ionicPopup', 
-function (Bridges,$q,$ionicPopup) {
+.service('BridgeService', ['Bridges','$q','$ionicPopup','$rootScope', 
+function (Bridges,$q,$ionicPopup,$rootScope) {
     var $ = this;
     
     $.currentBridge = {};
@@ -48,16 +48,29 @@ function (Bridges,$q,$ionicPopup) {
         return defer.promise;
     };
 
+     function buildTemplate(phone,confId,voip){
+         var num = '('+phone.slice(2,5)+')'+' '+phone.slice(5,8)+'-'+phone.slice(8,12);
+         var dialIt = num+',,,'+confId+'#';
+         var template = '<p><strong>Number:</strong></p>';
+         if($rootScope.isMobile)
+             template += '<a href=\"tel:'+dialIt+'\">'+num+'</a>';
+         else 
+             template += '<p>'+num+'</p>'
+         template += '<br><p><strong>ConfID:</strong></p><p>'+confId+'</p><br><p><strong>Viop:</strong></p><p>'+voip+'</p><br>'
+         return template;
+     };
+    
      // Show the Bridge Dial-in Information
      $.showBridgeInfo = function() {
             var defer = $q.defer();
             var bridge = $.currentBridge;
             var confId = bridge.conferenceID.slice(0,3)+'-'+bridge.conferenceID.slice(3,6)+'-'+bridge.conferenceID.slice(6,9);
             var ph = bridge.tollNumber;
-            var num = '('+ph.slice(2,5)+')'+' '+ph.slice(5,8)+'-'+' '+ph.slice(5,8)+'-'+ph.slice(8,12);
+            var num = '('+ph.slice(2,5)+')'+' '+ph.slice(5,8)+'-'+ph.slice(8,12);
+            var dialIt = num+',,,'+bridge.conferenceID+'#';
             var alertPopup = $ionicPopup.alert({
                 title: 'Please Dial In',
-                template: '<p><strong>Number:</strong></p><p>'+num+'</p><br><p><strong>ConfID:</strong></p><p>'+confId+'</p><br><p><strong>Viop:</strong></p><p>'+bridge.sipURI+'</p><br>'
+                template: buildTemplate(bridge.tollNumber, bridge.conferenceID, bridge.sipURI)
             });
             alertPopup.then(function(res) {
                 defer.resolve();

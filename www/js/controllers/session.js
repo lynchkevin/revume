@@ -117,6 +117,7 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     $scope.init = function(){
         if(session._id != undefined){
             $scope.bridgeService.findBridge($scope.session.ufId)
+            $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
             if($scope.session.decks.length>0){
                 var sid = $scope.session._id;
                 $scope.deckIdx = 0;
@@ -133,8 +134,12 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
             }
         }   
     };
-    
- 
+    //create a handy dialer for mobile users
+    $scope.handyDial = function(){
+        var confId = $scope.session.ufId.replace(/-/g,'');
+        var dialStr = $scope.session.bridgeNumber+',,,'+confId+'#';
+        return dialStr;
+    };
     //create the modal window for results
     $ionicModal.fromTemplateUrl('templates/presAnalytics.html', {
         scope: $scope,
