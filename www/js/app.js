@@ -124,6 +124,23 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
 
   .state('app.viewer', {
     url: "/viewer/:id?sessionId",
+    resolve: {
+      session : ['Session','$stateParams','$q',
+            function(Session,$stateParams,$q){ 
+                           var defer = new $q.defer();
+                           var deckIdx;
+                           var session = {}
+                           Session.get({id:$stateParams.id}).$promise.then(function(sess){
+                               session = sess;
+                               deckIdx = 0; //always 0 when session transitions state here
+                               var _id = session.decks[deckIdx]._id;
+                               defer.resolve(session)
+                           }).catch(function(err){
+                               defer.reject(err);
+                           });
+                           return defer.promise;
+            }]
+    },
     views: {
       'menuContent': {
         templateUrl: "templates/viewer.html",
@@ -160,17 +177,59 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
     })
     // organizer session view
     .state('app.session', {
-      url: "/sessions/:id",
-      views: {
+        url: "/sessions/:id",
+        resolve: {
+          session : ['Session','$stateParams','$q',
+                function(Session,$stateParams,$q){ 
+                               var defer = new $q.defer();
+                               var deckIdx;
+                               var session = {}
+                               Session.get({id:$stateParams.id}).$promise.then(function(sess){
+                                   if(sess._id != undefined){
+                                   session = sess;
+                                   deckIdx = 0; //always 0 when session transitions state here
+                                   var _id = session.decks[deckIdx]._id;
+                                   defer.resolve(session)
+                                   }else{
+                                       defer.reject({});
+                                   }
+                               }).catch(function(err){
+                                   defer.reject(err);
+                               });
+                               return defer.promise;
+                }]
+        },
+        views: {
           'menuContent': {
               templateUrl: "templates/session.html",
               controller: 'SessionCtrl'
           }
-      }
+        }
     })
     //attendee session view
     .state('app.attsession', {
       url: "/attsessions/:id",
+    resolve: {
+      session : ['Session','$stateParams','$q',
+            function(Session,$stateParams,$q){ 
+                           var defer = new $q.defer();
+                           var deckIdx;
+                           var session = {}
+                           Session.get({id:$stateParams.id}).$promise.then(function(sess){
+                               if(sess._id != undefined){
+                               session = sess;
+                               deckIdx = 0; //always 0 when session transitions state here
+                               var _id = session.decks[deckIdx]._id;
+                               defer.resolve(session)
+                               }else{
+                                   defer.reject({});
+                               }
+                           }).catch(function(err){
+                               defer.reject(err);
+                           });
+                           return defer.promise;
+            }]
+    },
       views: {
           'menuContent': {
               templateUrl: "templates/attendeesession.html",
@@ -180,16 +239,36 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
     })
     .state('app.presentations', {
       url: "/presentations",
-      views: {
-          'menuContent': {
-              templateUrl: "templates/presentations.html",
-              controller: 'presentationsCtrl'
+      views:{
+          'menuContent':{
+            templateUrl: "templates/presentations.html",  
+            controller: 'presentationsCtrl'
           }
       }
-      
     })
     .state('app.presentation', {
     url: "/presentations/:id?idx",
+      resolve: {
+          session : ['Session','Decks','$stateParams','$q',
+                function(Session,Decks,$stateParams,$q){ 
+                               var defer = new $q.defer();
+                               var deckIdx;
+                               var session = {}
+                               Session.get({id:$stateParams.id}).$promise.then(function(sess){
+                                   session = sess;
+                                   deckIdx = parseInt($stateParams.idx);
+                                   var _id = session.decks[deckIdx]._id;
+                                   return Decks.get({id:_id}).$promise;
+                               }).then(function(deck){
+                                   session.decks[deckIdx]=deck;
+                                   session.deckIdx = deckIdx;
+                                   defer.resolve(session);
+                               }).catch(function(err){
+                                   defer.reject(err);
+                               });
+                               return defer.promise;
+                }]
+      },
     views: {
         'menuContent': {
         templateUrl: "templates/presentation.html",

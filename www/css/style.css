@@ -255,7 +255,6 @@
 .revu-list-button,.revu-list-button:hover{
     color:white;
     font-size:100%;
-    margin-top:5px;
 }
 .revu-left{
     position:absolute;
@@ -305,6 +304,12 @@
     height:200px;
     margin-top:20%;
     margin-bottom:20%;
+}
+.notice{
+      color: #B81F1F !important;
+}
+.advise{
+      color: #056431 !important;
 }
 <!-- MEDIA QUERIES --------->
 

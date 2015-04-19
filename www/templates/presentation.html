@@ -1,9 +1,11 @@
-<ion-view view-title="{{presentation.name}}" ng-cloak>
+<ion-view view-title="{{name}}">
     <ion-nav-buttons side="right">
+      <button class="button icon ion-ios-telephone" ng-click="showDialin()">
+      </button>
       <button class="button icon-left" ng-click="toggleShowUsers()">
         <i class="icon ion-person-stalker" ></i>
           <div class="user-indicator">
-                {{present.length+1}}         
+                {{present.length}}         
           </div>
       </button>
     </ion-nav-buttons>

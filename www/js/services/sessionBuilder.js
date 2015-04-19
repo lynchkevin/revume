@@ -63,7 +63,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     var $user = userService.user;
     var lengthOptions = [30,60,90,120];
     var tz = jstz.determine();
-
+    
     function initSession(session){
         session.decks=[];
         session.name = '';
@@ -255,21 +255,22 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         attendee.email = $.session.formemail;
         $user.byEmail.get({email:attendee.email}).$promise.then(function(user){
             if(user._id == undefined){
-                var usr = new $user.collection;
+                var usr = new $user.byId;
                 angular.extend(usr,attendee);
-                usr.$save().then(function(id){
-                    _id = id;
+                usr.$save().then(function(usr){
+                    _id = usr._id;
                     $.session.attendees.push(attendee);
                     $.session.attIds.push(_id);
                     $.session.formname='';
                     $.session.formemail='';
                 }).catch(function(err){console.log(err)});
-            }
+            }else{
             _id = user._id;
             $.session.attendees.push(attendee);
             $.session.attIds.push(_id);
             $.session.formname='';
             $.session.formemail='';
+            }
         }).catch(function(err){console.log(err)});     
 
     };

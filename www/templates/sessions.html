@@ -32,7 +32,7 @@
               <p>{{session.date | date:"MM/dd/yyyy"}} {{session.time | date:"h:mma"}}</p>
               <p>Total Attendees: {{session.attendees.length}}</p>
               <p>First Deck is: {{session.decks[0].name}} of {{session.decks.length}}</p>
-              <p>(swipe left to edit)</p> 
+              <p ng-if="smallScreen()">(swipe left to edit)</p> 
               <ion-option-button ng-if="smallScreen()" class="button button-positive" 
                       ng-click="editSession($index); $event.preventDefault(); $event.stopPropogation();">
                   Edit

@@ -8,6 +8,7 @@ var     uploader = require('./routes/upload');
 var     library = require('./routes/library');
 var     presentations = require('./routes/presentations');
 var     metrics = require('./routes/metrics');
+var     bridges = require('./routes/bridges');
 var     app = express();
 
 //setup the database
@@ -35,6 +36,7 @@ app.use('/api',presentations);
 app.use('/api',uploader);
 app.use('/api',library);
 app.use('/api',metrics);
+app.use('/api',bridges);
 
 app.set('port', process.env.PORT || 5000);
 app.listen(app.get('port'), function () {

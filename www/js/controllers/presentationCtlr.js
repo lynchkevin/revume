@@ -7,14 +7,18 @@
 angular.module('starter.controllers')
 
 .controller('presentationCtrl', 
-['$scope', '$rootScope', '$stateParams', '$timeout','pnFactory','$ionicSlideBoxDelegate','Session','Decks','userMonitor','recorder','presAnalyzer',
- function ($scope, $rootScope, $stateParams, $timeout,pnFactory,sbDelegate,Session, Decks, monitor,recorder,analyzer) {
-    
-    //open an anonymous channel for now
-    // no need to calll init again - it's called when we log in
-     // pnFactory.init("anonymous");    
+['$scope', '$rootScope', '$stateParams', '$timeout','pnFactory','$ionicSlideBoxDelegate','session','userMonitor','recorder','presAnalyzer','BridgeService',
+ function ($scope, $rootScope, $stateParams, $timeout,pnFactory,sbDelegate,session, monitor,recorder,analyzer,BridgeService) {
     
 
+    //session and decks are now resolved during the state change so we can use them directly
+     
+    $scope.session = session;
+    $scope.deckIdx = session.deckIdx;
+    $scope.name = session.name;
+    $scope.presentation=$scope.session.decks[$scope.deckIdx];
+    $scope.bridgeService = BridgeService;
+     
     $scope.init = function(){
         $scope.current = 0;
         $scope.showUsers = true;
@@ -33,13 +37,18 @@ angular.module('starter.controllers')
         newPresentation($scope.presentation._id);
         $scope.setSlide($scope.current);
         sbDelegate.update();
+        if(!$scope.bridgeService.activeBridge())
+            $scope.bridgeService.startBridge($scope.session.ufId);
     }
 
     function sendEnd(){
         var m = {action:"end"};
         recorder.record(m);
     }
-     
+    // show the dialin information 
+    $scope.showDialin = function(){
+        BridgeService.showBridgeInfo();
+    };
     //end the presentation
      $scope.endPresentation = function(){
         sendEnd();
@@ -155,26 +164,13 @@ angular.module('starter.controllers')
     $scope.$on('$destroy', function(){
         $scope.cleanUp();
     });
-    //get the session and when the promise completes then init
-     $scope.session = Session.get({id: $stateParams.id}).$promise.then(function(session){
-        $scope.session = session;
-        $scope.deckIdx = parseInt($stateParams.idx);
-        var _id = session.decks[$scope.deckIdx]._id
-        return Decks.get({id:_id}).$promise;
-     }).then(function(deck){
-        $scope.session.decks[$scope.deckIdx]=deck;
-        $scope.presentation=$scope.session.decks[$scope.deckIdx];
-        // if the user is not set then listen for the event
-        if($rootScope.user._id == undefined)
-            $rootScope.$on('Revu.Me:Ready',function(event, data){
-                $scope.init();
-            });
-         else
-             $scope.init();
-     }).catch(function(err){
-            var str = "PresentationCtrl: error:"+err;
-            alert(str);
-     }); 
+     
+    if($rootScope.user._id == undefined)
+        $rootScope.$on('Revu.Me:Ready',function(event, data){
+            $scope.init();
+        });
+     else
+         $scope.init();
 
 }]);
     

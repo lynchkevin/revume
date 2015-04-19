@@ -15,13 +15,14 @@ angular.module('starter.controllers')
                            '$window',
                            'pnFactory',
                            'userMonitor',
-                           'Session',
+                           'session',
                            'Decks',
                            '$ionicSlideBoxDelegate',
+                           'BridgeService',
                            '$q',
 function ($scope, $rootScope, $stateParams, 
            $timeout, $window, pnFactory, monitor, 
-           Session,Decks,sbDelegate,$q) {
+           session,Decks,sbDelegate,BridgeService,$q) {
   
 
     var filename = "";
@@ -29,7 +30,12 @@ function ($scope, $rootScope, $stateParams,
     var userId = $rootScope.user._id;
     var userName = $rootScope.user.name;
     
- 
+    //session is resolved in the state change now so we can use it directly
+    $scope.session = session;
+    $scope.deckId = session.decks[0]._id //resolve always assumes deckId of 0
+    $scope.name = session.name;
+    $scope.bridgeService = BridgeService;
+    
     //call this then wait for presentation commands from leader
     $scope.init = function() {
         //load the session deck and then subscribe and listen
@@ -41,9 +47,9 @@ function ($scope, $rootScope, $stateParams,
         monitor.init(everyone);
         // subscribe and wait for presentation and slide number...
         $scope.channel.subscribe(handleMessage,handlePresence);
+        $scope.bridgeService.startBridge($scope.session.ufId);
     });
     };
-  
     
     $scope.cleanUp = function(){
         $scope.channel.unsubscribe();
@@ -151,18 +157,13 @@ function ($scope, $rootScope, $stateParams,
     $scope.$on('$destroy', function(){
         $scope.cleanUp();
     });
-     $scope.session = Session.get({id: $stateParams.id}).$promise.then(function(session){
-        $scope.session = session;
-        $scope.deckId = session.decks[0]._id
-        if($rootScope.user._id == undefined)
-            $rootScope.$on('Revu.Me:Ready',function(event, data){
-                $scope.init();
-            });
-         else
-             $scope.init();
-     }).catch(function(err){
-            var str = "PresentationCtrl: error:"+err;
-            alert(str);
-     }); 
-    // every is set up so lets initialize    
+
+    if($rootScope.user._id == undefined)
+        $rootScope.$on('Revu.Me:Ready',function(event, data){
+            $scope.init();
+        });
+     else
+         $scope.init();
+
+  
   }]);

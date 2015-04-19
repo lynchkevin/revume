@@ -28,7 +28,7 @@ angular.module('starter')
         var idx = 0;
         var retVal = null;
         users.forEach(function(usr){
-            if(user.name != undefined)
+            if(usr.name != undefined)
                 if(usr.name.valueOf() == name.valueOf()){
                     retVal = users[idx];
                     retVal.idx = idx;

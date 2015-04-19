@@ -10,7 +10,12 @@
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
                 <p><strong>Organizer:</strong>    
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
-                <p><strong>meeting id: </strong>    {{session._id}}</p>
+                <p ng-if="session.bridge"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160{{session.bridgeNumber}}</p>  
+                <p><strong>meeting id: </strong>    {{session.ufId}}</p>
+                <p ng-if="!bridgeService.activeBridge()"
+                   class="notice">Join to Open Bridge</p>
+                <p ng-if="bridgeService.activeBridge()"
+                   class="advise">Bridge is Open</p>
                 <button class="button button-positive"
                         ng-click="go(session._id,0)">
                     Join

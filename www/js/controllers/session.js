@@ -22,6 +22,7 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
             $scope.attSessions = Sess.attSessions.get({id:_id});
             $scope.sb = sb;
             $scope.sb.init($scope);
+            $scope.bridge = {};
         };
     };
     
@@ -101,22 +102,25 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
 .controller('SessionCtrl', ['$scope',
                             '$rootScope',
                             '$stateParams',
-                            'Session',
+                            'session',
                             'Decks',
                             'presAnalyzer',
                             '$ionicModal',
                             '$state', 
-function($scope,$rootScope, $stateParams,Session, Decks,analyzer,$ionicModal,$state) {
+                            'BridgeService',
+function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$state,BridgeService) {
+    // set the bridge service in the scope so it can be accessed directly
+    $scope.bridgeService = BridgeService;
+    // session is now resolved in the state transition
+    $scope.session = session;
     
     $scope.init = function(){
-        $scope.session = Session.get({id: $stateParams.id}).$promise.then(function(session){
-            if(session._id != undefined){
-                $scope.session = session;
-                if($scope.session.decks.length>0){
-                    var sid = $scope.session._id;
-                    $scope.deckIdx = 0;
-                    $scope.reportsDisabled = [];
-                    for(var i=0; i< $scope.session.decks.length;i++)
+        if(session._id != undefined){
+            if($scope.session.decks.length>0){
+                var sid = $scope.session._id;
+                $scope.deckIdx = 0;
+                $scope.reportsDisabled = [];
+                for(var i=0; i< $scope.session.decks.length;i++){
                     var did = $scope.session.decks[i]._id;
                     analyzer.get(sid,did).then(function(results){
                         if(results.length>0)
@@ -125,56 +129,54 @@ function($scope,$rootScope, $stateParams,Session, Decks,analyzer,$ionicModal,$st
                             $scope.reportsDisabled.push(false);
                     }).catch(function(err){console.log(err)});
                 }
-            }   
-        }).catch(function(err){
-            var str = "SessionCtrl: error:"+error;
-            alert(str);
-        });
+            }
+        }   
     };
-        
-        //create the modal window for results
-        $ionicModal.fromTemplateUrl('templates/presAnalytics.html', {
-            scope: $scope,
-            animation: 'slide-in-up'
-        }).then(function(modal) {
-            $scope.modal = modal;
-        });  
     
-        $scope.go = function(id,index){
-            if($scope.session.organizer._id == $rootScope.user._id) 
-                $state.transitionTo('app.presentation', {id:id,idx:index});
-            else
-                $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
-        }
-        
-        $scope.showResults = function(idx){
-            if($scope.session.decks.length>0){
-                var sid = $scope.session._id;
-                var did = $scope.session.decks[idx]._id;
-                analyzer.get(sid,did).then(function(results){
-                    if(results.length>0){
-                        Decks.get({id:did}).$promise.then(function(deck){
-                        if(deck._id != undefined){
-                            $scope.session
-                            $scope.session.decks[idx].metrics=results;
-                            $scope.session.decks[idx].slides = deck.slides;
-                            $scope.deckIdx = idx;
-                            $scope.modal.show();
-                            }
-                        });
-                    };
-                }).catch(function(err){console.log(err)});
-            };
-        };
-    
-        $scope.closeModal = function() {
-            $scope.modal.hide();
-        };
-            
-      $scope.$on('$destroy', function() {
-        $scope.modal.remove();
-      });
+ 
+    //create the modal window for results
+    $ionicModal.fromTemplateUrl('templates/presAnalytics.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.modal = modal;
+    });  
 
-      $scope.init();
+    $scope.go = function(id,index){
+        if($scope.session.organizer._id == $rootScope.user._id) 
+            $state.transitionTo('app.presentation', {id:id,idx:index});
+        else
+            $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
+    }
+
+    $scope.showResults = function(idx){
+        if($scope.session.decks.length>0){
+            var sid = $scope.session._id;
+            var did = $scope.session.decks[idx]._id;
+            analyzer.get(sid,did).then(function(results){
+                if(results.length>0){
+                    Decks.get({id:did}).$promise.then(function(deck){
+                    if(deck._id != undefined){
+                        $scope.session
+                        $scope.session.decks[idx].metrics=results;
+                        $scope.session.decks[idx].slides = deck.slides;
+                        $scope.deckIdx = idx;
+                        $scope.modal.show();
+                        }
+                    });
+                };
+            }).catch(function(err){console.log(err)});
+        };
+    };
+
+    $scope.closeModal = function() {
+        $scope.modal.hide();
+    };
+
+    $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+    });
+
+    $scope.init();
 
     }])

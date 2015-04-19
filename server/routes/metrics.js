@@ -36,7 +36,7 @@ metrics.post('/metrics',function(req,res){
 metrics.get('/metrics',function(req,res){
        console.log('Metrics query!');
     SI.find()
-        .sort({date:-1})
+        .sort({'eventDate':-1})
         .exec(function(err,records){
             if(err) res.send(err);
             res.send(records);
@@ -65,6 +65,7 @@ metrics.get('/metrics/:sid/:did',function(req,res){
     
     SI.find({session:new ObjectId(sid)})
         .where({deck: new ObjectId(did)})
+        .sort({'eventDate':-1})
         .exec(function(err,results){
             if(err) {
                 console.log("error! ",err);

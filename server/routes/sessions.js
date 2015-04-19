@@ -16,6 +16,7 @@ var transporter = nodemailer.createTransport({
 });
 
 var Session = schema.Session;
+var defaultBridgeNumber = '(805) 436-7615' //format works for android and iphone  
 
 function addMinutes(date,minutes){
     return new Date(date.getTime() + minutes*60000);
@@ -93,23 +94,31 @@ function composeMessages(meeting,update){
             attString = attString.concat("\n\r");    
         });
         //build the message for the organizer
-        orgMessage = orgMessage.concat("Meeting Name: "+meeting.name+"\n\r");
-        orgMessage = orgMessage.concat("Description: "+meeting.description+"\n\r\n\r");
-        orgMessage = orgMessage.concat("When: "+dateStr+"\n\r");
-        orgMessage = orgMessage.concat("Where: "+orgUrlString+"\n\r\n\r");
-        orgMessage = orgMessage.concat("Attendees: \n\r");
-        orgMessage = orgMessage.concat(attString+"\n\r");
-        orgMessage = orgMessage.concat("\n\r\n\r");
+        orgMessage = orgMessage.concat("Meeting Name: "+meeting.name+"\n");
+        orgMessage = orgMessage.concat("Description: "+meeting.description+"\n\n");
+        orgMessage = orgMessage.concat("When: "+dateStr+"\n");
+        orgMessage = orgMessage.concat("Where: "+orgUrlString+"\n\n");
+        if(meeting.bridge){
+            orgMessage = orgMessage.concat("Dial in: "+meeting.bridgeNumber+"\n");
+            orgMessage = orgMessage.concat("Conf Id: "+meeting.ufId+"\n\n");
+        }
+        orgMessage = orgMessage.concat("Attendees: \n");
+        orgMessage = orgMessage.concat(attString+"\n");
+        orgMessage = orgMessage.concat("\n\n");
         //build the message for the attendees
         var oName = meeting.organizer.firstName+" "+meeting.organizer.lastName;
-        attMessage = attMessage.concat("Meeting Organizer: "+oName+"\n\r");
-        attMessage = attMessage.concat("Meeting Name: "+meeting.name+"\n\r");
-        attMessage = attMessage.concat("Description: "+meeting.description+"\n\r\n\r");
-        attMessage = attMessage.concat("When: "+dateStr+"\n\r");
-        attMessage = attMessage.concat("Where: "+attUrlString+"\n\r\n\r");
-        attMessage = attMessage.concat("Attendees: \n\r");
-        attMessage = attMessage.concat(attString+"\n\r");
-        attMessage = attMessage.concat("\n\r\n\r");
+        attMessage = attMessage.concat("Meeting Organizer: "+oName+"\n");
+        attMessage = attMessage.concat("Meeting Name: "+meeting.name+"\n");
+        attMessage = attMessage.concat("Description: "+meeting.description+"\n\n");
+        attMessage = attMessage.concat("When: "+dateStr+"\n");
+        attMessage = attMessage.concat("Where: "+attUrlString+"\n\n");
+        if(meeting.bridge){
+            attMessage = attMessage.concat("Dial in: "+meeting.bridgeNumber+"\n");
+            attMessage = attMessage.concat("Conf Id: "+meeting.ufId+"\n\n");
+        }
+        attMessage = attMessage.concat("Attendees: \n");
+        attMessage = attMessage.concat(attString+"\n");
+        attMessage = attMessage.concat("\n\n");
         var messages = {organizer:orgMessage,attendee:attMessage};
         return messages;
 };
@@ -171,6 +180,24 @@ function sendInvites(id, update){
     });
     
 };
+// build a user friendly meeting id from the session uuid
+function userFriendlyId (_id){
+    var rawNumbers = _id.match(/\d+/g);
+    var numbers ="";
+    var ufId = "";
+    rawNumbers.forEach(function(group){
+        numbers = numbers+group;
+    });
+    if(numbers.length<9){
+        console.log('uuid to friendly id - not enough digits - time to panic');
+    }else{
+        ufId = numbers.slice(0,3)+"-";
+        ufId = ufId + numbers.slice(3,6)+"-";
+        ufId = ufId + numbers.slice(6,9);
+    }   
+    console.log(ufId,_id);
+    return ufId;
+};
 
 //CREATE
 //create a new session
@@ -193,6 +220,10 @@ session.post('/sessions',function(req,res){
     model.bridge = sent.bridge;
     model.baseUrl = sent.baseUrl;
     model.saveAsync().then(function(session){
+        model.ufId = userFriendlyId(session[0]._id.toString());
+        model.bridgeNumber = defaultBridgeNumber;
+        return model.saveAsync();
+    }).then(function(session){
         console.log('session add new :',session[0]._id.toString());
         sendInvites(session[0]._id.toString(),false);
         res.send('success');
@@ -254,6 +285,25 @@ session.get('/sessions/attendee/:id',function(req,res){
                 res.send(results);
             }
         });
+});
+//get all sessions and add a ufId field - this is a one time fix up function
+//get all sessions
+session.get('/sessions/addUfId/now',function(req,res){
+    console.log("add ufId!");
+    var allPromises=[];
+    Session.findAsync().then(function(sessions){
+        sessions.forEach(function(session){
+            //session.ufId = userFriendlyId(session._id.toString());
+            session.bridgeNumber = defaultBridgeNumber;
+            console.log(session._id.toString,session.ufId);
+            allPromises.push(session.saveAsync());
+        });
+        allPromises.settle().then(function(){
+            res.send('succcess: ',allPromises.length+' records updated');
+        })
+    }).catch(function(err){
+            res.send(err);
+    });
 });
 //UPDATE
 //update a session by id

@@ -2,14 +2,25 @@
     <ion-content class="has-header">
         <div class="list card">
             <div class="item item-divider">
-                Meeting Detalis
+                Meeting Details
             </div>
             <div class="item item-button-right">
                 <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
-                <p><strong>Organizer:</strong>    
+                <p><strong>Organizer:</strong> &#160   
                     {{session.organizer.firstName}} {{session.organizer.lastName}}</p>
-                <p><strong>meeting id: </strong>    {{session._id}}</p>
+                <p ng-if="session.bridge"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160    {{session.bridgeNumber}}</p>
+                <p><strong>Meeting Id: </strong>&#160{{session.ufId}}</p>
+                <button class="button button-balanced"
+                        ng-click="bridgeService.startBridge(session.ufId)"
+                        ng-if="!bridgeService.activeBridge()">
+                    Start Conference
+                </button>
+                <button class="button button-assertive"
+                        ng-click="bridgeService.endBridge(session.ufId)"
+                        ng-if="bridgeService.activeBridge()">
+                    End Conference
+                </button>
             </div>
             <div class="item item-divider">
                 Presentations Decks
