@@ -8,10 +8,47 @@
   display: none !important;
 }
 
+@font-face {
+    font-family: Cony-Regular;
+    src: url(../lib/cony/ConyRegular.otf);
+}
+@font-face {
+    font-family: Cony-Bold;
+    src: url(../lib/cony/ConyBold.otf);
+}
+@font-face {
+    font-family: Cony-Light;
+    src: url(../lib/cony/ConyLight.otf);
+}
+@font-face {
+    font-family: Cony-Decor;
+    src: url(../lib/cony/ConyDecor.otf);
+}
+.hero.heavy{
+    font-size:600%;
+    font-weight:600;
+}
+.hero{
+    width:100%;
+    font-size:500%;
+    color:white;
+    top:50%;
+    left:0;
+    right:0;
+    font-family: Cony-Regular;
+    position:absolute;
+    -webkit-transition: 0.5s ease all;
+    transition: 0.5s ease all;   
+}
+.hero-welcome{
+    color:white;
+    padding-top:3%;
+}
 .centered-container {
     margin-left:auto;
     margin-right:auto;    
     text-align: center;
+    position:relative;
 }
 .slide-container {
     width:90%;
@@ -311,6 +348,7 @@
 .advise{
       color: #056431 !important;
 }
+
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
@@ -395,7 +433,9 @@
     .user_list{
         width:50%;
     }
-
+    .hero-container{
+        width:50%;
+    }
 }
 
 

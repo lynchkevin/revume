@@ -1,23 +1,20 @@
 
-<ion-view view-title="ReVu.Me Demo">
-  <ion-content>
+<ion-view view-title="Revu.Me Demo">
+  <ion-content ng-class="{'dark-bg':isMobile}">
 
-    <div class="centered-container" >
+    <div class="centered-container"  >
     <div class="row row-center">
         <div class="col col-10">
         </div>
-        <div class="col col-80">
-              <h3>Welcome {{user.name}} </h3>  
-            <p>isMobile = {{isMobile}}</p>
+    <div class="col col-80 ">
+     <!--   <img ng-src="{{image}}" class="splash-image"> -->
+        <div class="centered-container hero-container dark-bg" elem-height="0.50">
+              <h3 class="hero-welcome">Welcome {{user.name}} </h3> 
+        <span class="hero" flash-weight="Revu.Me:Ready">Revu.me</span>
         </div>
-
     </div>
-    <div class="row row-centerd">
-    <div class="centered-container">
-    
-        <img ng-src="{{image}}" class="splash-image">
-    </div>
-    
+        <div class="col col-10">
+        </div>    
     </div>
     <div class="row row-center">
         <div class="col col-10">
