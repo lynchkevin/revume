@@ -16,8 +16,8 @@ angular.module('starter',
 )
 
 .constant("baseUrl",{"endpoint": "http://192.168.1.167:5000"})
-.run(["$ionicPlatform","$rootScope","$window","userService","pnFactory",
-function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
+.run(["$ionicPlatform","$rootScope","$window","userService","pnFactory",'$timeout',
+function($ionicPlatform,$rootScope,$window,userService,pnFactory,$timeout) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -38,9 +38,13 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory) {
             console.log("message from presence service",message);
         };
         $rootScope.pHandler = function(message){
-            $rootScope.users = $rootScope.mainChannel.resolveUsers(message);
-            console.log("got a status message", message);
-            $rootScope.$broadcast("presence_change");
+            $rootScope.mainChannel.resolveUsers(message).then(function(users){
+                $rootScope.users = users;
+                console.log("got a status message", message);
+                $timeout(function(){
+                    $rootScope.$broadcast("presence_change");
+                },0);
+            });
         }
         pnFactory.init(user._id);
         $rootScope.mainChannel = pnFactory.newChannel("volerro_user");

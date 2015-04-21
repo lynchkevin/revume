@@ -12,7 +12,7 @@ angular.module('starter')
                              function ($scope,$rootScope,$timeout,baseUrl) {
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $timeout(function(){
-        $scope.user.id = $rootScope.user._id;
+        $scope.user._id = $rootScope.user._id;
         $scope.user.name = $rootScope.user.name;
         $scope.users = $rootScope.users;
     },0);

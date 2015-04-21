@@ -77,14 +77,16 @@ angular.module('starter.services')
         };
             
         var resolve = function(message) { 
-            //debounce duplicate messages
+            var defer = $q.defer();
             var $$ = this;
             switch(message.action) {
                 case "join": 
+                    //debounce duplicate messages
                     if(this.findOnline(message)<0){
                         this.getUser(message.uuid).then(function(usr){
                             var user={_id:message.uuid,name:usr.userName};
                             $$.users.push(user);
+                            defer.resolve($$.users);
                         });
                     }
                     break;
@@ -94,10 +96,10 @@ angular.module('starter.services')
                     var found = this.findOnline(message);
                     if(found>=0)
                         this.users.splice(found, 1); 
+                    defer.resolve(this.users);
                     break;
             }
-            
-            return this.users;
+            return defer.promise;
         };
         
         var setUser = function(userName){

@@ -29,8 +29,8 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
-.service('Library',['UploadedFiles','Decks','Categories','$q','baseUrl','$resource','$rootScope',
-                    function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope){
+.service('Library',['UploadedFiles','Decks','Categories','$q','baseUrl','$resource','$rootScope','$ionicPopup',
+function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
     var $ = this;
     var collection={};
     
@@ -112,7 +112,8 @@ angular.module('starter')
     $.updateNavItem = function($scope){
         var defer = $q.defer();
         if(collection.index != -1 ){
-            var model = collection.model;                               model.update({id:collection.instance._id},collection.instance).$promise.then(function(){
+            var model = collection.model;                   
+            model.update({id:collection.instance._id},collection.instance).$promise.then(function(){
                 return model.get({id:collection.instance._id}).$promise;
             }).then(function(item){
                 $scope.navItems[$scope.selectedNavId].user = item.user;
@@ -197,26 +198,42 @@ angular.module('starter')
             }
         }
     };
+    $.doAdd = function($scope,$index){
+        var target = collection.instance;
+        target.slides.push($scope.slides[$index]);
+        var length = target.slides.length;
+        target.slides[length-1].originalOrder = length-1;
+        target.slides[length-1].link = $scope.slides[$index]._id;
+        $scope.slides[$index].included = true;
+        if(target.slides.length == 1){
+            var firstSlide = target.slides[0];
+            switch(firstSlide.type){
+                    case 'img':
+                        collection.instance.thumb = firstSlide.src;
+                        break;
+                    case 'video':
+                        collection.instance.thumb = firstSlide.poster;
+                        break;
+            }
+        }
+        $.updateNavItem($scope);
+    };
     $.addSlide=function($scope,$index){
         if($scope.isEditing){
-            var target = collection.instance;
-            target.slides.push($scope.slides[$index]);
-            var length = target.slides.length;
-            target.slides[length-1].originalOrder = length-1;
-            target.slides[length-1].link = $scope.slides[$index]._id;
-            $scope.slides[$index].included = true;
-            if(target.slides.length == 1){
-                var firstSlide = target.slides[0];
-                switch(firstSlide.type){
-                        case 'img':
-                            collection.instance.thumb = firstSlide.src;
-                            break;
-                        case 'video':
-                            collection.instance.thumb = firstSlide.poster;
-                            break;
-                }
-            }
-            $.updateNavItem($scope);
+            // test for duplicate adds and confirm
+            if(!$scope.slides[$index].included){
+                $.doAdd($scope,$index);
+            }else{
+               var confirmPopup = $ionicPopup.confirm({
+                 title: 'Add Duplicate Slide?',
+                 template: 'Do you want to add this again?'
+               });
+               confirmPopup.then(function(res) {
+                 if(res) {
+                        $.doAdd($scope,$index);  
+                 } 
+               });
+            }   
         }
     };        
     $.deleteSlide=function($scope,$index){

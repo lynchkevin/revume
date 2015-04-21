@@ -109,7 +109,7 @@ function ($scope,$rootScope,$state,
         $scope.addingTo = new Library.decks;
         $scope.addingTo.name = $scope.deck.name;
         $scope.addingTo.user ={};
-        $scope.addingTo.user.id = $rootScope.user._id;
+        $scope.addingTo.user._id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
         Library.newNavItem($scope).then(function(result){
@@ -133,7 +133,7 @@ function ($scope,$rootScope,$state,
         $scope.addingTo = new Library.categories;
         $scope.addingTo.name = $scope.category.name;
         $scope.addingTo.user={}
-        $scope.addingTo.user.id = $rootScope.user._id;
+        $scope.addingTo.user._id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
         Library.newNavItem($scope).then(function(result){

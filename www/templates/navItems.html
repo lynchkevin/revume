@@ -69,7 +69,7 @@
                 on-refresh="doRefresh()">
               </ion-refresher>
             <ion-list show-delete="shouldShowDelete">
-                <ion-item ng-repeat="item in navItems" class="item-thumbnail-left  " 
+                <ion-item ng-repeat="item in navItems" class="item-thumbnail-left item-icon-right" 
                           ng-click="setNavSelection($index)">
                         <ion-delete-button class="ion-minus-circled" ng-click="delNavItem($index)"></ion-delete-button>
                     <img ng-src="{{item.thumb}}" alt="New" class="alt">
@@ -95,7 +95,7 @@
                                        class="button button-calm" 
                                         ng-click="buildSession($index)">
                         New Meeting
-                  </ion-option-button>                    
+                  </ion-option-button>   
                 </ion-item>
             </ion-list>
             </ion-scroll>
