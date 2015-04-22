@@ -76,6 +76,10 @@ function ($scope,$rootScope,$state,
     $scope.addSlide = function(index){
         Library.addSlide($scope,index);
     };
+    //select all functionality - add all slides from a navItem
+    $scope.addAll = function(){
+        Library.addAll($scope);
+    };
     $scope.deleteSlide = function(index){
         Library.deleteSlide($scope,index);
     };
@@ -105,6 +109,7 @@ function ($scope,$rootScope,$state,
             $scope.$broadcast('scroll.refreshComplete');
        });
    };
+    
    $scope.addDeck=function(){
         $scope.addingTo = new Library.decks;
         $scope.addingTo.name = $scope.deck.name;
@@ -125,8 +130,6 @@ function ($scope,$rootScope,$state,
             });
             alert();
         });
-
-
    }
 
     $scope.addCategory= function(){
@@ -264,14 +267,16 @@ function ($scope,$rootScope,$state,
         num=0;
     }
     $scope.tapThumb=function(index){
-        var newPosition = index;
-        var oldPosition = $scope.tap.index;
-        if($scope.tap.on){
-            reOrder($scope,newPosition,oldPosition);
-            Library.updateNavItem($scope);
+        if(!$scope.isEditing){
+            var newPosition = index;
+            var oldPosition = $scope.tap.index;
+            if($scope.tap.on){
+                reOrder($scope,newPosition,oldPosition);
+                Library.updateNavItem($scope);
+            }
+            $scope.tap.on = !$scope.tap.on;
+            $scope.tap.index = index;
         }
-        $scope.tap.on = !$scope.tap.on;
-        $scope.tap.index = index;
     }
 
     $scope.$on('flow::filesSubmitted',function(event,$flow,flowfile){

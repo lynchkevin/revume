@@ -96,6 +96,11 @@
                                         ng-click="buildSession($index)">
                         New Meeting
                   </ion-option-button>   
+                    <i class="icon ion-plus-circled slide-adder top-corner" 
+                       ng-show="isEditing && !showEdit && (selectedNavId == $index) "  
+                       ng-click="addAll()"></i>
+                    <p  class="top-corner"
+                        ng-show="isEditing && !showEdit && (selectedNavId == $index) " >select all</p>
                 </ion-item>
             </ion-list>
             </ion-scroll>

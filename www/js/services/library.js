@@ -38,6 +38,7 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
     $.decks = decks;
     $.categories = categories;
     
+    //files, categories or decks are all flavors of the same class
     $.setModel = function($scope,model){
         $.model = model;
         $scope.model = model;
@@ -216,13 +217,14 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
                         break;
             }
         }
-        $.updateNavItem($scope);
+
     };
     $.addSlide=function($scope,$index){
         if($scope.isEditing){
             // test for duplicate adds and confirm
             if(!$scope.slides[$index].included){
                 $.doAdd($scope,$index);
+                $.updateNavItem($scope);
             }else{
                var confirmPopup = $ionicPopup.confirm({
                  title: 'Add Duplicate Slide?',
@@ -231,11 +233,20 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
                confirmPopup.then(function(res) {
                  if(res) {
                         $.doAdd($scope,$index);  
+                        $.updateNavItem($scope);
                  } 
                });
             }   
         }
-    };        
+    };  
+    //add all the slides from a navItem - like select all
+    $.addAll=function($scope){
+        if($scope.isEditing){
+            for(var i=0; i<$scope.slides.length; i++)
+                $.doAdd($scope,i);
+            $.updateNavItem($scope);
+        }
+    };
     $.deleteSlide=function($scope,$index){
         if($scope.isEditing){
             var target = collection.instance;
