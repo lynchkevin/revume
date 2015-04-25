@@ -80,6 +80,10 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         session.baseUrl = baseUrl.endpoint;
     };
     
+    $.setScope = function($scope){
+        $.session.scope = $scope;
+    };
+    
     $.init=function($scope){
         $.session = {}
         $.session.scope=$scope;

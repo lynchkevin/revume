@@ -1,6 +1,7 @@
 'use strict'
 
 angular.module('starter')
+//database objects
 .factory('Slides', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/library/slides/:slideId';
     return $resource(target);
@@ -29,11 +30,12 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
+//library service
 .service('Library',['UploadedFiles','Decks','Categories','$q','baseUrl','$resource','$rootScope','$ionicPopup',
 function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
     var $ = this;
     var collection={};
-    
+    //database objects
     $.files = uFiles;
     $.decks = decks;
     $.categories = categories;
@@ -239,11 +241,13 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
             }   
         }
     };  
-    //add all the slides from a navItem - like select all
+    //add all the slides from a navItem - like select all - but only of not already selected
     $.addAll=function($scope){
         if($scope.isEditing){
-            for(var i=0; i<$scope.slides.length; i++)
-                $.doAdd($scope,i);
+            for(var i=0; i<$scope.slides.length; i++){
+                if(!$scope.slides[i].included)
+                    $.doAdd($scope,i);
+            }
             $.updateNavItem($scope);
         }
     };

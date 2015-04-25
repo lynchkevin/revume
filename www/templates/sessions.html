@@ -14,13 +14,14 @@
   
         </div>
 
-   <ion-scroll>
+   <ion-scroll elem-height="0.80">
 
   <ion-refresher
     pulling-text="Pull to refresh..."
     on-refresh="doRefresh()">
   </ion-refresher>
        
+
       <ion-list show-delete="shouldShowDelete" delegate-handle="org" >
           <ion-item class="item-thumbnail-left item-button-right" 
                     ng-repeat="session in orgSessions" 

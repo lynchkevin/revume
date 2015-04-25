@@ -9,16 +9,26 @@ angular.module('starter.directives')
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
-        scope.$on(attrs.flashWeight, function(event,args){
-            $timeout(function(){
-                element.html(args);
-                $animate.addClass(element, 'heavy').then(function(){
+            if(attrs.flashWeight != undefined){
+                scope.$on(attrs.flashWeight, function(event,args){
                     $timeout(function(){
-                        $animate.removeClass(element,'heavy');
-                    },100);
+                        element.html(args);
+                        $animate.addClass(element, 'heavy').then(function(){
+                            $timeout(function(){
+                                $animate.removeClass(element,'heavy');
+                            },100);
+                        });
+                    });
                 });
-            });
-        });
+            }else{
+                $timeout(function(){
+                    $animate.addClass(element, 'heavy').then(function(){
+                        $timeout(function(){
+                            $animate.removeClass(element,'heavy');
+                        },100);
+                    });
+                });
+            }
 
         }
     }

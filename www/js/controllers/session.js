@@ -108,7 +108,8 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
                             '$ionicModal',
                             '$state', 
                             'BridgeService',
-function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$state,BridgeService) {
+                            '$timeout',
+function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$state,BridgeService,$timeout) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
@@ -184,6 +185,7 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
 
     $scope.$on('$destroy', function() {
         $scope.modal.remove();
+        $scope.welcomeModal.remove();
     });
     //close the bridge if the presenter leaves the session and forgets to close
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
@@ -193,6 +195,18 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
             };
     });
         
+    if($rootScope.deepLink){
+        $ionicModal.fromTemplateUrl('templates/welcomeTemplate.html',{scope:$scope})
+        .then(function(modal){
+            $scope.welcomeModal = modal;
+            $scope.welcomeModal.show();
+            //show for 5 seconds then hide
+            $timeout(function(){
+                $scope.welcomeModal.hide();
+            },3500);   
+        });
+    }
+
     $scope.init();
 
     }])

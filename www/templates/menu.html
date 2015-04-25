@@ -5,7 +5,12 @@
       </ion-nav-back-button>
 
       <ion-nav-buttons side="left">
-        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left"
+                ng-if="!deepLink">
+        </button>
+        <button class="button button-icon button-clear ion-home" 
+                ng-if="deepLink"
+                ng-click="goHome()">
         </button>
       </ion-nav-buttons>
     </ion-nav-bar>

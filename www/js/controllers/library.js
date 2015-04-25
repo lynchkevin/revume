@@ -61,20 +61,21 @@ function ($scope,$rootScope,$state,
     $scope.slideBack = function(){
         $scope.$broadcast("!library::slide");        
     }
-    $scope.editButton = function(index){
-        if($scope.navItems[index].beingEdited)
+    $scope.editButton = function($index){
+        if($scope.navItems[$index].beingEdited)
             return "Done";
         return "Edit";
     };
     $scope.buildSession = function($index){
+        sb.setScope($scope);
         sb.build($index).then(function(){
             $scope.slideBack();
         }).catch(function(err){
             $scope.slideBack();
         });
     };
-    $scope.addSlide = function(index){
-        Library.addSlide($scope,index);
+    $scope.addSlide = function($index){
+        Library.addSlide($scope,$index);
     };
     //select all functionality - add all slides from a navItem
     $scope.addAll = function(){
@@ -152,7 +153,6 @@ function ($scope,$rootScope,$state,
             });
             alert();
         });
-
     }
             
     $scope.setModel = function(model){
@@ -254,6 +254,8 @@ function ($scope,$rootScope,$state,
       };
       $ionicScrollDelegate.scrollTop();
     };
+    
+    //handle tap and re-order events
     function reOrder($scope,newPos,oldPos){
         var slide = $scope.slides[oldPos];
         var num = 0;
@@ -278,7 +280,8 @@ function ($scope,$rootScope,$state,
             $scope.tap.index = index;
         }
     }
-
+    
+    //handle the flow file events
     $scope.$on('flow::filesSubmitted',function(event,$flow,flowfile){
     $scope.progress="0%";
     $flow.upload();
@@ -297,7 +300,7 @@ function ($scope,$rootScope,$state,
       $rootScope.$broadcast("show_message", "upload complete!");
     });
 
-
+    //handle system and window events
     $scope.$on('$destroy',function() {
         if(channel != undefined) channel.unsubscribe();
     });

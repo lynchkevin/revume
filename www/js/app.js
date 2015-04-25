@@ -16,8 +16,16 @@ angular.module('starter',
 )
 
 .constant("baseUrl",{"endpoint": "http://192.168.1.167:5000"})
-.run(["$ionicPlatform","$rootScope","$window","userService","pnFactory",'$timeout',
-function($ionicPlatform,$rootScope,$window,userService,pnFactory,$timeout) {
+.run(["$ionicPlatform",
+      "$rootScope",
+      "$window",
+      "userService",
+      "pnFactory",
+      '$timeout',
+      '$location',
+      '$state',
+function($ionicPlatform,$rootScope,$window,userService,
+          pnFactory,$timeout,$location,$state) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -79,8 +87,25 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory,$timeout) {
     };
     //get a user.id then call init...
     if($rootScope.user == undefined){
-        $rootScope.login();
+        var param = $location.search();
+        if(param.uid == undefined){
+            $rootScope.deepLink = false;
+            $rootScope.login();
+        }else{
+            $rootScope.deepLink = true;
+            var User = userService.user.byId;
+            User.get({id:param.uid}).$promise.then(function(user){
+                $rootScope.user={};
+                userInit(user);
+            });
+        };
+            
     };
+    //go to the home page after a deep link
+    $rootScope.goHome = function(){
+        $rootScope.deepLink = false;
+        $state.transitionTo('app.welcome');
+    }
     $rootScope.fullUrl = function(src){
         return baseUrl+src;
     };
@@ -287,6 +312,36 @@ function($ionicPlatform,$rootScope,$window,userService,pnFactory,$timeout) {
         'menuContent': {
         templateUrl: "templates/presentation.html",
         controller : 'presentationCtrl'    
+      }
+    }
+    }) 
+    .state('app.review', {
+    url: "/review/:id?idx",
+      resolve: {
+          session : ['Session','Decks','$stateParams','$q',
+                function(Session,Decks,$stateParams,$q){ 
+                               var defer = new $q.defer();
+                               var deckIdx;
+                               var session = {}
+                               Session.get({id:$stateParams.id}).$promise.then(function(sess){
+                                   session = sess;
+                                   deckIdx = parseInt($stateParams.idx);
+                                   var _id = session.decks[deckIdx]._id;
+                                   return Decks.get({id:_id}).$promise;
+                               }).then(function(deck){
+                                   session.decks[deckIdx]=deck;
+                                   session.deckIdx = deckIdx;
+                                   defer.resolve(session);
+                               }).catch(function(err){
+                                   defer.reject(err);
+                               });
+                               return defer.promise;
+                }]
+      },
+    views: {
+        'menuContent': {
+        templateUrl: "templates/review.html",
+        controller : 'reviewCtrl'    
       }
     }
     }) 
