@@ -20,6 +20,7 @@ angular.module('starter')
     var oTarget = baseUrl.endpoint+'/api/sessions/organizer/:id';
     var aTarget = baseUrl.endpoint+'/api/sessions/attendee/:id';
     var target = baseUrl.endpoint+'/api/sessions/:id';
+    var lbTarget = baseUrl.endpoint+'/api/sessions/setLB/:id';
     return {
         orgSessions: $resource(oTarget,
         {id:'@id'},
@@ -38,6 +39,10 @@ angular.module('starter')
         {   delete: {method:'DELETE', params:{id:'@id'}},
             update: {method:'PUT', params:{id:'@id'}},
             get:{method:'GET',  params:{id:'@id'}, isArray:true}
+        }),
+        leaveBehind: $resource(lbTarget,
+        {id:'@id'},
+        {   update: {method:'PUT', params:{id:'@id'}}
         })
     };
 }])

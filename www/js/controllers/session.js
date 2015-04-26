@@ -102,6 +102,7 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
 .controller('SessionCtrl', ['$scope',
                             '$rootScope',
                             '$stateParams',
+                            'Sess',
                             'session',
                             'Decks',
                             'presAnalyzer',
@@ -109,7 +110,8 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
                             '$state', 
                             'BridgeService',
                             '$timeout',
-function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$state,BridgeService,$timeout) {
+function($scope,$rootScope, $stateParams,Sess,session, Decks,
+          analyzer,$ionicModal,$state,BridgeService,$timeout) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
@@ -117,8 +119,10 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     
     $scope.init = function(){
         if(session._id != undefined){
+            $scope.activeMeeting = false;
             $scope.bridgeService.findBridge($scope.session.ufId)
             $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
+            $scope.session.leaveBehind = false;
             if($scope.session.decks.length>0){
                 var sid = $scope.session._id;
                 $scope.deckIdx = 0;
@@ -150,9 +154,10 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     });  
 
     $scope.go = function(id,index){
-        if($scope.session.organizer._id == $rootScope.user._id) 
+        if($scope.session.organizer._id == $rootScope.user._id){
+            $scope.activeMeeting = true;
             $state.transitionTo('app.presentation', {id:id,idx:index});
-        else{
+        }else{
             $scope.bridgeService.startBridge($scope.session.ufId).then(function(){   
                 $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
             });
@@ -182,16 +187,30 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
     $scope.closeModal = function() {
         $scope.modal.hide();
     };
-
+    $scope.startMeeting = function(){
+        $scope.activeMeeting = true;
+        if($scope.session.bridge)
+            $scope.bridgeService.startBridge(session.ufId);
+    };
+    $scope.endMeeting = function(){
+        $scope.activeMeeting = false;
+        if($scope.bridgeService.activeBridge())
+            $scope.bridgeService.endBridge($scope.session.ufId);
+    };
+    $scope.setLeaveBehind = function(){
+        console.log($scope.session.leaveBehind);
+        Sess.leaveBehind.update({id:$scope.session._id},$scope.session);
+    };
     $scope.$on('$destroy', function() {
         $scope.modal.remove();
         $scope.welcomeModal.remove();
     });
-    //close the bridge if the presenter leaves the session and forgets to close
+    
+    //end the meeting if the presenter leaves the session and forgets to close
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
             if(fromState.name == 'app.session' && toState.name != 'app.presentation'){
-                if($scope.bridgeService.activeBridge())
-                    $scope.bridgeService.endBridge($scope.session.ufId);
+                if($scope.activeMeeting)
+                    $scope.endMeeting();
             };
     });
         
@@ -209,4 +228,4 @@ function($scope,$rootScope, $stateParams,session, Decks,analyzer,$ionicModal,$st
 
     $scope.init();
 
-    }])
+    }]);

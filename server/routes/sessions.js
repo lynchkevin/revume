@@ -366,7 +366,29 @@ session.put('/sessions/:id',function(req,res){
             res.send(err);
         });
 });
-
+//set up leaveBehind
+//set the leaveBehind attribute of the session and send email if necessary
+session.put('/sessions/setLB/:id',function(req,res){
+    console.log("session update by id");
+    var sent = req.body;
+    Session.findOneAsync({_id:new ObjectId(req.params.id)
+        }).then(function(session){
+            session.leaveBehind = sent.leaveBehind;
+            return session.saveAsync();
+        }).then(function(session){
+            console.log('success!');
+            if(session[0].leaveBehind){
+                console.log('sending leaveBehind emails');
+                //sendInvites(req.params.id,true);
+            }else{
+                console.log('no leaveBehind');
+            };
+            res.send('success');
+        }).catch(function(err){
+            console.log(err);
+            res.send(err);
+        });
+});
 //DELETE
 //delete a single session by id
 session.delete('/sessions/:id',function(req,res){

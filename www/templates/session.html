@@ -13,15 +13,26 @@
                 <p ng-if="session.bridge && !isMobile"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160    {{session.bridgeNumber}}</p>
                 <p><strong>Meeting Id: </strong>&#160{{session.ufId}}</p>
                 <button class="button button-balanced"
-                        ng-click="bridgeService.startBridge(session.ufId)"
-                        ng-if="!bridgeService.activeBridge()">
-                    Start Conference
+                        ng-click="startMeeting()"
+                        ng-if="!activeMeeting">
+                    Start Meeting
                 </button>
                 <button class="button button-assertive"
-                        ng-click="bridgeService.endBridge(session.ufId)"
-                        ng-if="bridgeService.activeBridge()">
-                    End Conference
+                        ng-click="endMeeting()"
+                        ng-if="activeMeeting">
+                    End Meeting
                 </button>
+            </div>
+            <div class="item item-body">
+                {{session.description}}
+            </div>
+            <div class="item item-checkbox"
+                 ng-if="!reportDisabled($index)">
+                 <label class="checkbox">
+                   <input ng-model="session.leaveBehind" type="checkbox"
+                          ng-click="setLeaveBehind()">
+                 </label>
+                 Allow Post Meeting Review
             </div>
             <div class="item item-divider">
                 Presentations Decks
@@ -50,9 +61,7 @@
                 {{attendee.firstName}} {{attendee.lastName}}  e: {{attendee.email}} <br>
                 </span>
             </div>
-            <div class="item item-body">
-                {{session.description}}
-            </div>
+
 
 
         </div>
