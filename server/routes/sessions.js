@@ -219,7 +219,36 @@ function userFriendlyId (_id){
     console.log(ufId,_id);
     return ufId;
 };
+// build leave behind message for the attendees
+function composeLBMessage(meeting,userId){
+        var fullStart = startDate(meeting);
+        var attUrlString = meeting.baseUrl+'/#/app/revu/'+meeting._id+'?uid='+userId+"\n\n";
+        var attMessage = "";
+        var oName = meeting.organizer.firstName+" "+meeting.organizer.lastName;
 
+        attMessage = "Thank you for attending "+meeting.name+" on Revu.me. \n\n\n"; 
+        attMessage = attMessage.concat("You can review the meeting content using the following link: \n");
+        attMessage = attMessage.concat(attUrlString);
+        attMessage = attMessage.concat("Please send any follow up items to your meeting organizer: \n\n");
+        attMessage = attMessage.concat(oName+"\n");
+        attMessage = attMessage.concat(meeting.organizer.email+"\n\n");
+        attMessage = attMessage.concat("Thank You!\n\n\n");
+        attMessage = attMessage.concat("The Volerro Team\n");
+        return attMessage;
+};
+// send follow up email
+function sendFollowUp(meeting){
+        var mail = {};
+    
+        mail.from = volerroSender;
+        mail.subject = 'Follow up to meeting: '+meeting.name;
+         
+        meeting.attendees.forEach(function(usr){
+            mail.to = usr.email;
+            mail.text = composeLBMessage(meeting,usr._id);
+            transporter.sendMail(mail);
+        }); 
+};
 //CREATE
 //create a new session
 session.post('/sessions',function(req,res){
@@ -371,22 +400,28 @@ session.put('/sessions/:id',function(req,res){
 session.put('/sessions/setLB/:id',function(req,res){
     console.log("session update by id");
     var sent = req.body;
-    Session.findOneAsync({_id:new ObjectId(req.params.id)
-        }).then(function(session){
-            session.leaveBehind = sent.leaveBehind;
-            return session.saveAsync();
-        }).then(function(session){
-            console.log('success!');
-            if(session[0].leaveBehind){
-                console.log('sending leaveBehind emails');
-                //sendInvites(req.params.id,true);
+    Session.findOne({_id:new ObjectId(req.params.id)})
+        .populate('organizer attendees')
+        .exec(function(err,session){
+            if(err) {
+                console.log("error! ",err);
+                res.send(err);
             }else{
-                console.log('no leaveBehind');
-            };
-            res.send('success');
-        }).catch(function(err){
-            console.log(err);
-            res.send(err);
+                session.leaveBehind = sent.leaveBehind;
+                session.saveAsync().then(function(session){
+                    console.log('success!');
+                    if(session[0].leaveBehind){
+                        console.log('sending leaveBehind emails');
+                        sendFollowUp(session[0]);
+                    }else{
+                        console.log('no leaveBehind');
+                    };
+                    res.send('success');
+                }).catch(function(err){
+                    console.log(err);
+                    res.send(err);
+                });
+            }
         });
 });
 //DELETE

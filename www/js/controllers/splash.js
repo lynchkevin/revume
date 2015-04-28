@@ -8,9 +8,9 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('splashCtrl', ['$scope', '$rootScope','$timeout','baseUrl','$ionicNavBarDelegate',
-                             function ($scope,$rootScope,$timeout,baseUrl,navBar) {
-    navBar.showBackButton(false);
+  .controller('splashCtrl', ['$scope', '$rootScope','$timeout','baseUrl',
+                             function ($scope,$rootScope,$timeout,baseUrl) {
+
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $timeout(function(){
         $scope.user._id = $rootScope.user._id;
@@ -23,7 +23,6 @@ angular.module('starter')
             $scope.users = $rootScope.users;
         });
     });
-      
-        
+           
     
   }]);

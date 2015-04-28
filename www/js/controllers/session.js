@@ -126,14 +126,14 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
             if($scope.session.decks.length>0){
                 var sid = $scope.session._id;
                 $scope.deckIdx = 0;
-                $scope.reportsDisabled = [];
+                $scope.reportsEnabled = [];
                 for(var i=0; i< $scope.session.decks.length;i++){
                     var did = $scope.session.decks[i]._id;
                     analyzer.get(sid,did).then(function(results){
                         if(results.length>0)
-                            $scope.reportsDisabled.push(true);
+                            $scope.reportsEnabled.push(true);
                         else
-                            $scope.reportsDisabled.push(false);
+                            $scope.reportsEnabled.push(false);
                     }).catch(function(err){console.log(err)});
                 }
             }
@@ -203,7 +203,8 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     };
     $scope.$on('$destroy', function() {
         $scope.modal.remove();
-        $scope.welcomeModal.remove();
+        if($rootScope.deepLink)
+            $scope.welcomeModal.remove();
     });
     
     //end the meeting if the presenter leaves the session and forgets to close

@@ -86,6 +86,7 @@ function($ionicPlatform,$rootScope,$window,userService,
         $rootScope.isMobile = false;
     };
     //get a user.id then call init...
+    $rootScope.deepLink = false;
     if($rootScope.user == undefined){
         var param = $location.search();
         if(param.uid == undefined){
@@ -315,22 +316,27 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
     }) 
-    .state('app.review', {
-    url: "/review/:id?idx",
+    .state('app.revu', {
+    url: "/revu/:id?uid",
       resolve: {
           session : ['Session','Decks','$stateParams','$q',
                 function(Session,Decks,$stateParams,$q){ 
                                var defer = new $q.defer();
-                               var deckIdx;
                                var session = {}
                                Session.get({id:$stateParams.id}).$promise.then(function(sess){
                                    session = sess;
-                                   deckIdx = parseInt($stateParams.idx);
-                                   var _id = session.decks[deckIdx]._id;
-                                   return Decks.get({id:_id}).$promise;
-                               }).then(function(deck){
-                                   session.decks[deckIdx]=deck;
-                                   session.deckIdx = deckIdx;
+                                   var promises = []
+                                   session.decks.forEach(function(deck){
+                                        promises.push(Decks.get({id:deck._id}).$promise);
+                                   });
+                                   return $q.all(promises);       
+                               }).then(function(decks){
+                                   //remove the decks with only id's
+                                   session.decks = [];
+                                   decks.forEach(function(deck){
+                                       session.decks.push(deck);
+                                   });
+                                   session.deckIdx = 0;
                                    defer.resolve(session);
                                }).catch(function(err){
                                    defer.reject(err);

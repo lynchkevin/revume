@@ -6,12 +6,12 @@
 
       <ion-nav-buttons side="left">
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left"
-                ng-if="!deepLink">
+                ng-show="!deepLink">
         </button>
-        <button class="button button-icon button-clear ion-home" 
-                ng-if="deepLink"
-                ng-click="goHome()">
-        </button>
+        <a class="button button-icon button-clear ion-home" 
+                ng-show="deepLink"
+                href="http://revu.me">
+        </a>
       </ion-nav-buttons>
     </ion-nav-bar>
     <ion-nav-view name="menuContent"></ion-nav-view>
