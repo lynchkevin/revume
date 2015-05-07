@@ -7,7 +7,7 @@
  * # reviewCtl
  * Controller for Revu.me - leave behind viewer
  */
-angular.module('starter.controllers')
+angular.module('starter')
   .controller('reviewCtrl', ['$scope',
                            '$rootScope',
                            '$stateParams',

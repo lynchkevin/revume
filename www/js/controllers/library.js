@@ -311,7 +311,13 @@ function ($scope,$rootScope,$state,
     $scope.w.bind('resize',function(){
           reAspect(); 
     });
+    
+    if($rootScope.user._id == undefined)
+        $rootScope.$on('Revu.Me:Ready',function(event, data){
+            $scope.init();
+        });
+     else
+         $scope.init();
 
-    $scope.init();
 
 }]);

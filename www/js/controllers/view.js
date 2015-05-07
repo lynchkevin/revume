@@ -7,7 +7,7 @@
  * # SlideCtrl
  * Controller of the barebonesApp to Browse Slide Thumbnails
  */
-angular.module('starter.controllers')
+angular.module('starter')
   .controller('ViewCtrl', ['$scope',
                            '$rootScope',
                            '$stateParams',

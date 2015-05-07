@@ -4,7 +4,7 @@
 * A Presentation Controller 
 */
 
-angular.module('starter.controllers')
+angular.module('starter')
 
 .controller('presentationCtrl', 
 ['$scope', '$rootScope', '$stateParams', '$timeout','pnFactory','$ionicSlideBoxDelegate','session','userMonitor','recorder','presAnalyzer','BridgeService',

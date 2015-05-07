@@ -220,13 +220,14 @@ uploader.onPost(processFile);
 // uploaded files
 library.get('/library/uploadedFiles',function(req,res){
     console.log('get files with populate!')
-    UploadedFile.find()
+    var userId = req.query.user;
+    console.log(userId);
+    UploadedFile.find({user:new ObjectId(userId)})
     .populate('user slides')
     .sort({createdDate:-1})
     .exec(function(err,records){
         if(err) res.send(err);
         res.send(records);
-        console.log('ufiles',records);
     });
 });
 
@@ -418,14 +419,15 @@ library.put('/library/uploadedFiles/setuser/:id',function(req,res){
 });
 //get all decks
 library.get('/library/decks',function(req,res){
-       console.log('decks query! with populate');
-    Deck.find()
+    console.log('decks query! with populate');
+    var userId = req.query.user;
+    console.log(userId);
+    Deck.find({user:new ObjectId(userId)})
     .populate('user slides')
     .sort({createdDate:-1})
     .exec(function(err,records){
         if(err) res.send(err);
         res.send(records);
-        console.log(records);
     });
 });
 //get all the slides for a deck
@@ -470,15 +472,16 @@ library.put('/library/decks/:id',function(req,res){
     });
 });
 library.get('/library/categories',function(req,res){
-       console.log('categories query!');
-        Category.find()
-        .populate('user slides')
-        .sort({createdDate:-1})
-        .exec(function(err,records){
-            if(err) res.send(err);
-            res.send(records);
-            console.log(records);
-        });
+    console.log('categories query!');
+    var userId = req.query.user;
+    console.log(userId);
+    Category.find({user:new ObjectId(userId)})
+    .populate('user slides')
+    .sort({createdDate:-1})
+    .exec(function(err,records){
+        if(err) res.send(err);
+        res.send(records);
+    });
 });
 //get all the slides for a category    
 library.get('/library/categories/:id',function(req,res){

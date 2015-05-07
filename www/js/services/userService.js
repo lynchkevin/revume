@@ -3,7 +3,7 @@
 /**
 * a service to manage users  
 */
-angular.module('starter.services')
+angular.module('starter')
 .factory('Users', ['$resource','baseUrl',function ($resource, baseUrl) {
     var _idTarget = baseUrl.endpoint+'/api/users/:id';
     var emailTarget = baseUrl.endpoint+'/api/users/email/:email';

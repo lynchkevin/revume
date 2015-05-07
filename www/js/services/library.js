@@ -49,7 +49,7 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
     $.updateModel = function($scope){
         return $q(function(resolve,reject){
           if($.model != $scope.model) console.log("model error in Library service");
-          $scope.navItems = $.model.query();
+          $scope.navItems = $.model.query({user:$rootScope.user._id});
           $scope.selectedNavId = 0;
           $scope.navItems.$promise.then(function(items){
           // user and slides are poplulated

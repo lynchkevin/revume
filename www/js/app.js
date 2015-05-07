@@ -8,9 +8,6 @@ angular.module('starter',
 [   'ionic',
     'ngResource',
     'ngAnimate',
-    'starter.directives',
-    'starter.services',
-    'starter.controllers',
     'flow'
 ]
 )
@@ -115,6 +112,14 @@ function($ionicPlatform,$rootScope,$window,userService,
         var height = verge.viewportH();
         return {width:width, height:height};
     };
+    //remove this at some point
+    $rootScope.smallScreen = function(){
+          var width = verge.viewportW();
+          if(width<450)
+            return true;
+          else
+           return false;
+    };
     $window.addEventListener("beforeunload", function (e) {
         $rootScope.mainChannel.unsubscribe();
 
@@ -127,14 +132,12 @@ function($ionicPlatform,$rootScope,$window,userService,
 
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
-
+  
   .state('app', {
     url: "/app",
     abstract: true,
     templateUrl: "templates/menu.html",
-    controller: 'AppCtrl'
-  })
-  
+  })  
   .state('app.welcome', {
     url: "/welcome",
     views: {

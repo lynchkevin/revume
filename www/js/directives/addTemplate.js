@@ -3,7 +3,7 @@
 /**
 * v-lead directive to lead a video for followers   
 */
-angular.module('starter.directives')
+angular.module('starter')
     .directive('addTemplate',[function () {
       return {
         restrict : 'AE',

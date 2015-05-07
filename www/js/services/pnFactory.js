@@ -3,7 +3,7 @@
 /**
 * A factory to wrap pubnub   
 */
-angular.module('starter.services')
+angular.module('starter')
     .factory('pnFactory', ['Users','$q', function (Users,$q) {
         var pnFactory = {};
     

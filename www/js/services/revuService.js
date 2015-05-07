@@ -3,7 +3,7 @@
 /**
 * a service to send email when attendees revu 
 */
-angular.module('starter.services')
+angular.module('starter')
 .factory('Revu', ['$resource','baseUrl',function ($resource, baseUrl) {
     var startTarget = baseUrl.endpoint+'/api/revu/start';
     var endTarget = baseUrl.endpoint+'/api/revu/end';
