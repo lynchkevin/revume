@@ -11,13 +11,16 @@ var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('schema');
+var baseUrl = process.env.BASE_URL;
+var port = process.env.PORT;
+var fp = baseUrl+':'+port;
 
-
+console.log('Library url= ',fp);
 // export file location information
 library.url = '/facades';
 library.appPath = '/img';
 library.path = 'img/';
-library.fullPath = 'http://192.168.1.167:5000';
+library.fullPath = fp;
 
 var Slide = schema.Slide;
 var UploadedFile = schema.UploadedFile;

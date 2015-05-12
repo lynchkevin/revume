@@ -43,7 +43,7 @@ app.all('*', function(req, res, next) {
 });
 
 // connect to salesforce
-sfdc.connect(port);
+//sfdc.connect(port);
 //setup the routes
 app.use('/api',sessions);
 app.use('/api',users);
@@ -57,6 +57,15 @@ app.use('/api',sfdc);
 
 app.listen(port, function () {
     console.log('Express server listening on port ' + port);
+}).on('error',function(err){
+    console.log('process.on handler');
+    console.log(err);
+});      
+
+//catch uncaught exceptions and log
+process.on('uncaughtException', function(err) {
+    console.log('process.on handler');
+    console.log(err);
 });
 
 //gracefully handle exit - close the database
@@ -65,6 +74,13 @@ process.on('SIGINT',function(){
     mongoose.connection.close();
     process.exit();
 });
+
+//show the time since start...
+var minutes = 0;
+setInterval(function(){
+    minutes += 0.5;
+    console.log('Minutes: ',minutes);
+},30*1000);
 
 
 
