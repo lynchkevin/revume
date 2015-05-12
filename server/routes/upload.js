@@ -3,7 +3,7 @@ var router = express.Router();
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 var postedFileDir = 'tmp';
-var flow = require('flow-node')(postedFileDir);
+var flow = require('../lib/flow-node')(postedFileDir);
 var fs = require('fs');
 
 // create the destination directory if not already created

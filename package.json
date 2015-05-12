@@ -17,5 +17,8 @@
   "cordovaPlugins": [
     "org.apache.cordova.statusbar",
     "org.apache.cordova.inappbrowser"
+  ],
+  "cordovaPlatforms": [
+    "ios"
   ]
 }

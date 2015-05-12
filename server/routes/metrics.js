@@ -3,7 +3,7 @@ var metrics = express.Router();
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
-var schema = require('schema');
+var schema = require('../models/schema');
 
 var SI = schema.SessionInteraction;
 

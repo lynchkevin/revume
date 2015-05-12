@@ -13,9 +13,14 @@ var accountID='854375566';
 var authAccount ={email:uName,password:pw,partnerID:partnerId,accountID:accountID};
 var authAccountBridge = {email:uName,password:pw,partnerID:partnerId,accountID:accountID,conferenceID:conferenceID,pin:pin}
 
+//get env variables for base url and port depending upon host server
+var baseUrl = process.env.BASE_URL;
+var port = process.env.PORT;
+var endpoint = baseUrl+':'+port;
+
 var turboBridge = {request:{authAccount:authAccount,requestList:[]}};
 var turboBridgeUrl = 'https://api.turbobridge.com/Bridge';
-var callbackUrl = 'http://173.23.248.190:5000/api/bridges/callback';
+var callbackUrl = endpoint+'/api/bridges/callback';
 var authToken = '';
 
 //find a bridge by id return a promise
