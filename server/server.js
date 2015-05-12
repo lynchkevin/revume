@@ -9,7 +9,6 @@ var     sessions = require('./routes/sessions');
 var     users = require('./routes/users');
 var     uploader = require('./routes/upload');
 var     library = require('./routes/library');
-var     presentations = require('./routes/presentations');
 var     metrics = require('./routes/metrics');
 var     bridges = require('./routes/bridges');
 var     revu = require('./routes/revu');
@@ -19,7 +18,11 @@ var     app = express();
 
 
 //setup the database
-mongoose.connect('mongodb://localhost:27017/revume');
+try {
+    mongoose.connect('mongodb://localhost:27017/revume');
+}catch(e){
+    console.log('Error connecting to mongo: ',e);
+}
 
 app.use(bodyParser());          // pull information from html in POST
 app.use(methodOverride());      // simulate DELETE and PUT
@@ -47,7 +50,6 @@ app.all('*', function(req, res, next) {
 //setup the routes
 app.use('/api',sessions);
 app.use('/api',users);
-app.use('/api',presentations);
 app.use('/api',uploader);
 app.use('/api',library);
 app.use('/api',metrics);

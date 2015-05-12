@@ -115,7 +115,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     
     // A general purpose alert dialog
     function showAlert(msg) {
-        var confirmPopup = $ionicPopup.alert({
+        var alertPopup = $ionicPopup.alert({
         title: 'Build New Session',
         template: msg
         });
@@ -134,7 +134,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     $.new = function(){
         //we need to populate the decks so the user can select one or more
         var defer = $q.defer();
-        var decks = Decks.query();
+        var decks = Decks.query({user:$rootScope.user._id});
         $.decks=[];
         $.session.decks=[];
         $.session.timeZone = tz.name();   
@@ -219,7 +219,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     //sub edit decks within edit window
     $.subEdit = function(){
     //we need to populate the decks so the user can select one or more
-        var decks = Decks.query();
+        var decks = Decks.query({user:$rootScope.user._id});
         $.decks=[];
         decks.$promise.then(function(decks){
             if(decks.length>0){
