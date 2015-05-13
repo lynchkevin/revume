@@ -35,7 +35,7 @@ app.use(session({               // persist sessions in mongo
             collection:'expSessions'
                           }),
 }));
-app.use(express.static('../www'));
+app.use(express.static('./www'));
 app.use(library.url,express.static(__dirname+library.appPath));
 
 // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests

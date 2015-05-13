@@ -3,6 +3,7 @@
 /hooks
 /scss
 /node_modules
+/server/www
 /server/img
 /server/tmp
 /server/results
