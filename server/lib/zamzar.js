@@ -153,4 +153,44 @@ var prefix = directory+'/';
     });
 };
     
+    zamzar.s3ppt2png = function(stream){
+        console.log(stream);
+        return new Promise(function(resolve, reject){        
+        request.postAsync({url:'https://api.zamzar.com/v1/jobs/',
+                           formData: {
+                                target_format: 'png',
+                                source_file: stream
+                            },
+                           auth:{user:apiKey,
+                                 pass:'',
+                                 sendImmediately:true
+                            }
+        }).then(function(jobInfo){
+            job = JSON.parse(jobInfo[1]);
+            console.log(job.errors);
+            if(job.errors != undefined ){
+                console.log('rejecting promise');
+                reject(job.errors[0]);
+            }else{
+            console.log('Job posted successfully : ',job.id);
+            return waitForJob(job)
+            }
+        }).then(function(job){
+            console.log('downloading zipfile');
+            return promiseRetry(function(retry,number){
+                console.log('attempt number', number);
+                return downloadZipFile(job)
+                .catch(retry);
+            });
+        }).then(function(job){
+            console.log('unzipping file ',prefix+job.zipFile.name)
+            var result = unzipFile(job.zipFile);
+            resolve(job);
+        }).catch(function(e){
+            console.log('Error in chain: ',e);
+            reject(e);
+        });
+    });
+};
+
 module.exports = zamzar;

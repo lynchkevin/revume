@@ -37,6 +37,7 @@ function($ionicPlatform,$rootScope,$window,userService,
     var userInit = function(user){
         $rootScope.user._id = user._id;   
         $rootScope.user.name = user.firstName+' '+user.lastName;
+        $rootScope.user.email = user.email;
         $rootScope.$broadcast("userID",$rootScope.user);
         //manage user presence on the rootScope so all controllers can use
         $rootScope.mHandler = function(message){
@@ -354,7 +355,33 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
     }) 
-  
+    .state('app.teams', {
+      url: "/teams",
+      views:{
+          'menuContent':{
+            templateUrl: "templates/teams.html",  
+            controller: 'teamsCtrl'
+          }
+      }
+    })
+    .state('app.team', {
+      url: "/team/:id?name",
+      views:{
+          'menuContent':{
+            templateUrl: "templates/team.html",  
+            controller: 'teamsCtrl'
+          }
+      }
+    })
+    .state('app.team.new', {
+      url: "/team/new",
+      views:{
+          'menuContent':{
+            templateUrl: "templates/team.html",  
+            controller: 'teamsCtrl'
+          }
+      }
+    })
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/welcome');
 });

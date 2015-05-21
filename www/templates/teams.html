@@ -1,0 +1,40 @@
+<ion-view title="" ng-cloak>
+  <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+    <ion-content class="has-header">
+        <div class="revu-list-header positive-bg">
+            <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
+                     ng-click="toggleListDelete('team')"></button>
+            Your Teams
+           <p class="sub-title"
+               ng-if="smallScreen()">(swipe left to edit)</p>    
+            <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
+                    ng-click="newTeam()"></button>
+  
+        </div>
+
+   <ion-scroll elem-height="0.80">
+
+  <ion-refresher
+    pulling-text="Pull to refresh..."
+    on-refresh="doRefresh()">
+  </ion-refresher>
+       
+
+      <ion-list show-delete="shouldShowDelete" delegate-handle="team" >
+          <ion-item class="item-button-right" 
+                    ng-repeat="team in teams" 
+                    ng-click="editTeam($index)">
+            <ion-delete-button class="ion-minus-circled" 
+                               ng-click="delTeam($index,$event); $event.stopPropogation();">
+            </ion-delete-button>
+              <h2>{{team.name}}</h2>
+              <p>Total Members: {{team.members.length}}</p>
+          </ion-item>
+        </ion-list>
+    </ion-scroll> 
+  </ion-content>
+</ion-view>
+                    
+                

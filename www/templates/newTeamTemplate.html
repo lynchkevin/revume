@@ -1,0 +1,87 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-positive">
+    <h1 class="title">{{modalTitle}}</h1>
+    <div class="buttons">
+      <button class="button button-clear button-light" ng-click="closeModal()">Close</button>
+    </div>
+  </ion-header-bar>
+    <ion-content> 
+        <div >
+            <form name="teamForm">
+                <label class="item item-input">
+                  <span class="input-label">Team Name</span>
+                  <input name="teamName" type="text" ng-model="addTeam.name" required>
+                </label>
+                  <div class="list">
+                    <div class="item item-toggle">
+                        Comma Delimited Input
+                        <label class="toggle toggle-positive">
+                           <input type="checkbox" ng-model="commaDelimited">
+                           <div class="track">
+                             <div class="handle"></div>
+                           </div>
+                        </label>
+                    </div>
+                    <div ng-show="!commaDelimited">
+                        <div class="item item-input-inset">
+                            <label class="item-input-wrapper">
+                              <input type="text" name="mName" 
+                                     ng-model="addTeam.nameString" 
+                                     placeholder="Member Name" 
+                                     ng-focus="klugeElement($event)"
+                                     ng-change="nameChange()">
+                            </label>                            
+                            <label class="item-input-wrapper">
+                              <input type="email" name="mEmail" 
+                                     ng-model="addTeam.emailString" placeholder="Member Email"
+                                     ng-focus="klugeElement($event)"
+                                     ng-change="emailChange()">
+                            </label>
+                            <button class="button button-small"
+                                    ng-click="addMember()" 
+                                    ng-disabled="teamForm.mEmail.$invalid || teamForm.mName.$invalid">
+                              add
+                            </button>
+                        </div>
+                        <div class="item item-divider">
+                            Members
+                        </div> 
+                        <ion-scroll>
+                        <div class="list" elem-height="0.12">
+                            <div ng-repeat="member in addTeam.members" class="item item-icon-left" >
+                                <i class="icon ion-minus-circled " style="font-size:95%" ng-click="delMember($index)">
+                                <p class="padding-left">{{addTeam.members[$index].firstName}} 
+                                    {{addTeam.members[$index].lastName}}  {{addTeam.members[$index].email}}</p>         
+                                </i>
+
+                            </div>
+                        </div>                          
+                        </ion-scroll>
+                    </div>
+                    <div ng-show="commaDelimited">
+                    <label class="item item-input item-stacked-label">
+                        <span class="input-label">Add Members:(pattern:first,last,email;)</span>
+                        <textarea class="team-textarea"
+                                  name="members" 
+                                  ng-model="addTeam.memberString"
+                                  style="width:97%"
+                                  elem-height="0.185"
+                                  wrap="hard">
+                        </textarea>   
+                    </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="centered-container" style="margin-top:10px">
+             <button class="button button-positive" ng-click="modalCallback()" 
+                     ng-disabled="teamForm.teamName.$invalid || (addTeam.members.length == 0)">
+                OK
+            </button>
+            <button class="button padding-left button-stable" ng-click="closeModal()">
+                Cancel
+            </button>    
+                <p ng-show="teamForm.teamName.$invalid">Team Name is Required</p>         
+        </div>
+    </ion-content>
+</ion-modal-view>

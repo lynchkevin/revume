@@ -13,6 +13,7 @@ var     metrics = require('./routes/metrics');
 var     bridges = require('./routes/bridges');
 var     revu = require('./routes/revu');
 var     sfdc = require('./routes/salesforce');
+var     teams = require('./routes/teams');
 var     app = express();
 
 
@@ -56,6 +57,7 @@ app.use('/api',metrics);
 app.use('/api',bridges);
 app.use('/api',revu);
 app.use('/api',sfdc);
+app.use('/api',teams);
 
 app.listen(port, function () {
     console.log('Express server listening on port ' + port);

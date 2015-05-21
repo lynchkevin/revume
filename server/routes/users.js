@@ -8,6 +8,7 @@ var schema = require('../models/schema');
 var User = schema.User;
 
 //get all users
+/*
 users.get('/users',function(req,res){
        console.log('users query!');
     User.findAsync().then(function(users){
@@ -16,6 +17,7 @@ users.get('/users',function(req,res){
         res.send(err);
     });
 });
+*/
 
 //get a single user by id
 users.get('/users/:id',function(req,res){
@@ -32,6 +34,41 @@ users.get('/users/email/:email',function(req,res){
     }).catch(function(err){
         res.send(err);
     });
+});
+
+//query users
+users.get('/users',function(req,res){
+    console.log('users query with param');
+    var first = req.query.first;
+    var last = req.query.last;
+    var email = req.query.email;
+    var re={};
+    console.log(req.query);
+    if(first != undefined){
+        console.log('searching by firstName');
+        re = new RegExp(first,'i');
+        User.findAsync({firstName: {$regex:re}}).then(function(users){
+            res.send(users);
+        }).catch(function(err){
+            res.send(err);
+        });
+    } else if(email !=undefined){
+        console.log('searching by email');
+        re = new RegExp(email,'i');
+        User.findAsync({email: {$regex:re}}).then(function(users){
+            res.send(users);
+        }).catch(function(err){
+            res.send(err);
+        });
+    } else {
+        console.log('find with no params');
+        User.findAsync().then(function(users){
+            res.send(users);
+        }).catch(function(err){
+            res.send(err);
+        });
+    };
+        
 });
 
 //save a user

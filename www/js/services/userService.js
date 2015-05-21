@@ -22,6 +22,10 @@ function (Users,pnFactory,$q,$ionicPopup) {
     
     $.user = Users;
     
+    $.find = function(query){
+        return Users.byId.query(query).$promise;
+    };
+    
     $.getAll = function($scope){
         Users.byId.query().$promise.then(function(users){
             $scope.allUsers = users;

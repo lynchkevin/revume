@@ -356,6 +356,10 @@
     top:35px;
     right:11px;
 }
+.team-textarea{
+    width:97% !imporant;
+    background:#eee !important; 
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
