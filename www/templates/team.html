@@ -82,12 +82,18 @@
         </ion-refresher>
        
         <ion-list show-delete="shouldShowDelete" delegate-handle="member" >
-          <ion-item class="item-button-right" 
-                    ng-repeat="member in addTeam.members">
+          <ion-item ng-repeat="member in addTeam.members">
             <ion-delete-button class="ion-minus-circled" 
                                ng-click="delMember($index)"></ion-delete-button>
-              <h2>{{member.firstName}} {{member.lastName}}</h2>
-              <p>email: {{member.email}}</p>
+              <div class="item item-input item-select" style="border-style:none">
+                  <div class="input label" >
+                  <h2>{{member.firstName}} {{member.lastName}}</h2>
+                  <p>email: {{member.email}}</p>
+                  </div>
+              <select ng-model="member.role" ng-options="permission.name for permission in permissions">
+              </select>  
+              </div> 
+
           </ion-item>
         </ion-list>
         

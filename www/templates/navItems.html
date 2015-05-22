@@ -77,12 +77,12 @@
                     <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                     <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
                     <button ng-if="!smallScreen()"
-                            class="button button-small" ng-click="editContainer($index)" 
+                            class="button button-small" ng-click="editContainer($index,$event)" 
                             ng-class="{'button-assertive':item.beingEdited}" 
                             class="button right" ng-show="showEdit">{{editButton($index)}}
                     </button>
                     <button ng-if="modelName=='decks'&&!smallScreen()" class="button button-small" 
-                            ng-click="buildSession($index)">
+                            ng-click="buildSession($index,$event)">
                         New Meeting
                     </button>
                   <ion-option-button    ng-if="smallScreen()" 
@@ -91,13 +91,13 @@
                   </ion-option-button>
                   <ion-option-button    ng-if="smallScreen()" 
                                         class="button button-positive" 
-                                        ng-click="editContainer($index)"
+                                        ng-click="editContainer($index,$event)"
                                         ng-class="{'button-assertive':item.beingEdited}" >
                                         {{editButton($index)}}
                   </ion-option-button>
                   <ion-option-button ng-if="modelName=='decks'&&smallScreen()" 
                                        class="button button-calm" 
-                                        ng-click="buildSession($index)">
+                                        ng-click="buildSession($index,$event)">
                         New Meeting
                   </ion-option-button>   
                     <i class="icon ion-plus-circled slide-adder top-corner" 

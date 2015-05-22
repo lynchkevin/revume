@@ -13,8 +13,11 @@ teams.post('/teams',function(req,res){
     var team = new Team;
     var sent = req.body;
     team.members = [];
-    sent.members.forEach(function(_id){
-        team.members.push(_id);
+    sent.members.forEach(function(member){
+        var m={};
+        m.user = member.user;
+        m.role = member.role;
+        team.members.push(m);
     });
     team.name = sent.name;
     team.saveAsync().then(function(){
@@ -25,37 +28,36 @@ teams.post('/teams',function(req,res){
     });
 });
 //READ
-//get all teams
+//get all teams that a user is a member of - all if member is null
 teams.get('/teams',function(req,res){
-       console.log('teams query!');
-    Team.find()
-    .populate('members')
-    .execAsync()
-    .then(function(teams){
-        res.send(teams);
-    }).catch(function(err){
-        res.send(err);
-    });
-});
-//READ
-//get all teams that a user is a member of
-teams.get('/teams',function(req,res){
-       console.log('teams query!');
+       console.log('teams query! - memberId:', req.query.user);
     var userId = req.query.user;
-    Team.find({members:new ObjectId(userId)})
-    .populate('members')
-    .execAsync()
-    .then(function(teams){
-        res.send(teams);
-    }).catch(function(err){
-        res.send(err);
-    });
+    if(userId != undefined){
+        Team.find({'members.user':new ObjectId(userId)})
+        .populate('members.user')
+        .execAsync()
+        .then(function(teams){
+            res.send(teams);
+        }).catch(function(err){
+            res.send(err);
+        });
+    } else {
+        Team.find()
+        .populate('members.user')
+        .execAsync()
+        .then(function(teams){
+            res.send(teams);
+        }).catch(function(err){
+            res.send(err);
+        });
+    }
 });
 //READ
 //get a single team by id
 teams.get('/teams/:id',function(req,res){
+    console.log('Teams get - id: ',req.params.id);
     Team.find({_id:new ObjectId(req.params.id)})
-    .populate('members')
+    .populate('members.user')
     .execAsync()
     .then(function(user){
         res.send(user[0]);
@@ -72,8 +74,11 @@ teams.put('/teams/:id',function(req,res){
         }).then(function(team){
             team.name = sent.name;
             team.members = [];
-            sent.members.forEach(function(_id){
-                team.members.push(_id);
+            sent.members.forEach(function(member){
+                var m = {};
+                m.user = member.user;
+                m.role = member.role;
+                team.members.push(m);
             });
             return team.saveAsync();
         }).then(function(team){

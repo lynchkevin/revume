@@ -145,7 +145,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         teamService.save(team).then(function(){
             return teamService.refreshTeams($scope);
         }).then(function(){
-            return
+            $scope.forms.teamForm.$setPristine();
         }).catch(function(err){
             console.log(err);
         });
@@ -200,7 +200,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         teamService.update(team).then(function(){
             return teamService.refreshTeams($scope);
         }).then(function(){
-            return
+            $scope.forms.teamForm.$setPristine();
         }).catch(function(err){
             console.log(err);
         });

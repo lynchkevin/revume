@@ -66,7 +66,8 @@ function ($scope,$rootScope,$state,
             return "Done";
         return "Edit";
     };
-    $scope.buildSession = function($index){
+    $scope.buildSession = function($index,$event){
+        $event.stopPropagation();
         sb.setScope($scope);
         sb.build($index).then(function(){
             $scope.slideBack();
@@ -85,7 +86,8 @@ function ($scope,$rootScope,$state,
         Library.deleteSlide($scope,index);
     };
     
-    $scope.editContainer = function(index){
+    $scope.editContainer = function(index,$event){
+        $event.stopPropagation();
         if(!$scope.isEditing){
             $scope.slideOver();
             Library.openCollection($scope,index);
