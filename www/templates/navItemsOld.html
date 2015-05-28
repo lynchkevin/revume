@@ -69,48 +69,37 @@
                 on-refresh="doRefresh()">
               </ion-refresher>
             <ion-list show-delete="shouldShowDelete">
-                <ion-item 
-                          ng-repeat="(itemIndex,item) in navItems" 
-                          class="item-thumbnail-left item-select" 
+                <ion-item ng-repeat="item in navItems" class="item-thumbnail-left item-select" 
                           ng-click="setNavSelection($index)">
-                        <ion-delete-button class="ion-minus-circled" 
-                                           ng-click="delNavItem($index)">
-                        </ion-delete-button>
-                        <img ng-src="{{item.thumb}}" alt="New" class="alt">
-                        <h2>{{item.name}}</h2>
-                        <p>{{item.user.firstName}} {{item.user.lastName}}</p>
-                        <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  
-                            <select ng-if="!smallScreen()"
-                                    ng-model="item.action.selected" 
-                                    ng-options="option.name for option in item.options"
-                                    ng-change="selectOption($index)"
-                                    ng-class="{'edit-color':item.beingEdited}" >
-                            </select>
-                            <ion-option-button
-                                    ng-repeat="option in item.options"
-                                    ng-if="smallScreen() && $index!=0"
-                                    ng-model="item.action.selected"
-                                    ng-click="optionButton(itemIndex,$index,$event)"
-                                    class="button ng-class:option.class;">
-                                {{option.name}}
-                            </ion-option-button>
-                                
-  <!--                    <ion-option-button    ng-if="smallScreen()" 
-                                            class="button button-royal">
-                                            Share
-                      </ion-option-button>
-                      <ion-option-button    ng-if="smallScreen() && $index!=0" 
-                                            class="button button-positive" 
-                                            ng-click="editContainer($index,$event)"
-                                            ng-class="{'button-assertive':item.beingEdited}" >
-                                            {{editButton($index)}}
-                      </ion-option-button>
-                      <ion-option-button ng-if="modelName=='decks'&&smallScreen()" 
-                                           class="button button-calm" 
-                                            ng-click="buildSession($index,$event)">
-                            New Meeting
-                      </ion-option-button>  
--->
+                        <ion-delete-button class="ion-minus-circled" ng-click="delNavItem($index)"></ion-delete-button>
+                    <img ng-src="{{item.thumb}}" alt="New" class="alt">
+                    <h2>{{item.name}}</h2>
+                    <p>{{item.user.firstName}} {{item.user.lastName}}</p>
+                    <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
+                    <button ng-if="!smallScreen()"
+                            class="button button-small" ng-click="editContainer($index,$event)" 
+                            ng-class="{'button-assertive':item.beingEdited}" 
+                            class="button right" ng-show="showEdit">{{editButton($index)}}
+                    </button>
+                    <button ng-if="modelName=='decks'&&!smallScreen()" class="button button-small" 
+                            ng-click="buildSession($index,$event)">
+                        New Meeting
+                    </button>
+                  <ion-option-button    ng-if="smallScreen()" 
+                                        class="button button-royal">
+                                        Share
+                  </ion-option-button>
+                  <ion-option-button    ng-if="smallScreen()" 
+                                        class="button button-positive" 
+                                        ng-click="editContainer($index,$event)"
+                                        ng-class="{'button-assertive':item.beingEdited}" >
+                                        {{editButton($index)}}
+                  </ion-option-button>
+                  <ion-option-button ng-if="modelName=='decks'&&smallScreen()" 
+                                       class="button button-calm" 
+                                        ng-click="buildSession($index,$event)">
+                        New Meeting
+                  </ion-option-button>   
                     <i class="icon ion-plus-circled slide-adder top-corner" 
                        ng-show="isEditing && !showEdit && (selectedNavId == $index) "  
                        ng-click="addAll()"></i>

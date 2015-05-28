@@ -1,0 +1,31 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-calm"> <h1 class="title"> Share with Team </h1> 
+    <div class="buttons">
+      <button class="button button-clear button-light" 
+              ng-click="cancelNavShare()">Close</button>
+    </div>
+    </ion-header-bar> 
+    <ion-content> 
+        <ion-list >
+            <ion-item ng-repeat="team in teams" class="item-checkbox" >
+                <label class="checkbox">
+                    <input ng-model="navItems[selectedNavId].sharedTeams[$index]" type="checkbox">
+                </label>
+                    <h2>{{team.name}}</h2>
+                    <p>Total Members: {{team.members.length}}</p>
+            </ion-item>
+        </ion-list>
+
+    </ion-content>
+    <ion-footer-bar>
+        <div class="centered-container">
+          <button class="button button-positive button-calm"
+                  ng-click="updateNavSharing()">
+              Ok
+          </button>
+          <button class="button button-stable" ng-click="cancelNavShare()">
+              Cancel
+          </button>
+        </div>
+    </ion-footer-bar>
+</ion-modal-view>

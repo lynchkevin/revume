@@ -360,6 +360,9 @@
     width:97% !imporant;
     background:#eee !important; 
 }
+.edit-color{
+    color:red !important;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
