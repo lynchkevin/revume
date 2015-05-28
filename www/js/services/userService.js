@@ -16,11 +16,96 @@ angular.module('starter')
     };
 }])
 
-.service('userService', ['Users','pnFactory','$q','$ionicPopup', 
-function (Users,pnFactory,$q,$ionicPopup) {
+.factory('TeamUsers', ['$resource','baseUrl',function ($resource, baseUrl) {
+    var target = baseUrl.endpoint+'/api/teams/justUsers/:id';
+    return $resource(target,
+        {id:'@id'},
+        {  update: {method:'PUT', params:{id:'@id'}}
+        });
+}])
+
+.service('userService', ['Users','TeamUsers','pnFactory','$q','$ionicPopup','$ionicPopover','$rootScope', 
+function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
     var $ = this;
     
     $.user = Users;
+    //create a shell scope to use for the popover
+    $.scope = $rootScope.$new();
+    
+    //show and hide the popover for a given directive
+    $.directiveScope = undefined;
+    $.creatingPopover = false;
+    $.createPopover = function(){
+        if($.popover == undefined && !$.creatingPopover){
+            $.creatingPopover = true;
+            $ionicPopover.fromTemplateUrl('templates/autocomplete.html', {
+                scope: $.scope,
+            }).then(function(pop) {
+                $.creatingPopover = false;
+                $.popover = pop;
+            });
+        }
+    }
+    $.showPopover = function(scope,el){
+        $.directiveScope = scope;
+        $.popover.show(el);
+    }
+    $.hidePopover = function(scope){
+        $.popover.hide();
+        $.directiveScope = undefined;
+    }
+    $.removePopover = function(scope){
+        if($.popover != undefined){
+            $.popover.remove();
+            $.popover = undefined;
+            $.directiveScope = undefined;
+        }
+    }    
+        
+    // this is used by the directives and the templates to popup autocomplete candidates
+    $.scope.auto = {entries:[]};
+    $.setResults = function(results){
+        $.scope.auto.entries = results;
+    }
+    $.getResults = function($index){
+        if($.scope.auto.entries.length >0) 
+            if($index < $.scope.auto.entries.length)
+                return $.scope.auto.entries[$index];
+    }
+    //keep a list of callbacks from directives
+    $.callBacks = [];
+    //connect to autoComplete callback
+    $.onAutoComplete = function(directiveScope){
+        var cbPair = {
+                key:directiveScope.instanceName,
+                callBack:directiveScope.doFinish
+            };
+        
+        $.callBacks.push(cbPair);            
+    }
+                
+    $.doAutoComplete = function(directiveScope, $index){
+        $.callBacks.forEach(function(cbPair){
+            if(cbPair.key == directiveScope.instanceName)
+                cbPair.callBack($index);
+        });
+    };
+    
+    $.scope.finishComplete = function($index){
+        $.doAutoComplete($.directiveScope,$index);
+    };
+    
+    $.offAutoComplete = function(directiveScope){
+        var found = [];
+        for(var i = $.callBacks.length-1; i>=0 ; i--){
+            if($.callBacks[i].key == directiveScope.instanceName)
+                found.push(i);
+        }
+        found.forEach(function(index){
+            $.callBacks.splice(index,1);
+        });
+    };
+            
     
     $.find = function(query){
         return Users.byId.query(query).$promise;
@@ -32,6 +117,17 @@ function (Users,pnFactory,$q,$ionicPopup) {
             $scope.user.email = 'klynch@volerro.com'
         });
     };
+    
+    $.usersIKnow = function(query){
+        if($rootScope.user._id != undefined){
+            var userId = $rootScope.user._id;
+            var sendQuery = {user:userId};
+            for (var attrname in query){
+                sendQuery[attrname] = query[attrname];
+            }
+            return TeamUsers.query(sendQuery).$promise;
+        } 
+    }
     
     $.getUser = function($scope){
         var defer = $q.defer();
@@ -165,5 +261,7 @@ function (Users,pnFactory,$q,$ionicPopup) {
         }
     };
                                         
-
+    $rootScope.$on('$destroy',function(){
+        $.scope.$destroy();
+    })
 }]);

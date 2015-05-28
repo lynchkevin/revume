@@ -11,9 +11,8 @@ angular.module('starter')
                             '$ionicListDelegate',      
                             '$ionicPopup',
                             '$ionicModal',
-                            '$ionicPopover',
                             '$state',
-function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionicModal,$ionicPopover,$state) {
+function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionicModal,$state) {
     
     //set edit team name if passed in
     switch($state.current.name){
@@ -54,11 +53,6 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
             });
             //set the input type to manual
             $scope.commaDelimited = false;
-            $ionicPopover.fromTemplateUrl('templates/autocomplete.html', {
-                scope: $scope,
-            }).then(function(popover) {
-                $scope.popover = popover;
-            });
         };  
     };
     //upll to refresh the list of teams
@@ -72,53 +66,6 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         //set the callback so that the modal saves a new team
         $scope.modalCallback = $scope.saveTeam;
         $state.transitionTo('app.team.new');
-    }
-
-    //ng-change doesn't send the element so we need to catch it with focus
-    $scope.klugeElement = function($event){
-        $scope.el = $event.target;
-    }
-    //auto complete emails from the database
-    $scope.emailChange=function(){
-        var eStr = $scope.addTeam.emailString;
-        $scope.addTeam._id = undefined;
-        if(eStr != undefined)
-            if(eStr.indexOf('@')>0){
-                var query={email:eStr};
-                userService.find(query).then(function(results){
-                    $scope.autoComplete.entries = results;
-                    if(results.length>0)
-                        $scope.popover.show($scope.el);
-                    else
-                        $scope.popover.hide();
-                });
-            }
-    }
-    //autocomplete names from the database
-    $scope.nameChange=function(){
-        var nStr = $scope.addTeam.nameString;
-        $scope.addTeam._id = undefined;
-        if(nStr != undefined)
-            if(nStr.length>0){
-                var query={first:nStr};
-                userService.find(query).then(function(results){
-                    $scope.autoComplete.entries = results;
-                    if(results.length>0)
-                        $scope.popover.show($scope.el);
-                    else
-                        $scope.popover.hide();
-                });
-            } else {
-                $scope.popover.hide();
-            }
-    }
-    //finish the autocompleate based on user selection    
-    $scope.finishComplete = function($index){
-        var selected = $scope.autoComplete.entries[$index];
-        $scope.popover.hide();
-        $scope.addTeam.emailString = selected.email;
-        $scope.addTeam.nameString = selected.firstName+' '+selected.lastName;
-        $scope.addTeam._id = selected._id;
     }
     //add a member to the team
     $scope.addMember = function(){
@@ -225,12 +172,13 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
             case 'app.team' :
             case 'app.team.new':
                 //check if form is dirty then ask if they want to save
-                if(!$scope.forms.teamForm.$pristine)
-                    $scope.showNavConfirm().then(function(res){
-                        if(res){
-                            $scope.modalCallback();
-                        }
-                    });
+                if($scope.forms.teamForm != undefined)
+                    if(!$scope.forms.teamForm.$pristine)
+                        $scope.showNavConfirm().then(function(res){
+                            if(res){
+                                $scope.modalCallback();
+                            }
+                        });
                 break;
         }
     });
@@ -243,8 +191,5 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
                 },0);                
     });
     
-    $scope.$on('$destroy', function() {
-        $scope.popover.remove();
-    });
     
 }])

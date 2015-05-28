@@ -28,14 +28,16 @@
                               <input type="text" name="mName" 
                                      ng-model="addTeam.nameString" 
                                      placeholder="Member Name" 
-                                     ng-focus="klugeElement($event)"
-                                     ng-change="nameChange()">
+                                     user-complete
+                                     field-type='name'
+                                     instance-name='team'>
                             </label>                            
                             <label class="item-input-wrapper">
                               <input type="email" name="mEmail" 
                                      ng-model="addTeam.emailString" placeholder="Member Email"
-                                     ng-focus="klugeElement($event)"
-                                     ng-change="emailChange()">
+                                     user-complete
+                                     field-type='email'
+                                     instance-name='team'>
                             </label>
                             <button class="button button-small"
                                     ng-click="addMember()" 

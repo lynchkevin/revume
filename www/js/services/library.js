@@ -31,8 +31,8 @@ angular.module('starter')
         });
 }])
 //library service
-.service('Library',['UploadedFiles','Decks','Categories','$q','baseUrl','$resource','$rootScope','$ionicPopup',
-function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
+.service('Library',['UploadedFiles','Decks','Categories','$q','$timeout','baseUrl','$resource','$rootScope','$ionicPopup',
+function(uFiles,decks,categories,$q,$timeout,baseUrl,$resource,$rootScope,$ionicPopup){
     var $ = this;
     var collection={};
     //database objects
@@ -185,12 +185,16 @@ function(uFiles,decks,categories,$q,baseUrl,$resource,$rootScope,$ionicPopup){
                 collection.instance = $scope.navItems[$index];
                 $scope.navItems[$index].beingEdited = true;
                 setEditStates($scope);
+                $timeout(function(){
+                    $scope.statesReady = true;
+                },500);
             });
         }
     };
     $.closeCollection=function($scope,$index){
         if($scope.isEditing){
             if($index == collection.index && $scope.model == collection.model){
+                $scope.statesReady = false;
                 $scope.isEditing=false;
                 $scope.editText="Edit";
                 $.updateNavItem($scope).then(function(){

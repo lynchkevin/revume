@@ -6,6 +6,7 @@ var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 
 var Team = schema.Team;
+var User = schema.User;
 //CREATE
 //create a team
 teams.post('/teams',function(req,res){
@@ -47,6 +48,53 @@ teams.get('/teams',function(req,res){
         .execAsync()
         .then(function(teams){
             res.send(teams);
+        }).catch(function(err){
+            res.send(err);
+        });
+    }
+});
+//READ
+//get all users for all teams that a user is a member of
+teams.get('/teams/justUsers',function(req,res){
+       console.log('team - justUsers! - memberId:', req.query.user);
+    var userId = req.query.user;
+    var first = req.query.first;
+    var last = req.query.last;
+    var email = req.query.email;
+    if(first != undefined){
+        console.log('teams.justUsers: searching by firstName - ',first);
+        Team.find({'members.user':new ObjectId(userId)})
+        .execAsync()
+        .then(function(teams){
+            var ids = []
+            teams.forEach(function(team){
+                team.members.forEach(function(member){
+                    ids.push(member.user);
+                })
+            });
+            var re = new RegExp(first,'i');
+            return User.findAsync({$and:[{_id:{$in:ids}},{firstName: {$regex:re}}]});
+        }).then(function(users){
+            res.send(users);
+        }).catch(function(err){
+            res.send(err);
+        });
+    } else if(email !=undefined){
+        console.log('teams.justUsers: searching by email');
+        Team.find({'members.user':new ObjectId(userId)})
+        .execAsync()
+        .then(function(teams){
+            var ids = []
+            teams.forEach(function(team){
+                team.members.forEach(function(member){
+                    ids.push(member.user);
+                })
+            });
+            console.log('ids:',ids);
+            var re = new RegExp(email,'i');
+            return User.findAsync({$and:[{_id:{$in:ids}},{email: {$regex:re}}]});
+        }).then(function(users){
+            res.send(users);
         }).catch(function(err){
             res.send(err);
         });

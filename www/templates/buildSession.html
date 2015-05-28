@@ -1,4 +1,4 @@
-  <ion-modal-view>
+  <ion-modal-view style="z-index:15">
     <ion-header-bar class="bar-dark">
       <h1 class="title">New Meeting</h1>
         <div class="buttons">
@@ -60,10 +60,16 @@
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper">
                           <input type="text" name="aName" 
-                                 ng-model="sb.session.formname" placeholder="Attendee Name">
+                                    user-complete
+                                    field-type='name'
+                                    instance-name='session'
+                                ng-model="sb.session.formname" placeholder="Attendee Name">
                         </label>
                         <label class="item-input-wrapper">
                           <input type="email" name="aEmail" 
+                                    user-complete
+                                    field-type='email'
+                                    instance-name='session'
                                  ng-model="sb.session.formemail" placeholder="Attendee Email">
                         </label>
                         <button class="button button-small"

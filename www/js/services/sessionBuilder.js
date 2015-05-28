@@ -253,7 +253,6 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.decks[$index].added=false;
         }catch(e){};
     };
-
     //add an attendee to the session    
     $.addAttendee = function(){
         var attendee = new Object();
@@ -335,7 +334,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
 
     //should be called from the owning scope to clean up
     $.destroy = function(){
-        $.popover.remove();
         $.builderModal.remove();
+        $.deckModal.remove();
     };
   }]);
