@@ -30,15 +30,186 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
+//service to manage the behavior of each model - like a strategy pattern
+.service('libraryRights',['UploadedFiles','Categories','Decks',function(files,categories,decks){
+    var $ = this;
+    
+    $.models = [{name:'files',model:files},
+                {name:'categories',model:categories},
+                {name:'decks',model:decks}];
+                
+    $.allActions = ['Edit','New Meeting','Share','Hide','Delete'];
+    
+    $.roles = ['Admin','Viewer'];
+    
+    //get the index of the model from an object
+    function modelLookup(modelObject){
+        var modelIdx = -1;
+        for(var i=0; i<$.models.length;i++)
+            if(modelObject == $.models[i].model)
+                modelIdx = i;
+        return modelIdx;
+    };   
+    function wordLookup(word,array){
+        var idx = -1;
+        for(var i=0; i<array.length;i++)
+            if(array[i] == word)
+                idx = i;
+        return idx;
+    }; 
+    //create a rights array with every right enabled            
+    function allEnabled(){
+        var finalRights = [];
+        var rights = [];
+        $.roles.forEach(function(role){
+            rights = [];
+            $.allActions.forEach(function(action){
+                var r = {}
+                r.name = action;
+                r.enabled = true;
+                rights.push(r);
+            })
+            finalRights.push(rights);
+        })
+        return finalRights;
+    };
+    //set one array false
+    function setFalse(rights){
+        rights.forEach(function(right){
+            right.enabled = false;
+        });
+    };
+    //set a rights element by role and action name
+    function setRight(accessRights,role,action,enabled){
+        var roleIdx = wordLookup(role,$.roles);
+        var actionIdx = wordLookup(action,$.allActions);
+        accessRights[roleIdx][actionIdx].enabled = enabled;
+    };
+    //get the rights by role and action name
+    function getRight(accessRights,action){
+        var actionIdx = wordLookup(action,$.allActions);
+        if(actionIdx >= 0)
+            return accessRights[actionIdx].enabled;
+        else
+            return true;
+    };    
+    //set rights for the file model (strategy)       
+    function setFileRights(){
+        var fileRights = allEnabled();
+        //set the Admin rights
+        setRight(fileRights,'Admin','New Meeting',false);
+        setRight(fileRights,'Admin','Hide',false);
+        //set the viewer rights
+        setFalse(fileRights[1]); //all viewer rights false
+        setRight(fileRights,'Viewer','Share',true);
+        return fileRights;
+    };
+    //set the rights for categories
+    function setCategoryRights(){
+        var catRights = allEnabled();
+        //set the Admin rights
+        setRight(catRights,'Admin','New Meeting',false);
+        setRight(catRights,'Admin','Hide',false);
+        //set the viewer rights
+        setFalse(catRights[1]); //all viewer rights false
+        setRight(catRights,'Viewer','Hide',true);
+        return catRights;
+    };
+    //set the rights for decks
+    function setDeckRights(){
+        var deckRights = allEnabled();
+        //set the Admin rights
+        setRight(deckRights,'Admin','Hide',false);
+        //set the viewer rights
+        setFalse(deckRights[1]); //all viewer rights false
+        setRight(deckRights,'Viewer','Hide',true);
+        return deckRights;
+    };
+    // organize the rights database for all rights             
+    $.accessRights = [{model:$.models[0],accessRights:setFileRights()},
+                      {model:$.models[1],accessRights:setCategoryRights()},
+                      {model:$.models[2],accessRights:setDeckRights()} ];
+    
+    $.getAccessRights = function(model,role){
+        var modelIdx = modelLookup(model);
+        var roleIdx = wordLookup(role,$.roles);
+        if(modelIdx >=0 && roleIdx >=0)
+            return $.accessRights[modelIdx].accessRights[roleIdx];
+    };
+    $.rightEnabled = function(model,role,action){
+        var rights = $.getAccessRights(model,role)
+        if(rights!=undefined)
+            return getRight(rights,action);
+        else
+            return true;
+    };
+    //get model name from model object
+    $.modelName = function(model){
+        var modelIdx = modelLookup(model);
+        return $.models[modelIdx].name;
+    };
+    //add actions to the scope based on rights
+    $.addActions = function($scope){
+        var model = $scope.model;
+        var items = $scope.navItems;
+        items.forEach(function(item){
+            var refActions = (item.beingEdited) ? $scope.editActions: $scope.actions ;
+            item.actions =[];
+            refActions.forEach(function(action){
+                var idx = 0;
+                if($.rightEnabled(model,item.role,action.name)){
+                   var newAction = {};
+                   newAction.name = action.name;
+                   newAction.class = action.class;
+                   newAction.callBack = action.callBack;
+                   newAction.idx = idx++;
+                   item.actions.push(newAction);
+                }
+            });
+            item.action = {selected:item.actions[0]};
+        });
+    }
+}])
+
 //library service
-.service('Library',['UploadedFiles','Decks','Categories','$q','$timeout','baseUrl','$resource','$rootScope','$ionicPopup',
-function(uFiles,decks,categories,$q,$timeout,baseUrl,$resource,$rootScope,$ionicPopup){
+.service('Library',['UploadedFiles',
+                    'Decks',
+                    'Categories',
+                    '$q',
+                    '$timeout',
+                    'baseUrl',
+                    '$resource',
+                    '$rootScope',
+                    '$ionicPopup',
+                    'libraryRights',
+                    'shareMediator',
+function(uFiles,
+          decks,
+          categories,
+          $q,$timeout,
+          baseUrl,
+          $resource,
+          $rootScope,
+          $ionicPopup,
+          libRights,
+          shareMediator){
+    
     var $ = this;
     var collection={};
     //database objects
     $.files = uFiles;
     $.decks = decks;
     $.categories = categories;
+
+    $.init = function($scope){
+        $scope.navItems =[];
+        $scope.slides = [];
+        $scope.slideStates =[]
+        $scope.isEditing = false;
+        $scope.editText = "Edit";
+        $scope.container ={};
+        collection.index=-1;
+    };  
     
     //files, categories or decks are all flavors of the same class
     $.setModel = function($scope,model){
@@ -49,14 +220,14 @@ function(uFiles,decks,categories,$q,$timeout,baseUrl,$resource,$rootScope,$ionic
     $.updateModel = function($scope){
         return $q(function(resolve,reject){
           if($.model != $scope.model) console.log("model error in Library service");
-          $scope.navItems = $.model.query({user:$rootScope.user._id});
-          $scope.selectedNavId = 0;
-          $scope.navItems.$promise.then(function(items){
-          // user and slides are poplulated
+            shareMediator.getItems($scope).then(function(items){
+            $scope.selectedNavId = 0;
+            // user and slides are poplulated
               if(items.length>0){
                 $scope.navItems = items;
                 $scope.slides = $scope.navItems[$scope.selectedNavId].slides;
                 setEditStates($scope);
+                libRights.addActions($scope);//this has to happen after edit states
               } else {
                 $scope.navItems = [];
                 $scope.slides = [];
@@ -134,16 +305,7 @@ function(uFiles,decks,categories,$q,$timeout,baseUrl,$resource,$rootScope,$ionic
         }
         return defer.promise;
     };
-
-    $.init = function($scope){
-        $scope.navItems =[];
-        $scope.slides = [];
-        $scope.slideStates =[]
-        $scope.isEditing = false;
-        $scope.editText = "Edit";
-        $scope.container ={};
-        collection.index=-1;
-    };   
+ 
     //run through all navItems and all Slides and set edit states
     function setEditStates($scope){
         for(var i=0; i<$scope.navItems.length; i++){

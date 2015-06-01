@@ -80,37 +80,21 @@
                         <h2>{{item.name}}</h2>
                         <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                         <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  
-                            <select ng-if="!smallScreen()"
-                                    ng-model="item.action.selected" 
-                                    ng-options="option.name for option in item.options"
-                                    ng-change="selectOption($index)"
+                            <select ng-if="!smallScreen() "
+                                    ng-model="item.action.selected"
+                                    ng-options="action.name for action in item.actions"
+                                    ng-change="item.action.selected.callBack(itemIndex,item.action.selected.idx,$event,'option')"
                                     ng-class="{'edit-color':item.beingEdited}" >
+                                {{option.callBack}}
                             </select>
                             <ion-option-button
-                                    ng-repeat="option in item.options"
-                                    ng-if="smallScreen() && $index!=0"
+                                    ng-repeat="action in item.actions"
                                     ng-model="item.action.selected"
-                                    ng-click="optionButton(itemIndex,$index,$event)"
-                                    class="button ng-class:option.class;">
-                                {{option.name}}
+                                    ng-if="smallScreen() && $index!=0 && $index!=item.actions.length-1"
+                                    ng-click="action.callBack(itemIndex,$index,$event,'button')"
+                                    class="button ng-class:action.class;">
+                                {{action.name}}
                             </ion-option-button>
-                                
-  <!--                    <ion-option-button    ng-if="smallScreen()" 
-                                            class="button button-royal">
-                                            Share
-                      </ion-option-button>
-                      <ion-option-button    ng-if="smallScreen() && $index!=0" 
-                                            class="button button-positive" 
-                                            ng-click="editContainer($index,$event)"
-                                            ng-class="{'button-assertive':item.beingEdited}" >
-                                            {{editButton($index)}}
-                      </ion-option-button>
-                      <ion-option-button ng-if="modelName=='decks'&&smallScreen()" 
-                                           class="button button-calm" 
-                                            ng-click="buildSession($index,$event)">
-                            New Meeting
-                      </ion-option-button>  
--->
                     <i class="icon ion-plus-circled slide-adder top-corner" 
                        ng-show="isEditing && !showEdit && (selectedNavId == $index) "  
                        ng-click="addAll()"></i>
@@ -120,4 +104,4 @@
             </ion-list>
             </ion-scroll>
         
-
+           <!--    ng-change="option.callBack(itemIndex,$idx,$event,'option')"-->

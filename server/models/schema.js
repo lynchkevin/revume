@@ -69,8 +69,16 @@ var SessionInteractionSchema = new mongoose.Schema({
     slideViews:[{slideIndex:Number, duration:Number, views:[{userName:String,viewed:Number}]}],
     viewers:[String],
 });
-    
-    
+
+//sharing information
+var ShareSchema = new mongoose.Schema({
+    model: String,
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    item:{type: mongoose.Schema.Types.ObjectId},
+    teams:[{type: mongoose.Schema.Types.ObjectId, ref: 'Team'}]
+});
+
+var Model = mongoose.model('Model',Container);    
 var Team = mongoose.model('Team',TeamSchema);
 var User = mongoose.model('User',UserSchema);
 var Slide = mongoose.model('Slide',SlideSchema);
@@ -79,6 +87,7 @@ var Deck = mongoose.model('Deck', Container);
 var Category = mongoose.model('Category', Container);
 var Session = mongoose.model('Session',SessionSchema);
 var SessionInteraction = mongoose.model('SessionInteraction',SessionInteractionSchema);
+var Share = mongoose.model('Share',ShareSchema);
 
 var entries = [
 {firstName:"Kevin", lastName:"Lynch", email:"klynch@volerro.com"},
@@ -100,6 +109,7 @@ function loadUsers(){
         
 module.exports.loadUsers = loadUsers;
 
+module.exports.Container = Container;
 module.exports.Team = Team;
 module.exports.User = User;
 module.exports.Slide = Slide;
@@ -108,3 +118,4 @@ module.exports.Deck = Deck;
 module.exports.Category = Category;
 module.exports.Session = Session;
 module.exports.SessionInteraction = SessionInteraction;
+module.exports.Share = Share;

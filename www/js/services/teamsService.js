@@ -16,12 +16,20 @@ angular.module('starter')
 
 .service('TeamService', ['Teams',
                          'Users',
+                         'libraryRights',
                          '$q',
                          '$ionicPopover',
                          '$rootScope', 
-function (Teams,Users,$q,$ionicPopover,$rootScope) {
+function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope) {
     var $ = this;
-    var permissionList = [{name:'read/write'},{name:'read-only'}];
+    var permissionList =[];
+
+    rightsAuth.roles.forEach(function(role){
+        var x = {}
+        x.name = role;
+        permissionList.push(x);
+    });
+    
     $.scope = undefined;
     
     $.init = function($scope){

@@ -8,7 +8,8 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('libraryCtrl', ['$scope',
+
+.controller('libraryCtrl', ['$scope',
                              '$rootScope',
                              '$state',
                              '$window',
@@ -20,23 +21,15 @@ angular.module('starter')
                              '$ionicPopup',
                              'SessionBuilder',
                              'baseUrl',
-                              'TeamService',
-                              '$ionicModal',
+                             'shareMediator',
+                             '$ionicModal',
                              '$q',
 function ($scope,$rootScope,$state,
            $window,$timeout,Library,
            $ionicScrollDelegate,$listDel,
-           pnFactory,$ionicPopup,sb,baseUrl,TeamService,$ionicModal,$q) {
+           pnFactory,$ionicPopup,sb,baseUrl,shareMediator,$ionicModal,$q) {
       
     $scope.w = angular.element($window);
-    
-    function setOptions($scope){
-        $scope.options = [{name:'Options'},
-                          {name:'Edit',class:'button-positive'},
-                          {name:'New Meeting',class:'button-calm'},
-                          {name:'Share',class:'button-royal'}
-                         ];
-    }
     
     $scope.init = function(){
         sb.init($scope);
@@ -44,7 +37,6 @@ function ($scope,$rootScope,$state,
         $scope.baseUrl = baseUrl.endpoint;
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
         $scope.navPartial = baseUrl.endpoint+"/templates/navItems.html"
-        console.log($scope.slidePartial,$scope.navPartial);
         $scope.sb=sb;
         pnFactory.init(); 
         reAspect();
@@ -52,8 +44,7 @@ function ($scope,$rootScope,$state,
         var channel = pnFactory.newChannel("library::fileEvents");
         $scope.progress = "0%"
         $scope.spinner = false;
-        setOptions($scope);
-        $scope.action = {selected:$scope.options[0]};
+        setActions($scope);
         $scope.selectedNavId = 0;
         $scope.navItems =[];
         $scope.listName = "Uploaded Files";
@@ -64,15 +55,7 @@ function ($scope,$rootScope,$state,
         $scope.deck = {name: ''};
         $scope.category={name:''};
         $scope.addingTo = undefined;
-        TeamService.getAll($rootScope.user._id).then(function(teams){
-            $scope.teams = teams;
-        })
-        $ionicModal.fromTemplateUrl('templates/shareTemplate.html',{
-            scope: $scope,
-            animation:'slide-in-up'
-        }).then(function(modal){
-            $scope.shareModal = modal;
-        });
+        shareMediator.init($scope);
     };
     $scope.slideOver=function(){
         $scope.$broadcast("library::slide");
@@ -130,32 +113,8 @@ function ($scope,$rootScope,$state,
        });
    };
     
-   $scope.addDeck=function(){
-        $scope.addingTo = new Library.decks;
-        $scope.addingTo.name = $scope.deck.name;
-        $scope.addingTo.user ={};
-        $scope.addingTo.user._id = $rootScope.user._id;
-        $scope.addingTo.slides=[];
-        $scope.addingTo.thumb='';
-        Library.newNavItem($scope).then(function(result){
-            Library.updateModel($scope).then(function(){
-            $timeout(function(){
-                $scope.endNavAdd();
-            },0);
-        });
-        }).catch(function(err){
-            var alert = $ionicPopup.alert({
-                title:'Error',
-                template:'Error Code: '+err,
-            });
-            alert();
-        });
-   }
-
-    $scope.addCategory= function(){
-        $scope.addingTo = new Library.categories;
-        $scope.addingTo.name = $scope.category.name;
-        $scope.addingTo.user={}
+    function add(){
+      $scope.addingTo.user={}
         $scope.addingTo.user._id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
@@ -173,7 +132,24 @@ function ($scope,$rootScope,$state,
             alert();
         });
     }
-            
+    
+   $scope.addDeck=function(){
+        $scope.addingTo = new Library.decks;
+        $scope.addingTo.name = $scope.deck.name;
+        add();
+   }
+
+    $scope.addCategory= function(){
+        $scope.addingTo = new Library.categories;
+        $scope.addingTo.name = $scope.category.name;
+        add();
+    }
+    
+    function fixSharedTeams($scope){
+        $scope.navItems.forEach(function(item){
+            item.sharedTeams = [];
+        })
+    }
     $scope.setModel = function(model){
         $scope.modelName = model;
         switch(model){
@@ -194,46 +170,7 @@ function ($scope,$rootScope,$state,
                 break;
         }
         Library.updateModel($scope).then(function(){
-            switch(model){
-                case 'decks':
-                    $scope.navItems.forEach(function(navItem){
-                        navItem.options = [];
-                        $scope.options.forEach(function(option){
-                            var action = {};
-                            action.name = option.name;
-                            action.class= option.class;
-                            navItem.options.push(action);
-                        })
-                        navItem.action = {selected:navItem.options[0]};
-                    })
-                    break;
-                case 'categories':
-                    $scope.navItems.forEach(function(navItem){
-                        navItem.options=[];
-                        for(var i=0; i<2; i++){
-                            var action = {};
-                            action.name = $scope.options[i].name;
-                            action.class= $scope.options[i].class;
-                            navItem.options.push(action);
-                        }
-                        navItem.action = {selected:navItem.options[0]};
-                    })
-                    break;
-                case 'files':
-                    $scope.navItems.forEach(function(navItem){
-                        navItem.options=[];
-                        var action = {};
-                        action.name = $scope.options[0].name;
-                        action.class= $scope.options[0].class;
-                        navItem.options.push(action);
-                        action = {};
-                        action.name = $scope.options[$scope.options.length-1].name;
-                        action.class = $scope.options[$scope.options.length-1].class;
-                        navItem.options.push(action);
-                        navItem.action = {selected:navItem.options[0]};
-                    })
-                    break;
-            }
+            fixSharedTeams($scope);
             $timeout(function(){
                 $ionicScrollDelegate.scrollTop();
             },0);
@@ -298,8 +235,13 @@ function ($scope,$rootScope,$state,
     };
 
     $scope.shareNavItem = function($index){
-        $scope.selectedNavId = $index;
-        $scope.shareModal.show();
+        TeamService.getAll($rootScope.user._id).then(function(teams){
+            $scope.teams = teams;
+            $scope.selectedNavId = $index;
+            $scope.shareModal.show();
+        }).catch(function(err){
+            console.log('library controller shaveNavItem - error: ',err);
+        });
     }
     $scope.cancelNavShare = function(){
         $scope.shareModal.hide();
@@ -307,8 +249,11 @@ function ($scope,$rootScope,$state,
     $scope.updateNavSharing = function(){
         console.log('updating sharing status for item: ',$scope.selectedNavId);
         console.log('Teams are...',$scope.teams);
-        consolel.log('Sharing status is :',$scope.navItems[$scope.selectedNavId].sharingTeams);
-        $scope.shareModal.hide();
+        console.log('Sharing status is :',$scope.navItems[$scope.selectedNavId].sharedTeams);
+        Library.shareNavItem($scope).then(function(){
+            $scope.shareModal.hide();
+        });
+        
     }
     function reAspect(){
       $scope.width = verge.viewportW();
@@ -351,47 +296,76 @@ function ($scope,$rootScope,$state,
             $scope.tap.index = index;
         }
     }
-    $scope.selectOption = function(index){
-        console.log('Selected Option: ',$scope.navItems[index].action.selected);
-        switch($scope.navItems[index].action.selected.name){
-                case 'Edit':
-                    $scope.navItems[index].action.selected.name = 'Done';
-                    $scope.navItems[index].options[0].name = 'Editing...';                    
-                    $scope.editContainer(index);
-                    break;
-                case 'Done':
-                    $scope.navItems[index].action.selected.name = 'Edit';
-                    $scope.navItems[index].options[0].name = $scope.options[0].name;   
-                    $scope.editContainer(index);
-                    break;
-                case 'New Meeting':
-                    $scope.buildSession(index);
-                    break;
-                case 'Share':
-                    $scope.shareNavItem(index);
-                    break;
+
+    //handle actions with rights management
+    function editCB(index,buttonIndex,$event,type){
+        var action = $scope.navItems[index].actions[buttonIndex];
+        action.name = 'Done'; 
+        action.callBack = doneCB;
+        $scope.editContainer(index);
+        if(type != 'button'){
+            $scope.navItems[index].actions[0].name = 'Editing...';
+            $scope.navItems[index].actions[0].class = 'button-assertive';
+        } else {
+            $event.stopPropagation();
+            action.class = 'button-assertive';
         }
-        $scope.navItems[index].action.selected = $scope.navItems[index].options[0];
+         $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
     }
-    $scope.optionButton = function(index,buttonIndex,$event){
-        $event.stopPropagation();
-        console.log('Selected Option: ',$scope.navItems[index].options[buttonIndex]);
-        switch($scope.navItems[index].options[buttonIndex].name){
-                case 'Edit':
-                    $scope.navItems[index].options[buttonIndex].name = 'Done';                  
-                    $scope.editContainer(index);
-                    break;
-                case 'Done':
-                    $scope.navItems[index].options[buttonIndex].name = 'Edit';
-                    $scope.editContainer(index);
-                    break;
-                case 'New Meeting':
-                    $scope.buildSession(index);
-                    break;
-                case 'Share':
-                    $scope.shareNavItem(index);
-                    break;
+    function doneCB(index,buttonIndex,$event,type){
+        var action = $scope.navItems[index].actions[buttonIndex];        
+        action.name = 'Edit';
+        action.callBack = editCB;
+        $scope.editContainer(index);      
+        if(type != 'button'){
+            $scope.navItems[index].actions[0].name = 'Options';
+            $scope.navItems[index].actions[0].class = 'button-positive';
+        } else {
+            action.class = 'button-positive';
+            $event.stopPropagation();
         }
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];       
+    }
+    function newMeetingCB(index,buttonIndex,$event,type){
+        if(type=='button')
+            $event.stopPropagation();
+        $scope.buildSession(index);
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];    
+    }
+    function shareCB(index,buttonIndex,$event,type){
+        if(type=='button')
+            $event.stopPropagation();
+        $scope.selectedNavId = index;
+        shareMediator.shareItem(index);
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+    }
+    function delCB(index,buttonIndex,$event,type){
+        $scope.delNavItem(index);
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+    }
+    function setActions($scope){
+        //set the available action actions
+        $scope.actions = [{name:'Options'},
+                          {name:'Edit',class:'button-positive'},
+                          {name:'New Meeting',class:'button-calm'},
+                          {name:'Share',class:'button-royal'},
+                          {name:'Delete'}
+                         ];
+        $scope.actions[1].callBack=editCB
+        $scope.actions[2].callBack=newMeetingCB;
+        $scope.actions[3].callBack=shareCB;
+        $scope.actions[4].callBack=delCB;
+        //when an item is being edited - user these actions
+        $scope.editActions = [{name:'Editing...'},
+                              {name:'Done',class:'button-assertive'},
+                              {name:'New Meeting',class:'button-calm'},
+                              {name:'Share',class:'button-royal'},
+                              {name:'Delete'}
+                             ];
+        $scope.editActions[1].callBack=doneCB
+        $scope.editActions[2].callBack=newMeetingCB;
+        $scope.editActions[3].callBack=shareCB;
+        $scope.editActions[4].callBack=delCB;
     }
     //handle the flow file events
     $scope.$on('flow::filesSubmitted',function(event,$flow,flowfile){
@@ -415,6 +389,7 @@ function ($scope,$rootScope,$state,
     //handle system and window events
     $scope.$on('$destroy',function() {
         if(channel != undefined) channel.unsubscribe();
+        if($scope.shareMediator != undefined) $scope.shareMediator.destroy();
     });
 
     $scope.w.on('orientationchange',function(){

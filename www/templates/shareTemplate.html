@@ -2,15 +2,15 @@
     <ion-header-bar class="bar-calm"> <h1 class="title"> Share with Team </h1> 
     <div class="buttons">
       <button class="button button-clear button-light" 
-              ng-click="cancelNavShare()">Close</button>
+              ng-click="cancelShare()">Close</button>
     </div>
     </ion-header-bar> 
     <ion-content> 
         <ion-list >
             <ion-item ng-repeat="team in teams" class="item-checkbox" >
                 <label class="checkbox">
-                    <input ng-model="navItems[selectedNavId].sharedTeams[$index]" type="checkbox">
-                </label>
+                    <input ng-model="team.included" type="checkbox">
+                </label
                     <h2>{{team.name}}</h2>
                     <p>Total Members: {{team.members.length}}</p>
             </ion-item>
@@ -20,10 +20,10 @@
     <ion-footer-bar>
         <div class="centered-container">
           <button class="button button-positive button-calm"
-                  ng-click="updateNavSharing()">
+                  ng-click="updateSharing()">
               Ok
           </button>
-          <button class="button button-stable" ng-click="cancelNavShare()">
+          <button class="button button-stable" ng-click="cancelShare()">
               Cancel
           </button>
         </div>
