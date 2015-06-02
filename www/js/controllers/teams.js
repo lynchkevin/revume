@@ -89,13 +89,21 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
             validateMembers();
         //read the input from the user into a team object
         var team = teamService.teamFromInput($scope);
-        teamService.save(team).then(function(){
-            return teamService.refreshTeams($scope);
-        }).then(function(){
-            $scope.forms.teamForm.$setPristine();
-        }).catch(function(err){
-            console.log(err);
-        });
+        if(team.name == undefined || team.members.length ==0){
+            var alertPopup = $ionicPopup.alert({
+            title: 'Save Team',
+            template: 'Your team needs a name and members'
+            });
+        } else {
+            teamService.save(team).then(function(){
+                return teamService.refreshTeams($scope);
+            }).then(function(){
+                if($scope.forms.teamForm != undefined)
+                    $scope.forms.teamForm.$setPristine();
+            }).catch(function(err){
+                console.log(err);
+            });
+        }
     };    
     //show the delete icons
     $scope.toggleListDelete = function(which){
@@ -152,7 +160,9 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
             console.log(err);
         });
     };  
-
+    $scope.setDirty = function(){
+        $scope.forms.teamForm.$setDirty();
+    }
     $scope.init();
     //reinialize whem the userID is set
     $scope.$on('userID',function(event,user){

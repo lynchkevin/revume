@@ -46,12 +46,17 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
             });
         }
     }
+    //this holds the auto completed user
+    $.autoUser = undefined;
+    
     $.showPopover = function(scope,el){
+        $.autoUser = undefined;
         $.directiveScope = scope;
         $.popover.show(el);
     }
     $.hidePopover = function(scope){
-        $.popover.hide();
+        if($.popover!=undefined)
+            $.popover.hide();
         $.directiveScope = undefined;
     }
     $.removePopover = function(scope){
@@ -63,6 +68,7 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
     }    
         
     // this is used by the directives and the templates to popup autocomplete candidates
+
     $.scope.auto = {entries:[]};
     $.setResults = function(results){
         $.scope.auto.entries = results;
@@ -93,8 +99,14 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
     
     $.scope.finishComplete = function($index){
         $.doAutoComplete($.directiveScope,$index);
+        $.autoUser = $.getResults($index);
     };
     
+    $.getAutoUser = function(){
+        var u = angular.copy($.autoUser);
+        $.autoUser = undefined;
+        return u;
+    }
     $.offAutoComplete = function(directiveScope){
         var found = [];
         for(var i = $.callBacks.length-1; i>=0 ; i--){
@@ -125,7 +137,7 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
             for (var attrname in query){
                 sendQuery[attrname] = query[attrname];
             }
-            return TeamUsers.query(sendQuery).$promise;
+            return Users.byId.query(sendQuery).$promise;
         } 
     }
     

@@ -92,7 +92,9 @@
                   <h2>{{member.firstName}} {{member.lastName}}</h2>
                   <p>email: {{member.email}}</p>
                   </div>
-              <select ng-model="member.role" ng-options="permission.name for permission in permissions">
+              <select ng-model="member.role" 
+                      ng-options="permission.name for permission in permissions"
+                      ng-change="setDirty()">
               </select>  
               </div> 
 

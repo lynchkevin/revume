@@ -57,6 +57,10 @@ angular.module('starter')
                 idx = i;
         return idx;
     }; 
+    //lookup the Id of a role
+    $.roleIndex = function(role){
+        return wordLookup(role,$.roles);
+    }
     //create a rights array with every right enabled            
     function allEnabled(){
         var finalRights = [];

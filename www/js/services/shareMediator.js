@@ -7,7 +7,9 @@ angular.module('starter')
     .factory('Share', ['$resource','baseUrl',function ($resource,baseUrl) {
         var target = baseUrl.endpoint+'/api/share/:id';  
         return $resource(target,
-            {id:'@id'},
+            {id:'@id',
+             path:'@path',
+            },
             {   delete: {method:'DELETE', params:{id:'@id'}},
                 update: {method:'PUT', params:{id:'@id'}}
             });
@@ -60,11 +62,12 @@ angular.module('starter')
         var item = $.scope.navItems[$.scope.selectedNavId];
         teamService.getAll($rootScope.user._id).then(function(teams){
             $.childScope.teams = teams;
-            return Share.query({item:item._id}).$promise;
-        }).then(function(share){
-            if(share.length == 1){
-                $.childScope.share = share[0];
-                setTeamIncluded(share[0].teams,$.childScope.teams);
+            return Share.query({item:item._id,user:$rootScope.user._id}).$promise;
+        }).then(function(shares){
+            var s = shares[0]
+            if(s != undefined){
+                $.childScope.share = s;
+                setTeamIncluded(s.teams,$.childScope.teams);
             }
             $.childScope.shareModal.show();
         }).catch(function(err){
@@ -80,9 +83,15 @@ angular.module('starter')
         var teamsToShare = [];
         var model = $.scope.model;
         var item = $.scope.navItems[$.scope.selectedNavId];
+     if($.childScope.teams.length!=0)
+            item.sharingString = '';
+        else
+            item.sharingString = undefined;
         $.childScope.teams.forEach(function(team){
-            if(team.included)
+            if(team.included){
                 teamsToShare.push(team._id);
+                item.sharingString += team.name+' ';
+            }
         });
         $.saveShare(model,item,teamsToShare).then(function(){
             $.childScope.shareModal.hide();
@@ -132,46 +141,70 @@ angular.module('starter')
             });
         }
         return deferred.promise;
-    }     
+    }  
+    function roleFromTeams(teams){
+        var role = undefined;
+        var roleIdx = undefined;
+        teams.forEach(function(team){
+            var r = team.members[0].role;
+            if(role == undefined){
+                role = r;
+                roleIdx = libRights.roleIndex(role);
+            } else {
+                var idx = libRights.roleIndex(r);
+                if(idx<roleIdx){
+                    role = r;
+                    roleIdx = idx;
+                }
+            }
+        })
+        return role;
+    }
+    function decorateItems(sList,allItems){
+        sList.forEach(function(arr){
+            if(arr.length != 0){
+                var s = arr[0];
+                for(var i=0; i<allItems.length; i++){
+                    if(s.item == allItems[i]._id){
+                        allItems[i].sharingString = '';
+                        s.teams.forEach(function(team){
+                            allItems[i].sharingString += team.name+' ';
+                        });
+                        break;
+                    }
+                }
+            }
+        })
+    }
     $.getItems = function($scope){
         var deferred = $q.defer();
-         var model = $scope.model;       
+        var model = $scope.model;  
+        var modelName = libRights.modelName(model);
+        var allItems = [];
+        var sharedItems = [];
+        var promises = [];
         //get all of the owned navItems - need to get the model name somehow
         model.query({user:$rootScope.user._id}).$promise.then(function(owned){
             owned.forEach(function(item){
                 item.role = 'Admin';
+                allItems.push(item);
+                promises.push(Share.query({item:item._id,user:$rootScope.user._id}).$promise);
             });
-            deferred.resolve(owned);
+            return $q.all(promises);
+        }).then(function(sList){
+            decorateItems(sList,allItems);
+            return Share.query({model:modelName,user:$rootScope.user._id}).$promise;
+        }).then(function(shares){
+            shares.forEach(function(s){
+                var item = s.item;
+                var teams = s.share.teams
+                item.role = roleFromTeams(teams);
+                sharedItems.push(item);
+            });
+            allItems = allItems.concat(sharedItems);
+            deferred.resolve(allItems);
         })
         return deferred.promise;
     }
-    
-    $.getItems2 = function(model){
-        var deferred = $q.defer();
-        var modelName = libRights.modelName(model);
-        
-        //get all of the owned navItems - need to get the model name somehow
-        model.query({user:$rootScope.user._id}).$promise.then(function(owned){
-            var ownedItems = owned;
-            ownedItems.forEach(function(item){
-                item.accessRights = libRights.getAccessRights(model,libRights.roles[0]);
-            });
-            return Share.query({model:modelName,user:$rootScope.user._id}).$promise;
-        }).then(function(shares){
-            //now get all the shared items
-            var sharedItems = [];
-            shares.forEach(function(share){
-                var item = share.item;
-                var role = getRole(share.team,$rootScope.user._id);
-                item.accessRights = librRights.getAccessRights(model,role);
-            });
-            ownedItems.concat(sharedItems);
-            deferred.resolve();
-        }).catch(function(err){
-            deferred.reject(err);
-        }); 
-        return deferred.promise;
-    }
-           
     
   }]);

@@ -19,8 +19,9 @@ angular.module('starter')
                          'libraryRights',
                          '$q',
                          '$ionicPopover',
-                         '$rootScope', 
-function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope) {
+                         '$rootScope',
+                         'Share', 
+function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
     var $ = this;
     var permissionList =[];
 
@@ -128,12 +129,17 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope) {
         m.email = $scope.addTeam.emailString;
         m.role = $scope.permissions[1]; //set new members to read by default
         $scope.addTeam.memberString+= m.firstName+','+m.lastName+','+m.email+','+m.role.name+';';
-        if($scope.addTeam._id != undefined)
-            m._id = $scope.addTeam._id;
-        $scope.addTeam.members.unshift(m);
-        $scope.addTeam.nameString ='';
-        $scope.addTeam.emailString='';
-        $scope.addTeam._id = undefined;
+        //see if the member exists
+        Users.byEmail.get({email:m.email}).$promise.then(function(user){
+            if(user._id != undefined)
+                m._id = user._id;
+            $scope.addTeam.members.unshift(m);
+            $scope.addTeam.nameString ='';
+            $scope.addTeam.emailString='';
+            $scope.addTeam._id = undefined;
+        }).catch(function(err){
+            console.log(err);
+        });
     }
     //delete a member
     $.delMember = function($scope,$index){
@@ -210,26 +216,30 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope) {
         team.members.forEach(function(member){
             //if this is a new user save to database
             if(member.user._id == undefined){
-                var usr = new Users.byId
-                var d = $q.defer();
+                var usr = new Users.byId;
                 angular.extend(usr,member.user);
-                promises.push(d);
-                usr.$save().then(function(usr){
-                    var m = {};
-                    m.user =usr._id;
-                    m.role = member.role.name;
-                    dbTeam.members.push(m);
-                    d.resolve();
-                });
+                promises.push(usr.$save());
             }
-            else{ //if not a new user then just push the _id
-                var m = {};
+            var m = {};
+            //update the user_id in the promise
+            if(member.user._id != undefined)
                 m.user =member.user._id;
-                m.role = member.role.name;
-                dbTeam.members.push(m);
-            }
+            else
+                m.user = member.user.email; //so we can look it up later
+            m.role = member.role.name;
+            dbTeam.members.push(m);
         })
-        $q.all(promises).then(function(){
+        $q.all(promises).then(function(usrList){
+           // defer.resolve(dbTeam);
+            usrList.forEach(function(usr){
+                for(var i=0; i<dbTeam.members.length; i++){
+                    if(usr.email == dbTeam.members[i].user){
+                        dbTeam.members[i].user = usr._id;
+                        break;
+                    }
+                }
+            });
+            console.log('all promises - resolved');
             defer.resolve(dbTeam);
         });
         return defer.promise;
@@ -261,5 +271,12 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope) {
             defer.resolve();
         });
         return defer.promise;
+    }
+    $.getSharedItems = function(teamId){
+        var deferred = $.defer();
+        Share.get({team:teamId,user:$rootScope.user._id}).$promise.then(function(items){
+            deferred.resolve(items);
+        })
+        return deferred.promise;
     }
 }]);
