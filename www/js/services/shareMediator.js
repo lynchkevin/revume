@@ -15,12 +15,12 @@ angular.module('starter')
             });
     }])
     .service('shareMediator', ['Share',
-                               'libraryRights',
+                               'rightsManager',
                                'TeamService',
                                '$rootScope',
                                '$ionicModal',
                                '$q',
-    function ( Share,libRights,teamService,$rootScope, $ionicModal,$q ) {
+    function ( Share,rightsAuth,teamService,$rootScope, $ionicModal,$q ) {
               
     var $ = this;
     
@@ -109,7 +109,7 @@ angular.module('starter')
     $.saveShare = function(model,item,teams){
         var deferred = $q.defer();
         var share = new Share;
-        var modelName = libRights.modelName(model);
+        var modelName = rightsAuth.findKey(model).getName();
         var existing = $.childScope.share;
         share.model = modelName;
         share.user = $rootScope.user._id;
@@ -149,9 +149,9 @@ angular.module('starter')
             var r = team.members[0].role;
             if(role == undefined){
                 role = r;
-                roleIdx = libRights.roleIndex(role);
+                roleIdx = rightsAuth.roles.indexOf(role);
             } else {
-                var idx = libRights.roleIndex(r);
+                roleIdx = rightsAuth.roles.indexOf(r);
                 if(idx<roleIdx){
                     role = r;
                     roleIdx = idx;
@@ -179,7 +179,7 @@ angular.module('starter')
     $.getItems = function($scope){
         var deferred = $q.defer();
         var model = $scope.model;  
-        var modelName = libRights.modelName(model);
+        var modelName = rightsAuth.findKey(model).getName();
         var allItems = [];
         var sharedItems = [];
         var promises = [];

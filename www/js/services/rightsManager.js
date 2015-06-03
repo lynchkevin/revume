@@ -28,13 +28,20 @@ angular.module('starter')
             for(var i = 0; i<$.roles.length; i++)
                 $.clients.rights[clientIdx].push(newRightsArray(clientIdx,false));
             var handle = {};
-            handle.setAll = function(role,trueFalse){ setAll(clientIdx,role,trueFalse);};
-            handle.setRight = function(role,action,enabled) {setRight(clientIdx,role,action,enabled);};
+            handle.setAll = function(role,trueFalse){ 
+                setAll(clientIdx,role,trueFalse);
+            }
+            handle.setRight = function(role,action,enabled) {
+                setRight(clientIdx,role,action,enabled);
+            }
             handle.getRight = function(role,action){ 
                 var retVal = getRight(clientIdx,role,action);
                 return retVal;
-            };
-
+            }
+            handle.getName = function(){ 
+                var retVal = $.clients.names[clientIdx]; 
+                return retVal;
+            }
             $.clients.handles[clientIdx] = handle;
             $.clients.keys.push(key);
         }
@@ -45,14 +52,14 @@ angular.module('starter')
         if(clientIdx >=0)
             return $.clients.handles[clientIdx];
         else
-            throw 'rightsManager:client: '+clientName+' not found';
+            console.log('rightsManager:client: '+clientName+' not found');
     }
     $.findKey = function(key){
-        var clientIdx = $.clients.names.indexOf(key);
+        var clientIdx = $.clients.keys.indexOf(key);
         if(clientIdx >=0)
             return $.clients.handles[clientIdx];
         else
-            throw 'rightsManager:client: '+key.toString()+' not found';
+            console.log('rightsManager:client: '+key.toString()+' not found');
     }
     // set all rights to a value
     function setAll(clientIdx,role,trueFalse){
@@ -74,7 +81,7 @@ angular.module('starter')
         return rights;
     }
     //set a rights element by role and action name
-    function setRight(clientIdx,accessRights,role,action,enabled){
+    function setRight(clientIdx,role,action,enabled){
         var roleIdx = $.roles.indexOf(role);
         var actionIdx = $.clients.allActions[clientIdx].indexOf(action);
         $.clients.rights[clientIdx][roleIdx][actionIdx].enabled = enabled;

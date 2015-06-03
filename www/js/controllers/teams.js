@@ -137,7 +137,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         });
     }
     //edit a team
-    $scope.editTeam = function(idx){
+    $scope.editTeam = function(idx){        
         teamService.editTeam($scope,idx);
         $scope.modalTitle='Edit Team';
         $scope.modalCallback=$scope.updateTeam;
