@@ -50,16 +50,10 @@ angular.module('starter')
                 modelIdx = i;
         return modelIdx;
     };   
-    function wordLookup(word,array){
-        var idx = -1;
-        for(var i=0; i<array.length;i++)
-            if(array[i] == word)
-                idx = i;
-        return idx;
-    }; 
+
     //lookup the Id of a role
     $.roleIndex = function(role){
-        return wordLookup(role,$.roles);
+        return $.roles.indexOf(role);
     }
     //create a rights array with every right enabled            
     function allEnabled(){
@@ -85,13 +79,13 @@ angular.module('starter')
     };
     //set a rights element by role and action name
     function setRight(accessRights,role,action,enabled){
-        var roleIdx = wordLookup(role,$.roles);
-        var actionIdx = wordLookup(action,$.allActions);
+        var roleIdx = $.roles.indexOf(role);
+        var actionIdx =$.allActions.indexOf(action);
         accessRights[roleIdx][actionIdx].enabled = enabled;
     };
     //get the rights by role and action name
     function getRight(accessRights,action){
-        var actionIdx = wordLookup(action,$.allActions);
+        var actionIdx = $.allActions.indexOf(action);
         if(actionIdx >= 0)
             return accessRights[actionIdx].enabled;
         else
@@ -136,7 +130,7 @@ angular.module('starter')
     
     $.getAccessRights = function(model,role){
         var modelIdx = modelLookup(model);
-        var roleIdx = wordLookup(role,$.roles);
+        var roleIdx = $.roles.indexOf(role);
         if(modelIdx >=0 && roleIdx >=0)
             return $.accessRights[modelIdx].accessRights[roleIdx];
     };

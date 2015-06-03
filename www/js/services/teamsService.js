@@ -16,7 +16,7 @@ angular.module('starter')
 
 .service('TeamService', ['Teams',
                          'Users',
-                         'libraryRights',
+                         'rightsManager',
                          '$q',
                          '$ionicPopover',
                          '$rootScope',
@@ -32,15 +32,33 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
     });
     
     $.scope = undefined;
+    //set up rights management infrastructure
+    $.registeredName = 'Team';
+    $.actionList = ['Save','Add Member','Delete Member','Change Role']
     
     $.init = function($scope){
+        $.scope = $scope;
         $scope.editTeamId = undefined;
         $scope.permissions = permissionList;
+        $.rights = rightsAuth.register($.registeredName,$.actionList,$);
+        //set admin to all true
+        $.rights.setAll('Admin',true);
+        //set viewer to all false
+        $.rights.setAll('Viewer',false);
     }
     function nameToPermission(name){
         for(var i=0; i<permissionList.length; i++)
             if(name == permissionList[i].name)
                 return permissionList[i];
+    }
+    $.myRole = function(team){
+        var myId = $rootScope.user._id;
+        var role = undefined;
+        team.members.forEach(function(member){
+            if(member._id == myId)
+                role = member.role.name;
+        });
+        return role;
     }
     //map dbMember to simple Member shim
     $.toMemberShim = function(dbTeam){
@@ -89,8 +107,17 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
         };
         return defer.promise;
     }
+    function applyRights(role){
+        $.actionList.forEach(function(action){
+             var can = $.rights.getRight(role,action);
+             var propName = '_$'+action.replace(/\s/g,'');
+             $.scope[propName]=can;
+        })
+    }
     //setup for a new team
     $.newTeam = function($scope){
+        $scope.role = 'Admin';
+        applyRights($scope.role);
         $scope.addTeam={};
         $scope.addTeam.name='';  
         $scope.addTeam.memberString='';
@@ -104,6 +131,9 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
     //setup to edit a team
     $.editTeam = function($scope,idx){
         var team = $scope.teams[idx];
+        $scope.role = $.myRole(team);
+        // add a convenience method for the templates to manage rights
+        applyRights($scope.role);
         $scope.editTeamId = team._id;
         $scope.addTeam={};
         $scope.addTeam.name=team.name;  

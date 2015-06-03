@@ -4,7 +4,7 @@
   </ion-nav-buttons>
   <ion-nav-buttons side="right">
       <button class="button button-balanced"
-              ng-disabled="teamForm.teamName.$invalid || (addTeam.members.length == 0)"
+              ng-disabled="teamForm.teamName.$invalid || (addTeam.members.length == 0) || !_$Save"
               ng-click="modalCallback()">
             Save
       </button>
@@ -50,7 +50,7 @@
                             </label>
                             <button class="button button-small"
                                     ng-click="addMember()" 
-                                    ng-disabled="teamForm.mEmail.$invalid || teamForm.mName.$invalid">
+                                    ng-disabled="teamForm.mEmail.$invalid || teamForm.mName.$invalid || !_$AddMember">
                               add
                             </button>
                         </div>
@@ -72,7 +72,8 @@
         </div>
         <div class="revu-list-header positive-bg">
             <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
-                     ng-click="toggleListDelete('member')"></button>
+                     ng-click="toggleListDelete('member')"
+                     ng-disabled="!_$DeleteMember"></button>
             Members
         </div>
 
@@ -92,10 +93,11 @@
                   <h2>{{member.firstName}} {{member.lastName}}</h2>
                   <p>email: {{member.email}}</p>
                   </div>
-              <select ng-model="member.role" 
-                      ng-options="permission.name for permission in permissions"
+                    <select ng-model="member.role" 
+                      ng-options="permission.name for permission in permissions" 
+                      ng-disabled="!_$ChangeRole"
                       ng-change="setDirty()">
-              </select>  
+                    </select>  
               </div> 
 
           </ion-item>
