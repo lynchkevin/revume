@@ -4,7 +4,8 @@ angular.module('starter')
     var $ = this;
     
     //Clients of this service
-    $.clients = { names : [],
+    $.clients = { scopes: [],
+                  names : [],
                   allActions : [],
                   rights : [],
                   handles : [],
@@ -14,12 +15,15 @@ angular.module('starter')
     //two roles currently supported by the system
     $.roles = ['Admin','Viewer'];
     
-    $.register = function(name,actionList,key){
+    $.register = function(name,$scope,actionList,key){
         var clientIdx = $.clients.names.indexOf(name);
         if(clientIdx >=0){
+            $.clients.scopes[clientIdx] = $scope;
             $.clients.allActions[clientIdx] = actionList;
+            $.clients.keys[clientIdx] = key;
             return $.clients.handles[clientIdx];
         } else {
+            $.clients.scopes.push($scope);
             $.clients.names.push(name);
             $.clients.allActions.push(actionList);
             clientIdx = $.clients.names.length - 1;
@@ -41,6 +45,9 @@ angular.module('starter')
             handle.getName = function(){ 
                 var retVal = $.clients.names[clientIdx]; 
                 return retVal;
+            }
+            handle.applyRights = function(role,optionalTarget){
+                applyRights(clientIdx,role,optionalTarget);
             }
             $.clients.handles[clientIdx] = handle;
             $.clients.keys.push(key);
@@ -96,6 +103,18 @@ angular.module('starter')
 
         return retVal;
     }; 
+    function applyRights(clientIdx,role,optionalTarget){
+        var target = {};
+        if(optionalTarget != undefined)
+            target = optionalTarget;
+        else
+            target = $.clients.scopes[clientIdx];
+        $.clients.allActions[clientIdx].forEach(function(action){
+             var can = getRight(clientIdx,role,action);
+             var propName = '_$'+action.replace(/\s/g,'');
+             target[propName] = can;
+        })
+    }
 /*                          
     $.models = [{name:'files',model:files},
                 {name:'categories',model:categories},

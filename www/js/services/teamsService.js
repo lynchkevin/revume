@@ -40,7 +40,7 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
         $.scope = $scope;
         $scope.editTeamId = undefined;
         $scope.permissions = permissionList;
-        $.rights = rightsAuth.register($.registeredName,$.actionList,$);
+        $.rights = rightsAuth.register($.registeredName,$scope,$.actionList,$);
         //set admin to all true
         $.rights.setAll('Admin',true);
         //set viewer to all false
@@ -107,17 +107,11 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
         };
         return defer.promise;
     }
-    function applyRights(role){
-        $.actionList.forEach(function(action){
-             var can = $.rights.getRight(role,action);
-             var propName = '_$'+action.replace(/\s/g,'');
-             $.scope[propName]=can;
-        })
-    }
+
     //setup for a new team
     $.newTeam = function($scope){
         $scope.role = 'Admin';
-        applyRights($scope.role);
+        $.rights.applyRights($scope.role);
         $scope.addTeam={};
         $scope.addTeam.name='';  
         $scope.addTeam.memberString='';
@@ -133,7 +127,7 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
         var team = $scope.teams[idx];
         $scope.role = $.myRole(team);
         // add a convenience method for the templates to manage rights
-        applyRights($scope.role);
+        $.rights.applyRights($scope.role);
         $scope.editTeamId = team._id;
         $scope.addTeam={};
         $scope.addTeam.name=team.name;  

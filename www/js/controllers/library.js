@@ -285,7 +285,7 @@ function ($scope,$rootScope,$state,
         num=0;
     }
     $scope.tapThumb=function(index){
-        if(!$scope.isEditing){
+        if(!$scope.isEditing && $scope.navItems[$scope.selectedNavId]._$Reorder){
             var newPosition = index;
             var oldPosition = $scope.tap.index;
             if($scope.tap.on){

@@ -74,14 +74,15 @@
                           class="item-thumbnail-left item-select" 
                           ng-click="setNavSelection($index)">
                         <ion-delete-button class="ion-minus-circled" 
-                                           ng-click="delNavItem($index)">
+                                           ng-click="delNavItem($index)"
+                                           ng-disabled="!item._$Delete">
                         </ion-delete-button>
                         <img ng-src="{{item.thumb}}" alt="New" class="alt">
                         <h2>{{item.name}}</h2>
                         <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                         <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  
                         <span ng-if="item.sharingString" class="positive">Sharing:{{item.sharingString}}</span>
-                            <select ng-if="!smallScreen() "
+                            <select ng-if="!smallScreen() && item.actions.length > 1 "
                                     ng-model="item.action.selected"
                                     ng-options="action.name for action in item.actions"
                                     ng-change="item.action.selected.callBack(itemIndex,item.action.selected.idx,$event,'option')"

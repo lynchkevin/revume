@@ -62,12 +62,12 @@ function(uFiles,
     $.decks = decks;
     $.categories = categories;
 
-    $.actionList = ['Edit','New Meeting','Share','Hide','Delete'];
+    $.actionList = ['Edit','New Meeting','Share','Hide','Delete','Reorder'];
     
-    function establishRights(){
-        $.fileRights = rightsAuth.register('files',$.actionList,$.files);
-        $.deckRights = rightsAuth.register('decks',$.actionList,$.decks);
-        $.catRights = rightsAuth.register('categories',$.actionList,$.categories);
+    function establishRights($scope){
+        $.fileRights = rightsAuth.register('files',$scope,$.actionList,$.files);
+        $.deckRights = rightsAuth.register('decks',$scope,$.actionList,$.decks);
+        $.catRights = rightsAuth.register('categories',$scope,$.actionList,$.categories);
         $.fileRights.setAll('Admin',true); //all are false by default so set admin true
         $.fileRights.setRight('Admin','New Meeting',false);
         $.fileRights.setRight('Admin','Hide',false);  
@@ -89,7 +89,7 @@ function(uFiles,
         $scope.editText = "Edit";
         $scope.container ={};
         collection.index=-1;
-        establishRights(); 
+        establishRights($scope); 
     };  
     
     //files, categories or decks are all flavors of the same class
@@ -114,6 +114,8 @@ function(uFiles,
                    newAction.callBack = action.callBack;
                    newAction.idx = idx++;
                    item.actions.push(newAction);
+                   // apply the rights to each item
+                   rights.applyRights(item.role,item);
                 }
             });
             item.action = {selected:item.actions[0]};
@@ -121,26 +123,26 @@ function(uFiles,
     }    
     
     $.updateModel = function($scope){
-        return $q(function(resolve,reject){
-          if($.model != $scope.model) console.log("model error in Library service");
-            shareMediator.getItems($scope).then(function(items){
-            $scope.selectedNavId = 0;
-            // user and slides are poplulated
-              if(items.length>0){
-                $scope.navItems = items;
-                $scope.slides = $scope.navItems[$scope.selectedNavId].slides;
-                setEditStates($scope);
-                addActions($scope);
-              } else {
-                $scope.navItems = [];
-                $scope.slides = [];
-              }
-                resolve($scope);
-          }).catch(function(err){
-              reject(err);
-          });
+        var deferred = $q.defer();
+        if($.model != $scope.model) console.log("model error in Library service");
+        shareMediator.getItems($scope).then(function(items){
+        $scope.selectedNavId = 0;
+        // user and slides are poplulated
+          if(items.length>0){
+            $scope.navItems = items;
+            $scope.slides = $scope.navItems[$scope.selectedNavId].slides;
+            setEditStates($scope);
+            addActions($scope);
+          } else {
+            $scope.navItems = [];
+            $scope.slides = [];
+          }
+            deferred.resolve($scope);
+        }).catch(function(err){
+          deferred.reject(err);
         });
-      };
+        return deferred.promise;
+    }
     
     $.updateSlides = function($scope){
         return $q(function(resolve,reject){        
