@@ -13,6 +13,8 @@ var schema = require('../models/schema');
 var baseUrl = process.env.BASE_URL;
 var port = process.env.PORT;
 var fp = baseUrl+':'+port;
+var AWS = require('aws-sdk');
+var s3 =  Promise.promisifyAll(new AWS.S3());
 
 console.log('Library url= ',fp);
 // export file location information
@@ -26,7 +28,53 @@ var UploadedFile = schema.UploadedFile;
 var Deck = schema.Deck;
 var Category = schema.Category;
 
+//AWS setup
+AWS.config.update({region: 'us-east-1'});
 
+function getSignedUrl(src){
+    return new Promise(function(resolve, reject){
+        var baseUrl = 'https://s3.amazonaws.com/revu.volerro.com/';
+        var start = baseUrl.length;
+        var fileName = src.slice(start);
+        var retVal = ''
+        var expireTime = 60 * 60 * 12 //12 hours to expire
+        var params ={Bucket:'revu.volerro.com',Key:fileName,Expires:expireTime};
+        var url = s3.getSignedUrlAsync('getObject',params).then(function(url){
+            resolve(url);
+        }).catch(function(err){
+            retVal = '';
+            reject(err);
+        });
+    });
+}
+function s3Thumb(thumb){
+    return new Promise(function(resolve,reject){
+        getSignedUrl(thumb).then(function(url){
+            thumb = url;
+            console.log(thumb);
+            resolve(thumb);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+function s3Slides(slides){
+    return new Promise(function(resolve,reject){
+        var promises = []
+        slides.forEach(function(slide){
+            promises.push(getSignedUrl(slide.src));
+        });
+        Promise.settle(promises).then(function(urls){
+            var idx = 0;
+            slides.forEach(function(slide){
+                slide.src = urls[idx++].value();
+            });            
+            resolve(slides);
+        }).catch(function(err){
+            reject(err);
+        });
+    })
+}
 //save uploaded slides to the database
 function savePowerpointUpload(job){
     return new Promise(function(resolve, reject){ 
@@ -217,20 +265,56 @@ function processFile(status, params){
 uploader.onPost(processFile);
 
 // some handy queries
-
+//GET functionality
+function getByUser(Model,req,res){
+    var userId = req.query.user;
+    console.log(Model.modelName,' query! with userID populate - id: ',userId);
+    var promises = [];
+    var items = {};
+    Model.find({user:new ObjectId(userId)})
+    .populate('user slides')
+    .sort({createdDate:-1})
+    .execAsync()
+    .then(function(results){
+        items = results;
+        items.forEach(function(item){
+            promises.push(s3Thumb(item.thumb));
+            promises.push(s3Slides(item.slides));
+        });
+        return Promise.settle(promises);
+    }).then(function(pees){
+        for(var i=0,j=0; i < pees.length; i+=2,j++)
+            items[j].thumb = pees[i].value();
+        res.send(items);      
+    }).catch(function(err){
+        res.send(err);
+    });
+}
+function getById(Model,req,res){
+    var id = req.params.id;
+    var item = {}
+    var promises = [];
+    console.log(Model.modelName," get");  
+    Model.findOne({_id:new ObjectId(id)})
+    .populate('user slides')
+    .sort({createdDate:-1})
+    .execAsync().then(function(result){
+        item = result;
+        return getSignedUrl(item.thumb);
+    }).then(function(url){
+        console.log(url);
+        item.thumb = url;
+        return s3Slides(item.slides);
+    }).then(function(){
+        res.send(item);
+    }).catch(function(err){
+        res.send(err);
+    });
+}
 //handle requests for library objects
 // uploaded files
 library.get('/library/uploadedFiles',function(req,res){
-    console.log('get files with populate!')
-    var userId = req.query.user;
-    console.log(userId);
-    UploadedFile.find({user:new ObjectId(userId)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records);
-    });
+    getByUser(UploadedFile,req,res);
 });
 
 library.delete('/library/uploadedFiles',function(req,res){
@@ -238,18 +322,7 @@ library.delete('/library/uploadedFiles',function(req,res){
 });
 
 library.get('/library/uploadedFiles/:id',function(req,res){
-    console.log('ufiles get with populate');
-    var id = req.params.id;
-    var x = new ObjectId(id);
-    console.log('ufiles id: ',id, 'objId:',x);
-    UploadedFile.find({_id:new ObjectId(id)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records[0]);
-        console.log('ufiles',records);
-    });
+    getById(UploadedFile,req,res);
 });
 
 library.delete('/library/uploadedFiles/:id',function(req,res){
@@ -284,12 +357,57 @@ library.delete('/library/uploadedFiles/:id',function(req,res){
 });
 
 library.get('/library/slides',function(req,res){
-    Slide.find().sort({identifier:1,originalOrder:1}).find(function(err,slides){
-        if(err)
-            res.send(err);
+    var url = '';
+    var promises = [];
+    var theSlides = [];
+    Slide.find()
+    .sort({identifier:1,originalOrder:1})
+    .execAsync().then(function(slides){
+        theSlides = slides;
+        slides.forEach(function(slide){
+            promises.push(getSignedUrl(slide.src));
+        });
+        return Promise.settle(promises);
+    }).then(function(urls){
+        urls.forEach(function(url){
+            console.log('isFulfilled',url.isFulfilled(),'value',url.value());
+        });
+
+        theSlides.forEach(function(slide){
+            slide.src = urls[idx++];
+        });
         res.send(slides);
+    }).catch(function(err){
+        res.send(err);
     });
 });
+library.get('/library/slides/convert',function(req,res){
+    var prefix = 'http://192.168.1.167:5000/facades/';
+    var start = prefix.length;
+    var filename ='';
+    var baseUrl = 'https://s3.amazonaws.com/revu.volerro.com/img/';
+    var newSrc = '';
+    var promises = [];
+    Category.find()
+    .sort({identifier:1,originalOrder:1})
+    .execAsync().then(function(items){
+        console.log(items);
+        items.forEach(function(item){
+            fileName = item.thumb.slice(start);
+            newSrc = baseUrl+fileName;
+            item.thumb = newSrc;
+            promises.push(item.saveAsync());
+            return Promise.settle(promises);
+        }).then(function(){
+            console.log('conversion complete');
+            res.send('conversion complete');
+        });
+    }).catch(function(err){
+        res.send(err);
+        console.log(err);
+    });
+});
+
 function doGetSlides(model,req){
     var id = req.params.id;
     var x = new ObjectId(id);
@@ -392,6 +510,7 @@ function doUpdate(model,req){
     });
 };
 
+
 //update an uploaded file
 library.put('/library/uploadedFiles/:id',function(req,res){
     console.log("Files: got update!");
@@ -421,29 +540,11 @@ library.put('/library/uploadedFiles/setuser/:id',function(req,res){
 });
 //get all decks
 library.get('/library/decks',function(req,res){
-    console.log('decks query! with populate');
-    var userId = req.query.user;
-    console.log(userId);
-    Deck.find({user:new ObjectId(userId)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records);
-    });
+    getByUser(Deck,req,res);
 });
 //get all the slides for a deck
 library.get('/library/decks/:id',function(req,res){
-    var id = req.params.id;
-    console.log("decks get");  
-    Deck.find({_id:new ObjectId(id)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records[0]);
-        console.log('ufiles',records);
-    });
+    getById(Deck,req,res);
 });    
 
 //delete a deck
@@ -474,29 +575,11 @@ library.put('/library/decks/:id',function(req,res){
     });
 });
 library.get('/library/categories',function(req,res){
-    console.log('categories query!');
-    var userId = req.query.user;
-    console.log(userId);
-    Category.find({user:new ObjectId(userId)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records);
-    });
+    getByUser(Category,req,res);
 });
 //get all the slides for a category    
 library.get('/library/categories/:id',function(req,res){
-    var id = req.params.id;
-    console.log("Categories get");  
-    Category.find({_id:new ObjectId(id)})
-    .populate('user slides')
-    .sort({createdDate:-1})
-    .exec(function(err,records){
-        if(err) res.send(err);
-        res.send(records[0]);
-        console.log('ufiles',records);
-    });
+    getById(Category,req,res);
 });
 //delete a category
 library.delete('/library/categories/:id',function(req,res){

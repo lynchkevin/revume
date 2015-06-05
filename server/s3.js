@@ -31,6 +31,14 @@ app.all('*', function(req, res, next) {
 });
 
 AWS.config.update({region: 'us-east-1'});
+
+var params ={Bucket:'revu.volerro.com',Key:'uploads/revume.pptx'};
+var url = s3.getSignedUrl('getObject',params,function(err,url){
+    if(err) 
+        console.log('Error: ',err);
+    else 
+        console.log('Url is: ',url);
+});
 /*
 s3.listBuckets(function(err,data){
     if(err) {console.log('Error : ',err);}
@@ -42,17 +50,20 @@ s3.listBuckets(function(err,data){
                 Bucket: bucket.Name,
                 EncodingType:'url',
             };
+            /*
             s3.listObjects(params,function(err,data){
                 if(err)console.log(err,err.stack);
                 else console.log(data);
             });
+            
         }
     }
 });
 */
 
 // get a file from s3 
-var params = {Bucket:'elasticbeanstalk-us-east-1-525511175149',
+/*
+var params = {Bucket:'revu-test.volerro.com',
               Key:'Uploads/revume.pptx'};
 var stream;
 s3.getObjectAsync(params).then(function(data){
@@ -65,7 +76,7 @@ s3.getObjectAsync(params).then(function(data){
 }).catch(function(err){
     console.log('error: ',err);
 });
-
+*/
 
 
 /*zamzar.s3ppt2png(stream).then(function(job){
@@ -74,11 +85,12 @@ s3.getObjectAsync(params).then(function(data){
     console.log(err);
 });
 */
-
-/* Upload to s3....
+var read = fs.createReadStream('Revume.pptx');
+read.close
+// Upload to s3....
 var upload = s3Stream.upload({
-  "Bucket": "elasticbeanstalk-us-east-1-525511175149",
-  "Key": "Uploads/revume.pptx"
+  "Bucket": "revu.volerro.com",
+  "Key": "uploads/revume.pptx"
 });
 
 // Handle errors.
@@ -95,9 +107,9 @@ upload.on('uploaded', function (details) {
 });
 
 //do it
-console.log('uploading file...');
-read.pipe(upload);
-*/
+//console.log('uploading file...');
+//read.pipe(upload);
+
 //catch uncaught exceptions and log
 process.on('uncaughtException', function(err) {
     console.log('process.on handler');

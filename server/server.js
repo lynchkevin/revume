@@ -5,6 +5,7 @@ var     methodOverride = require('method-override');
 var     session = require('express-session');
 var     MongoStore = require('connect-mongo')(session);
 var     port = process.env.PORT || 5000;
+var     mongo = process.env.MONGO || 'localhost:27017'
 var     sessions = require('./routes/sessions');
 var     users = require('./routes/users');
 var     uploader = require('./routes/upload');
@@ -16,12 +17,12 @@ var     sfdc = require('./routes/salesforce');
 var     teams = require('./routes/teams');
 var     share = require('./routes/share');
 var     app = express();
+var     connectString = 'mongodb://'+mongo+'/revume';
 
-
-
+console.log('connectString :',connectString);
 //setup the database
 try {
-    mongoose.connect('mongodb://localhost:27017/revume');
+    mongoose.connect(connectString);
 }catch(e){
     console.log('Error connecting to mongo: ',e);
 }
