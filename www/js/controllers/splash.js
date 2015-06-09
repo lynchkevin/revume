@@ -8,8 +8,8 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('splashCtrl', ['$scope', '$rootScope','$timeout','baseUrl',
-                             function ($scope,$rootScope,$timeout,baseUrl) {
+  .controller('splashCtrl', ['$scope', '$rootScope','$timeout','$http','baseUrl',
+                             function ($scope,$rootScope,$timeout,$http,baseUrl) {
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $timeout(function(){
@@ -17,12 +17,11 @@ angular.module('starter')
         $scope.user.name = $rootScope.user.name;
         $scope.users = $rootScope.users;
     },0);
-      
+
     $scope.$on("presence_change",function(){
         $scope.$apply(function(){
             $scope.users = $rootScope.users;
         });
     });
            
-    
   }]);

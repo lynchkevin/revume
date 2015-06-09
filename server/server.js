@@ -18,6 +18,7 @@ var     teams = require('./routes/teams');
 var     share = require('./routes/share');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
+var     crypto = require('crypto');
 
 console.log('connectString :',connectString);
 //setup the database
@@ -61,6 +62,22 @@ app.use('/api',revu);
 app.use('/api',sfdc);
 app.use('/api',teams);
 app.use('/api',share);
+// stuff for evaporate uploader
+// console logger
+app.use(require('morgan')('dev'));
+//sign data for aws
+app.use('/api/signer',function(req,res){
+  console.log('signer is hit with : ',req.query.to_sign);
+  if(req.query.to_sign != undefined)
+      res.send(crypto
+        .createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY)
+        .update(req.query.to_sign)
+        .digest('base64')
+      );
+  else
+      res.send('signer no data');
+
+});
 
 app.listen(port, function () {
     console.log('Express server listening on port ' + port);

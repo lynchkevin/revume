@@ -14,6 +14,7 @@ angular.module('starter')
                              '$state',
                              '$window',
                              '$timeout',
+                             '$resource',
                              'Library',
                              '$ionicScrollDelegate',
                              '$ionicListDelegate',
@@ -25,7 +26,7 @@ angular.module('starter')
                              '$ionicModal',
                              '$q',
 function ($scope,$rootScope,$state,
-           $window,$timeout,Library,
+           $window,$timeout,$resource,Library,
            $ionicScrollDelegate,$listDel,
            pnFactory,$ionicPopup,sb,baseUrl,shareMediator,$ionicModal,$q) {
       
@@ -56,6 +57,41 @@ function ($scope,$rootScope,$state,
         $scope.category={name:''};
         $scope.addingTo = undefined;
         shareMediator.init($scope);
+        // initialize the evaporate uploader
+        $scope.evaData = {
+          dir: 'uploads',
+          timestampSeparator: '_',
+          headersCommon: {
+            'Cache-Control': 'max-age=3600'
+          },
+          headersSigned: {
+            'x-amz-acl': 'public-read'
+          },
+          onFileSubmitted: function(files){
+              $scope.progess = '0%';
+          },
+          onFileProgress: function (file) {
+            console.log(
+              'onProgress || name: %s, uploaded: %f%, remaining: %d seconds',
+              file.name,
+              file.progress,
+              file.timeLeft
+            );
+            $scope.progress = (file.progress).toString()+"%";
+          },
+          onFileComplete: function (file) {
+            console.log('onComplete || name: %s', file.name);
+            $scope.fullName = file.path_
+            console.log($scope.fullName);
+            $scope.progress = "0%";
+            $scope.spinner = true;
+            $rootScope.$broadcast("show_message", "upload complete!");
+            Library.processUpload($scope);
+          },
+          onFileError: function (file, message) {
+            console.log('onError || message: %s', message);
+          }
+        };
     };
     $scope.slideOver=function(){
         $scope.$broadcast("library::slide");
@@ -367,24 +403,6 @@ function ($scope,$rootScope,$state,
         $scope.editActions[3].callBack=shareCB;
         $scope.editActions[4].callBack=delCB;
     }
-    //handle the flow file events
-    $scope.$on('flow::filesSubmitted',function(event,$flow,flowfile){
-    $scope.progress="0%";
-    $flow.upload();
-    });
-    $scope.$on('flow::progress',function(event,$flow,flowfile){
-        console.log($flow.progress());
-        $scope.progress = ($flow.progress()*100.0).toString()+"%"
-    });
-    $scope.$on('flow::complete',function(event,$flow){
-      $scope.progress = "0%";
-      $scope.spinner = true;
-      for(var i = $flow.files.length-1;i>=0;i--){
-          if($flow.files[i].isComplete())
-            $flow.removeFile($flow.files[i]);
-      }
-      $rootScope.$broadcast("show_message", "upload complete!");
-    });
 
     //handle system and window events
     $scope.$on('$destroy',function() {

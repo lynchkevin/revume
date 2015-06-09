@@ -23,15 +23,29 @@
       
     <!-- pubnub library -->
     <script src="http://cdn.pubnub.com/pubnub-3.7.1.min.js"></script>   
-      
-    <!--ng-flow library for drag and drop uploads-->
-    <script src="lib/ng-flow/ng-flow-standalone.js"></script>
 
     <!--time zone detection-->
     <script src="lib/jstz-1.0.4.min.js"></script>
       
-     <!--aws sdk detection-->
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.0.0-rc1.min.js"></script>
+     <!-- evaporate.js itself should be included before the angular-evaporate module -->
+    <script src="lib/evaporatejs/evaporate.js"></script>
+
+    <!--
+      it's absolutely essential to add evaporate's config before including angular-evaporate module
+      these options are passed directly into EvaporateJS itself
+      for details look at: https://github.com/TTLabs/EvaporateJS
+    -->
+    <script>
+      evaporateOptions = {
+        signerUrl: '/api/signer',
+        aws_key:   'AKIAISEBQR2Z36XFRRQQ',
+        bucket:    'revu.volerro.com',
+        logging:   false
+      };
+    </script>
+      
+    <!-- angular-evaporate module -->
+    <script src="lib/angular-evaporate/lib/angular-evaporate.js"></script>
       
     <!-- your app's js -->
     <script src="js/app.js"></script>    
@@ -46,6 +60,7 @@
     <script src="js/directives/addTemplate.js"></script>
     <script src="js/directives/flashWeight.js"></script>
     <script src="js/directives/userComplete.js"></script>
+    <script src="js/directives/dragDrop.js"></script>
     <!-- services -->  
     <script src="js/services/pnFactory.js"></script>
     <script src="js/services/userService.js"></script>

@@ -365,4 +365,24 @@ function(uFiles,
         });
         return defer.promise; 
     };
+    //process the file uploaded to s3
+    $.processUpload = function($scope){
+        var defer = $q.defer();
+        var srcPre = 'uploads/';
+        var dstPre = 'img/';
+        var target = baseUrl.endpoint+'/api/library/uploadedFiles/processFile/:filePath';
+        var r = $resource(target,
+                          {filePath:'@filePath'},
+                        {  convertFile: {method:'GET',params:{filePath:'@filePath'}}
+                        });
+        r.convertFile({filePath:encodeURI($scope.fullName)}).$promise
+        .then(function(response){
+            console.log(response);
+            defer.resolve(response);
+        }).catch(function(err){
+            console.log(err);
+            defer.reject(err);
+        });
+        return defer.promise;
+    };
 }]);

@@ -22,6 +22,30 @@
         <div class="col col-80">
             <div class="centered-container user_list">
 
+            
+<!----
+    <div>
+      <div ng-hide="evaData.ready">upload is not available</div>
+      <div ng-show="evaData.ready">
+        <input type="file" multiple="multiple" evaporate eva-model="evaData">
+        <ion-list>
+            <ion-item ng-repeat="file in evaData.files">
+                <h2>{{file.name}}</h2>
+                <p ng-show="file.completed">Uploaded!</p>
+                <div class="progress" ng-hide="file.completed">
+                  <div class="progress-indicator" style="width: {{file.progress}}%;"></div>
+                  <div class="progress-value">
+                    <span>{{file.progress || 0}}%</span>
+                    <span ng-show="file.timeLeft">({{file.timeLeft}} seconds left)</span>
+                  </div>
+                </div>
+            </ion-item>
+          
+        </ion-list>
+      </div>
+    </div>         
+-->
+<!------end evaporate testing------------->                
           <ion-list>
               <div class="item item-divider">
                 Users Online

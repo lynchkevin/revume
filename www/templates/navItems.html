@@ -20,16 +20,33 @@
             <div ng-show="showAddItem" >
                 <div ng-switch on="modelName">
                     <div ng-switch-when='files'>
+                        <!--
                         <div ng-if="!smallScreen()"
                              class="flow-drop-zone centered-container" 
-                             flow-drag-enter="class='flow-drag-enter'" 
-                             flow-drag-leave="class='flow-drag-leave'" 
-                             flow-drop ng-class="class">
+                             drag-enter="class='flow-drag-enter'" 
+                             drag-leave="class='flow-drag-leave'" 
+                             drag-drop 
+                             ng-class="class">
                             <p ng-show="!spinner">Drop your file here</p>
                             <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
                             <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}">
                             </div>
                         </div>
+                        -->
+<!------evaporate testing------------->
+                        <div ng-hide="evaData.ready">upload is not available</div>
+                        <div ng-show="evaData.ready">
+                            <div class="flow-drop-zone centered-container" 
+                                 drag-enter="class='flow-drag-enter'" 
+                                 drag-leave="class='flow-drag-leave'" 
+                                 evaporate eva-model="evaData"
+                                 ng-class="class">
+                                <p ng-show="!spinner">Drop your file here</p>
+                                <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
+                                <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}"></div>
+                            </div>
+                        </div>
+<!---------end evaporate-------------->
                     </div>
                     <div ng-switch-when='categories'>
                         <form name="categoryForm">

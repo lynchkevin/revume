@@ -33,6 +33,7 @@
             timestampSeparator = data.timestampSeparator || '$',
             headersCommon = data.headersCommon || {},
             headersSigned = data.headersSigned || {},
+            onFileSubmitted = (typeof data.onFileSubmitted === 'function' ? data.onFileSubmitted : foo),
             onFileProgress = (typeof data.onFileProgress === 'function' ? data.onFileProgress : foo),
             onFileComplete = (typeof data.onFileComplete === 'function' ? data.onFileComplete : foo),
             onFileError = (typeof data.onFileError === 'function' ? data.onFileError : foo);
@@ -44,12 +45,16 @@
         // ready..
         if (eva._.supported) {
 
-          // ..steady..
-          element.bind('change', function (event) {
-
+          // ..steady..KCL change to drop event
+          element.bind('drop', function (event) {
+            // execute the users fileSubmited callback
+            event.stopPropagation();
+            event.preventDefault();
+            onFileSubmitted(event.dataTransfer.files);  
+            
             // process added files
-            angular.forEach(event.target.files, function (file) {
-
+            // change to drop  - was: angular.forEach(event.target.files, function (file) {
+            angular.forEach(event.dataTransfer.files, function (file) {
               // process file attrs
               file.started = Date.now();
               file.path_ = dir + file.started + timestampSeparator + file.name;

@@ -8,6 +8,7 @@ var util = require('util');
 var exec = require('child_process').exec;
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
+var request = Promise.promisifyAll(require('request'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var baseUrl = process.env.BASE_URL;
@@ -16,12 +17,18 @@ var fp = baseUrl+':'+port;
 var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
 
-console.log('Library url= ',fp);
+
+
 // export file location information
 library.url = '/facades';
 library.appPath = '/img';
 library.path = 'img/';
-library.fullPath = fp;
+library.baseUrl = 'https://s3.amazonaws.com';
+library.bucket = 'revu';
+library.upload = 'uploads';
+library.serve = 'img';
+library.fullPath = library.baseUrl+'/'+library.bucket+'.volerro.com';
+console.log('Library url= ',library.fullPath);
 
 var Slide = schema.Slide;
 var UploadedFile = schema.UploadedFile;
@@ -31,6 +38,7 @@ var Category = schema.Category;
 //AWS setup
 AWS.config.update({region: 'us-east-1'});
 
+//signing and link functions for S3 assets 
 function getSignedUrl(src){
     return new Promise(function(resolve, reject){
         var baseUrl = 'https://s3.amazonaws.com/revu.volerro.com/';
@@ -47,6 +55,7 @@ function getSignedUrl(src){
         });
     });
 }
+
 function s3Thumb(thumb){
     return new Promise(function(resolve,reject){
         getSignedUrl(thumb).then(function(url){
@@ -244,20 +253,54 @@ function callZamzar(status,params){
         channel.publish(error);
     });     
 };
+function pptx2png(s3FileName){
+    return new Promise(function(resolve, reject){
+        var restUrl = 'https://rb.volerro.com/api/convert/pptxtopng';
+        var justName = library.serve+'/'+s3FileName.slice(library.upload.length+1,s3FileName.lastIndexOf('.ppt'));
+        var propertiesObject = { sourceBucket: library.bucket,
+                                 sourceFile : s3FileName,
+                                 outputBucket: library.bucket,
+                                 outputPrefix: justName
+                               };
+
+            console.log(propertiesObject);
+    
+            request.getAsync({url: restUrl, 
+                              qs:propertiesObject,
+                              followRedirect: false,
+                              auth: { 
+                                  user:'klynch@volerro.com',
+                                  pass:'hinault4777'
+                              }
+            }).then(function(response){
+                console.log(response);
+                var images = response.images;
+                var status = response.status;
+                console.log(images);
+                resolve(images);
+            }).catch(function(err){
+                console.log(err);
+                reject(err);
+            });
+        
+    });
+}
 
 
 
 // process uploaded file based on file type
-function processFile(status, params){
-    var filename = params.original_filename;
-    console.log("processFile...",filename);
-    if(powerpointFile(filename)){
-        console.log("powerpoint!");
-       callZamzar(status,params);
-    }
-    if(videoFile(filename)){
-        console.log("video!");
-       handleVideo(status,params);
+function processFile(fileName){
+    if(fileName != undefined){
+        console.log("processFile...",fileName);
+        if(powerpointFile(fileName)){
+            console.log("powerpoint!");
+            pptx2png(fileName);
+      //     callZamzar(status,params);
+        }
+        if(videoFile(fileName)){
+            console.log("video!");
+       //    handleVideo(status,params);
+        }
     }
 };
 
@@ -312,6 +355,16 @@ function getById(Model,req,res){
     });
 }
 //handle requests for library objects
+// uploaded files
+library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
+    var filePath = req.params.filePath;
+    if (filePath != undefined){
+        processFile(filePath);
+        var response = [];
+        res.send('success');
+    } else 
+        res.send('filePath is required');
+});
 // uploaded files
 library.get('/library/uploadedFiles',function(req,res){
     getByUser(UploadedFile,req,res);

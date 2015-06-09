@@ -8,11 +8,12 @@ angular.module('starter',
 [   'ionic',
     'ngResource',
     'ngAnimate',
-    'flow'
+    'evaporate'
 ]
 )
 
-.constant("baseUrl",{"endpoint": "http://192.168.1.167:5000"})
+.constant("baseUrl",{"endpoint": "http://192.168.1.167:5000",
+                     "volerro": "https://rb.volerro.com"})
 .run(["$ionicPlatform",
       "$rootScope",
       "$window",
@@ -153,6 +154,7 @@ function($ionicPlatform,$rootScope,$window,userService,
     views: {
       'menuContent': {
         templateUrl: "templates/library.html",
+        controller: 'libraryCtrl'
       }
     }
   })
