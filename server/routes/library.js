@@ -1,8 +1,5 @@
 var express = require('express');
 var library = express.Router();
-var uploader = require('./upload');
-var pnService = require('../lib/pnService');
-var zamzar = require('../lib/zamzar');
 var fs = require('fs');
 var util = require('util');
 var exec = require('child_process').exec;
@@ -13,18 +10,15 @@ var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var baseUrl = process.env.BASE_URL;
 var port = process.env.PORT;
-var fp = baseUrl+':'+port;
 var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
 
 
 
 // export file location information
-library.url = '/facades';
-library.appPath = '/img';
-library.path = 'img/';
 library.baseUrl = 'https://s3.amazonaws.com';
 library.bucket = 'revu';
+library.domain = '.volerro.com';
 library.upload = 'uploads';
 library.serve = 'img';
 library.fullPath = library.baseUrl+'/'+library.bucket+'.volerro.com';
@@ -85,41 +79,36 @@ function s3Slides(slides){
     })
 }
 //save uploaded slides to the database
-function savePowerpointUpload(job){
+function savePowerpointUpload(fileName,images,userId){
     return new Promise(function(resolve, reject){ 
-        var t = job.target_files;
+        var justFileName = fileName.slice(fileName.indexOf('_')+1);
         var allPromises = [];
+        var slides = [];
         var uFile = new UploadedFile;
-        if(t.length>0)
-            uFile.name = job.oFileName;
+        uFile.slides = [];
+        uFile.name = justFileName;
+        uFile.user = userId;
         uFile.createdDate = new Date();
-        for(var i=0; i< t.length-1; i++){
+        for(var i=0; i< images.length-1; i++){
             var slide = new Slide;
-            slide.name = t[i].name;
+            slide.name = images[i];
             slide.originalOrder = i;
-            slide.location = job.location;
+            slide.location = library.fullPath+'/'+slide.name;
             slide.link = '';
             slide.type = 'img';
-            slide.src = library.fullPath+slide.location+'/'+slide.name; 
+            slide.src = library.fullPath+'/'+slide.name; 
             if(i == 0)
                 uFile.thumb = slide.src;
-            slide.identifier = job.identifier;
+            slide.identifier = fileName.slice(fileName.indexOf('/')+1,fileName.indexOf('_'));
             console.log("saving slide",slide.name);
             allPromises.push(slide.saveAsync());
+            uFile.slides.push(slide._id);
         }
         Promise.settle(allPromises).then(function(slides){
-            slides.forEach(function(resArray){
-                var r = resArray.value();
-                s = r[0];
-                console.log("slide : ", s);
-                uFile.slides.push(s._id);
-            });
-            uFile.markModified("slides");
-            return uFile.saveAsync()
-        }).spread(function(uf){
-                console.log("uFile saved - resolving job: ",job);
-                job.file_id = uf._id;
-                resolve(job);
+            return uFile.saveAsync();
+       }).then(function(uf){
+                console.log("uFile saved - resolving: ",uf);
+                resolve(uf);
         }).catch(function(err){
                 reject(err);
         });
@@ -128,43 +117,39 @@ function savePowerpointUpload(job){
 
 
 //save uploaded slides to the database
-function saveVideoUpload(job){
+function saveVideoUpload(fileName,userId){
     return new Promise(function(resolve, reject){ 
     var slide = new Slide;
     var uFile = new UploadedFile;
-    uFile.name = job.filename;
+    var justFileName = fileName.slice(fileName.indexOf('_')+1);
+    console.log(justFileName)
+    uFile.name = justFileName;
     uFile.createdDate = new Date();
-    slide.name = job.filename;
+    uFile.slides = [];
+    uFile.user = userId;
+    slide.name = justFileName;
     slide.originalOrder = 0;
-    slide.location = job.location;
+    slide.location = library.fullPath +'/'+slide.name;
     slide.type = 'video';
     slide.link = '';
-    slide.src = library.fullPath+slide.location+'/'+slide.name; 
-    slide.poster = library.fullPath+slide.location+'/'+job.poster;
+    slide.src = library.fullPath+'/'+slide.name; 
+    slide.poster = library.fullPath 
     uFile.thumb = slide.poster;
-    slide.identifier = job.identifier;
+    slide.identifier = fileName.slice(fileName.indexOf('/')+1,fileName.indexOf('_'));
+    uFile.slides.push(slide._id);
     console.log("saving slide",slide.name);
     slide.saveAsync().spread(function(sld){
         console.log(sld);
-        uFile.slides.push(sld._id)
         return uFile.saveAsync();
     }).spread(function(uf){
-        job.file_id = uf._id;
-        resolve(job);
+        console.log('video saved - resolving: ',uf);
+        resolve(uf);
     }).catch(function(err){
         reject(err);
     });
     });
 }
-    
-//initialize the pubnub channel for pub/sub with the client
-pnService.init("library");
-var channel = pnService.newChannel("library::fileEvents");
 
-function identifierKey(identifier){
-    var identifierKey = identifier.substring(0,identifier.indexOf('-')-1); 
-    return identifierKey;
-}
 function getExtention(f){
     return f.substr(f.lastIndexOf('.'),f.length-1);
 }
@@ -227,33 +212,13 @@ function handleVideo(status, params){
     job.identifier = f;
     job.poster = file+'.png';
     saveVideoUpload(job).then(function(job){
-        channel.publish(job);
     }).catch(function(err){
-        channel.publish(err);
     });
     
 };
 
-//this callback will be done when a post is recieved to upload
-function callZamzar(status,params){
-    //if it's a powerpoint then convert it - else noop
-    var oldName = params.dir+'/'+params.original_filename;
-    var fileName = params.dir+'/'+identifierKey(params.identifier)+'-'+params.original_filename;
-    fs.renameSync(oldName,fileName);
-    zamzar.ppt2png(fileName).then(function(job){
-        job.message = "Powerpoint Conversion Complete";
-        job.location = library.url;         
-        job.identifier = params.identifier.substring(0,params.identifier.indexOf('-')-1); 
-        job.oFileName = params.original_filename;
-        return savePowerpointUpload(job);
-    }).then(function(job){
-        channel.publish(job);     
-    }).catch(function(error){
-        console.log(error);
-        channel.publish(error);
-    });     
-};
-function pptx2png(s3FileName){
+
+function pptx2png(s3FileName,userId){
     return new Promise(function(resolve, reject){
         var restUrl = 'https://rb.volerro.com/api/convert/pptxtopng';
         var justName = library.serve+'/'+s3FileName.slice(library.upload.length+1,s3FileName.lastIndexOf('.ppt'));
@@ -270,42 +235,81 @@ function pptx2png(s3FileName){
                               followRedirect: false,
                               auth: { 
                                   user:'klynch@volerro.com',
-                                  pass:'hinault4777'
-                              }
-            }).then(function(response){
-                console.log(response);
-                var images = response.images;
-                var status = response.status;
-                console.log(images);
-                resolve(images);
+                                  pass:'hinault'
+                              }})
+            .then(function(response){
+                var body = JSON.parse(response[0].body);
+                var images = body.images;
+                return savePowerpointUpload(s3FileName,images,userId);
+            })
+            .then(function(uFile){
+                resolve(uFile);          
             }).catch(function(err){
                 console.log(err);
                 reject(err);
             });
-        
     });
 }
 
-
-
 // process uploaded file based on file type
-function processFile(fileName){
+function processFile(fileName,userId){
+    return new Promise(function(resolve, reject){
+    var uFile = {};
     if(fileName != undefined){
         console.log("processFile...",fileName);
         if(powerpointFile(fileName)){
             console.log("powerpoint!");
-            pptx2png(fileName);
-      //     callZamzar(status,params);
-        }
+            pptx2png(fileName,userId)
+            .then(function(uf){
+                uFile = uf;
+                // delete uploaded file
+                var params = {
+                  Bucket: library.bucket, 
+                  Key: fileName, 
+                };
+                return s3.deleteObjectAsync(params);
+            }).then(function(data) {
+                resolve(uFile);                
+            }).catch(function(err){
+                reject(err);
+            });
+        }       
         if(videoFile(fileName)){
             console.log("video!");
-       //    handleVideo(status,params);
+            var target = library.fullPath +'/'+library.serve+fileName.slice(fileName.indexOf('/'));
+            var source = encodeURI(library.fullPath + '/' + fileName);
+            console.log('target is: ',target);
+            console.log('source is: ',source);
+            var params = {
+                Bucket: library.bucket+library.domain, 
+                CopySource: source,
+                Key: target,
+                ACL: 'bucket-owner-full-control'
+                };
+                console.log(params);
+                s3.copyObjectAsync(params)
+            .then(function(){
+                // delete uploaded file
+                var params = {
+                  Bucket: library.bucket, 
+                  Key: fileName, 
+                };
+                return s3.deleteObjectAsync(params);
+            }).then(function(){
+                return saveVideoUpload(fileName,userId)
+            }).then(function(uf){
+                uFile = uf;
+                resolve(uFile);
+            }).catch(function(err){
+                reject(err);
+            });
         }
-    }
-};
+    } else {
+        reject('fileName undefined');
+    }    
+    });
+}
 
-// connect to uploader when complete callback
-uploader.onPost(processFile);
 
 // some handy queries
 //GET functionality
@@ -358,10 +362,13 @@ function getById(Model,req,res){
 // uploaded files
 library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var filePath = req.params.filePath;
+    var userId = req.query.userId;
+    console.log('filePath: ',filePath,'userId: ',userId);
     if (filePath != undefined){
-        processFile(filePath);
+        processFile(filePath,userId).then(function(uFile){
         var response = [];
-        res.send('success');
+        res.send(uFile[0]);
+        });
     } else 
         res.send('filePath is required');
 });

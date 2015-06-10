@@ -42,7 +42,6 @@ function ($scope,$rootScope,$state,
         pnFactory.init(); 
         reAspect();
         $scope.user={};
-        var channel = pnFactory.newChannel("library::fileEvents");
         $scope.progress = "0%"
         $scope.spinner = false;
         setActions($scope);
@@ -51,7 +50,6 @@ function ($scope,$rootScope,$state,
         $scope.listName = "Uploaded Files";
         $scope.setModel('files');
         $scope.tap={on:false,index:0};
-        channel.subscribe(doFileEvents);
         $listDel.showDelete(false);
         $scope.deck = {name: ''};
         $scope.category={name:''};
@@ -65,7 +63,7 @@ function ($scope,$rootScope,$state,
             'Cache-Control': 'max-age=3600'
           },
           headersSigned: {
-            'x-amz-acl': 'public-read'
+            'x-amz-acl': 'bucket-owner-full-control'
           },
           onFileSubmitted: function(files){
               $scope.progess = '0%';
@@ -85,8 +83,14 @@ function ($scope,$rootScope,$state,
             console.log($scope.fullName);
             $scope.progress = "0%";
             $scope.spinner = true;
-            $rootScope.$broadcast("show_message", "upload complete!");
-            Library.processUpload($scope);
+            $rootScope.$broadcast("show_message", "upload complete...converting");
+            Library.processUpload($scope).then(function(uFile){
+                $scope.spinner = false;
+                $rootScope.$broadcast("show_message", 'Conversion Complete');
+                updateView();
+            }).catch(function(err){
+                console.log(err);
+            });        
           },
           onFileError: function (file, message) {
             console.log('onError || message: %s', message);
@@ -406,7 +410,6 @@ function ($scope,$rootScope,$state,
 
     //handle system and window events
     $scope.$on('$destroy',function() {
-        if(channel != undefined) channel.unsubscribe();
         if($scope.shareMediator != undefined) $scope.shareMediator.destroy();
     });
 

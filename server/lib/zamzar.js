@@ -68,7 +68,24 @@ var prefix = directory+'/';
             });
         });
     }
-
+//this callback will be done when a post is recieved to upload
+function callZamzar(status,params){
+    //if it's a powerpoint then convert it - else noop
+    var oldName = params.dir+'/'+params.original_filename;
+    var fileName = params.dir+'/'+identifierKey(params.identifier)+'-'+params.original_filename;
+    fs.renameSync(oldName,fileName);
+    zamzar.ppt2png(fileName).then(function(job){
+        job.message = "Powerpoint Conversion Complete";
+        job.location = library.url;         
+        job.identifier = params.identifier.substring(0,params.identifier.indexOf('-')-1); 
+        job.oFileName = params.original_filename;
+        return savePowerpointUpload(job);
+    }).then(function(job){
+        console.log(job);
+    }).catch(function(error){
+        console.log(error);
+    });     
+};
 
     function waitForJob(job){
         return new Promise(function(resolve, reject){

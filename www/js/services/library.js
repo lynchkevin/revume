@@ -375,10 +375,10 @@ function(uFiles,
                           {filePath:'@filePath'},
                         {  convertFile: {method:'GET',params:{filePath:'@filePath'}}
                         });
-        r.convertFile({filePath:encodeURI($scope.fullName)}).$promise
-        .then(function(response){
-            console.log(response);
-            defer.resolve(response);
+        r.convertFile({filePath:encodeURI($scope.fullName),userId:$rootScope.user._id}).$promise
+        .then(function(uFile){
+            console.log(uFile);
+            defer.resolve(uFile);
         }).catch(function(err){
             console.log(err);
             defer.reject(err);
