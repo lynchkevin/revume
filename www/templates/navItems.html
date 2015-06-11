@@ -94,7 +94,8 @@
                                            ng-click="delNavItem($index)"
                                            ng-disabled="!item._$Delete">
                         </ion-delete-button>
-                        <img ng-src="{{item.thumb}}" alt="New" class="alt">
+                        <img ng-if="item.slides.length != 0"
+                             ng-src="{{item.thumb}}" alt="New" class="alt">
                         <h2>{{item.name}}</h2>
                         <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                         <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  

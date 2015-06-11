@@ -104,8 +104,8 @@ function(uFiles,
         items.forEach(function(item){
             var refActions = (item.beingEdited) ? $scope.editActions: $scope.actions ;
             item.actions =[];
+            var idx = 0;
             refActions.forEach(function(action){
-                var idx = 0;
    //             if($.rightEnabled(model,item.role,action.name)){
                 if(rights.getRight(item.role,action.name)){
                    var newAction = {};

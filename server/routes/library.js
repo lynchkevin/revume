@@ -2,8 +2,8 @@ var express = require('express');
 var library = express.Router();
 var fs = require('fs');
 var util = require('util');
-var exec = require('child_process').exec;
 var Promise = require('bluebird');
+var execAsync = Promise.promisifyAll(require('child_process')).execAsync;
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var request = Promise.promisifyAll(require('request'));
 var ObjectId = require('mongodb').ObjectID;
@@ -12,6 +12,7 @@ var baseUrl = process.env.BASE_URL;
 var port = process.env.PORT;
 var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
+var zamzar = require('../lib/zamzar');
 
 
 
@@ -21,7 +22,7 @@ library.bucket = 'revu';
 library.domain = '.volerro.com';
 library.upload = 'uploads';
 library.serve = 'img';
-library.fullPath = library.baseUrl+'/'+library.bucket+'.volerro.com';
+library.fullPath = library.baseUrl+'/'+library.bucket+library.domain;
 console.log('Library url= ',library.fullPath);
 
 var Slide = schema.Slide;
@@ -35,12 +36,13 @@ AWS.config.update({region: 'us-east-1'});
 //signing and link functions for S3 assets 
 function getSignedUrl(src){
     return new Promise(function(resolve, reject){
-        var baseUrl = 'https://s3.amazonaws.com/revu.volerro.com/';
-        var start = baseUrl.length;
+        var baseUrl = library.baseUrl+'/'+library.bucket+library.domain;
+        var start = baseUrl.length+1;
         var fileName = src.slice(start);
         var retVal = ''
         var expireTime = 60 * 60 * 12 //12 hours to expire
-        var params ={Bucket:'revu.volerro.com',Key:fileName,Expires:expireTime};
+        var params ={Bucket:library.bucket+library.domain,Key:fileName,Expires:expireTime};
+        console.log('params: ',params);
         var url = s3.getSignedUrlAsync('getObject',params).then(function(url){
             resolve(url);
         }).catch(function(err){
@@ -65,12 +67,18 @@ function s3Slides(slides){
     return new Promise(function(resolve,reject){
         var promises = []
         slides.forEach(function(slide){
-            promises.push(getSignedUrl(slide.src));
+            if(slide.type == 'video')
+                promises.push(getSignedUrl(slide.poster));               
+            else
+                promises.push(getSignedUrl(slide.src));
         });
         Promise.settle(promises).then(function(urls){
             var idx = 0;
             slides.forEach(function(slide){
-                slide.src = urls[idx++].value();
+                if(slide.type == 'video')
+                    slide.poster = urls[idx++].value();
+                else
+                    slide.src = urls[idx++].value();                    
             });            
             resolve(slides);
         }).catch(function(err){
@@ -117,11 +125,12 @@ function savePowerpointUpload(fileName,images,userId){
 
 
 //save uploaded slides to the database
-function saveVideoUpload(fileName,userId){
+function saveVideoUpload(fileName,thumbFile,userId){
     return new Promise(function(resolve, reject){ 
     var slide = new Slide;
     var uFile = new UploadedFile;
     var justFileName = fileName.slice(fileName.indexOf('_')+1);
+    var withIdentifier = fileName.slice(fileName.indexOf('/')+1);
     console.log(justFileName)
     uFile.name = justFileName;
     uFile.createdDate = new Date();
@@ -129,11 +138,11 @@ function saveVideoUpload(fileName,userId){
     uFile.user = userId;
     slide.name = justFileName;
     slide.originalOrder = 0;
-    slide.location = library.fullPath +'/'+slide.name;
+    slide.location = library.fullPath +'/'+library.serve+'/'+withIdentifier;
     slide.type = 'video';
     slide.link = '';
-    slide.src = library.fullPath+'/'+slide.name; 
-    slide.poster = library.fullPath 
+    slide.src = library.fullPath +'/'+library.serve+'/'+withIdentifier;
+    slide.poster = library.fullPath +'/'+thumbFile;
     uFile.thumb = slide.poster;
     slide.identifier = fileName.slice(fileName.indexOf('/')+1,fileName.indexOf('_'));
     uFile.slides.push(slide._id);
@@ -181,42 +190,83 @@ function videoFile(filename){
     return result;
 };      
 
-function handleVideo(status, params){
-    var f = params.original_filename;
-    var file = f.substr(0,f.lastIndexOf('.')-1);
-    var thumbName = '\"'+library.path+file+'.png'+'\"';
-    var source = params.dir+'/'+f;
-    var final = library.path+f;
-    //squeeze spaces
-    
-    console.log('source: ',source);
-    console.log('final :', final);
-    try{ //handleVideo may get called twice
-    fs.renameSync(source,final);
-    }catch(e){
-        //don't save duplicates...
-        console.log("file already processed")
-        return;
-    };
-    //write video and thumbnail
-    final = '\"'+final+'\"';
-    var execStr = 'ffmpeg -i '+final+' -vframes 1 -s 320x240 -ss 1 '+thumbName;
-    console.log(execStr);
-    exec(execStr);
-    
-    // done - save it to thge database
-    var job = {};
-    job.message = "Video Upload Complete";
-    job.location = library.url;   
-    job.filename = f;
-    job.identifier = f;
-    job.poster = file+'.png';
-    saveVideoUpload(job).then(function(job){
-    }).catch(function(err){
+function createVideoThumb(fileName){
+    return new Promise(function(resolve, reject){ 
+        var justFile = fileName.slice(fileName.indexOf('/')+1);
+        var thumbFile = justFile.substring(0,justFile.lastIndexOf('.')-1)+'.png';
+        var source = 'tmp/'+justFile;
+        var params = { Bucket: library.bucket+library.domain,
+                       Key: library.serve+'/'+justFile
+                     };
+        console.log('target for download: ',source);
+        s3.getObjectAsync(params).then(function(object){
+            console.log(object);
+            fs.writeFile(source,object.Body);
+            console.log('file written');
+            //create the thumb
+            var execStr = 'ffmpeg -i '+source+' -vframes 1 -s 320x240 -ss 00:00:10 '+'tmp/'+thumbFile;
+            console.log(execStr);
+            return execAsync(execStr);
+        }).then(function(status){
+            //upload the thumb
+            var fileStream = fs.createReadStream('tmp/'+thumbFile);
+            params.Bucket = library.bucket+library.domain;
+            params.Key = library.serve+'/'+thumbFile;
+            params.Body = fileStream;
+            return s3.putObjectAsync(params);
+        }).then(function(status){
+            console.log('upload status: ',status);
+            //delete the tmp files
+            console.log('deleting temp files...');
+            fs.unlink('tmp/'+thumbFile);
+            fs.unlink(source);
+            resolve(library.serve+'/'+thumbFile);
+        }).catch(function(err){
+            console.log(err);
+            reject(err);
+        });
     });
-    
-};
+}
 
+function callZamzar(fileName){
+    return new Promise(function(resolve, reject){ 
+        var justFile = fileName.slice(fileName.indexOf('/')+1);
+        var thumbFile = justFile.substring(0,justFile.lastIndexOf('.')-1)+'.png';
+        var source = 'tmp/'+justFile;
+        var params = { Bucket: library.bucket+library.domain,
+                       Key: library.upload+'/'+justFile
+                     };
+        console.log('target for download: ',source);
+        console.log(params);
+        s3.getObjectAsync(params).then(function(object){
+            console.log(object);
+            fs.writeFile(source,object.Body);
+            console.log('file written');
+            //call zamzar
+            return zamzar.ppt2png(source);
+        }).then(function(job){
+            //upload the thumb
+           resolve(job);
+/*
+            var fileStream = fs.createReadStream('tmp/'+justFile);
+            params.Bucket = library.bucket+library.domain;
+            params.Key = library.serve+'/'+thumbFile;
+            params.Body = fileStream;
+            return s3.putObjectAsync(params);
+        }).then(function(status){
+            console.log('upload status: ',status);
+            //delete the tmp files
+            console.log('deleting temp files...');
+            fs.unlink('tmp/'+thumbFile);
+            fs.unlink(source);
+            resolve(library.serve+'/'+thumbFile);
+*/
+        }).catch(function(err){
+            console.log(err);
+            reject(err);
+        });
+    });
+}
 
 function pptx2png(s3FileName,userId){
     return new Promise(function(resolve, reject){
@@ -239,8 +289,14 @@ function pptx2png(s3FileName,userId){
                               }})
             .then(function(response){
                 var body = JSON.parse(response[0].body);
-                var images = body.images;
-                return savePowerpointUpload(s3FileName,images,userId);
+                console.log(body);
+                if(body.status != 'ok')
+                        reject(body.message);
+                    })
+                else {
+                    var images = body.images;
+                    return savePowerpointUpload(s3FileName,images,userId);
+                }
             })
             .then(function(uFile){
                 resolve(uFile);          
@@ -264,7 +320,7 @@ function processFile(fileName,userId){
                 uFile = uf;
                 // delete uploaded file
                 var params = {
-                  Bucket: library.bucket, 
+                  Bucket: library.bucket+library.domain, 
                   Key: fileName, 
                 };
                 return s3.deleteObjectAsync(params);
@@ -275,9 +331,8 @@ function processFile(fileName,userId){
             });
         }       
         if(videoFile(fileName)){
-            console.log("video!");
-            var target = library.fullPath +'/'+library.serve+fileName.slice(fileName.indexOf('/'));
-            var source = encodeURI(library.fullPath + '/' + fileName);
+            var target = library.serve+fileName.slice(fileName.indexOf('/'));
+            var source = encodeURI('revu.volerro.com' + '/' + fileName);
             console.log('target is: ',target);
             console.log('source is: ',source);
             var params = {
@@ -288,15 +343,22 @@ function processFile(fileName,userId){
                 };
                 console.log(params);
                 s3.copyObjectAsync(params)
-            .then(function(){
-                // delete uploaded file
+                .then(function(data){
+                console.log('copy returns: ',data);
+                // delete uploaded file       
                 var params = {
-                  Bucket: library.bucket, 
+                  Bucket: library.bucket+library.domain, 
                   Key: fileName, 
                 };
+                console.log('deleting...');
+                console.log(params);
                 return s3.deleteObjectAsync(params);
             }).then(function(){
-                return saveVideoUpload(fileName,userId)
+                // create thumb
+                return createVideoThumb(fileName);
+            }).then(function(thumbFile){
+                console.log('thumb created: ',thumbFile);          
+                return saveVideoUpload(fileName,thumbFile,userId)
             }).then(function(uf){
                 uFile = uf;
                 resolve(uFile);
@@ -362,12 +424,15 @@ function getById(Model,req,res){
 // uploaded files
 library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var filePath = req.params.filePath;
-    var userId = req.query.userId;
+    var userId = req.query.userId;    //strip the encodedUri Name
+    filePath = filePath.replace(/%20/g, " ");
     console.log('filePath: ',filePath,'userId: ',userId);
     if (filePath != undefined){
         processFile(filePath,userId).then(function(uFile){
         var response = [];
         res.send(uFile[0]);
+        }).catch(function(err){
+            console.log(err);
         });
     } else 
         res.send('filePath is required');
@@ -467,6 +532,11 @@ library.get('/library/slides/convert',function(req,res){
         console.log(err);
     });
 });
+function stripAccessKeys(urlWithKeys){
+    var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
+    console.log('with keys: ',urlWithKeys,'stripped: ',url);
+    return url;
+}
 
 function doGetSlides(model,req){
     var id = req.params.id;
@@ -516,8 +586,13 @@ function doSave(model,req){
     var newDoc = new model;
     newDoc.name = newItem.name;
     newDoc.user = newItem.user._id;
+    newItem.slides.forEach(function(slide){
+        slide.src = stripAccessKeys(slide.src);
+        if(slide.poster != undefined)
+            slide.poster = stripAccessKeys(slide.poster);
+    })
     newDoc.slides = newItem.slides;
-    newDoc.thumb = newItem.thumb;
+    newDoc.thumb = stripAccessKeys(newItem.thumb);
     console.log(newDoc);
     return newDoc.saveAsync();
 };
@@ -544,9 +619,10 @@ function doUpdate(model,req){
                 s.location = slide.location;
                 s.type = slide.type;
                 s.link = slide.link;
-                s.src = slide.src;
+                s.src = stripAccessKeys(slide.src);
                 s.identifier = slide.identifier;
-                s.poster = slide.poster;
+                if(slide.poster!= undefined)
+                    s.poster = stripAccessKeys(slide.poster);
                 allPromises.push(s.saveAsync())
             })
             return Promise.settle(allPromises);
@@ -556,7 +632,7 @@ function doUpdate(model,req){
             slides.forEach(function(arr){ 
                 foundItem.slides.push(arr.value()[0]._id);
         });
-        foundItem.thumb = req.body.thumb;
+        foundItem.thumb = stripAccessKeys(req.body.thumb);
         foundItem.originalOrder = req.body.originalOrder;
         console.log('foundItem.user= ',foundItem.user);
         foundItem.lastUpdate = new Date();
