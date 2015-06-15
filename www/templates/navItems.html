@@ -41,7 +41,8 @@
                                  drag-leave="class='flow-drag-leave'" 
                                  evaporate eva-model="evaData"
                                  ng-class="class">
-                                <p ng-show="!spinner">Drop your file here</p>
+                                <p ng-show="!spinner && timeLeft == 0">Drop your file here</p>
+                                <p ng-show="timeLeft != 0">{{timeLeft}} seconds remaining...</p>
                                 <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
                                 <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}"></div>
                             </div>
@@ -95,7 +96,7 @@
                                            ng-disabled="!item._$Delete">
                         </ion-delete-button>
                         <img ng-if="item.slides.length != 0"
-                             ng-src="{{item.thumb}}" alt="New" class="alt">
+                             ng-src="{{item.thumb}}"  class="white-background">
                         <h2>{{item.name}}</h2>
                         <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                         <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  

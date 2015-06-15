@@ -44,6 +44,7 @@ function ($scope,$rootScope,$state,
         $scope.user={};
         $scope.progress = "0%"
         $scope.spinner = false;
+        $scope.timeLeft = 0;
         setActions($scope);
         $scope.selectedNavId = 0;
         $scope.navItems =[];
@@ -76,6 +77,7 @@ function ($scope,$rootScope,$state,
               file.timeLeft
             );
             $scope.progress = (file.progress).toString()+"%";
+            $scope.timeLeft = file.timeLeft;
           },
           onFileComplete: function (file) {
             console.log('onComplete || name: %s', file.name);
@@ -83,6 +85,7 @@ function ($scope,$rootScope,$state,
             console.log($scope.fullName);
             $scope.progress = "0%";
             $scope.spinner = true;
+            $scope.timeLeft = 0;
             $rootScope.$broadcast("show_message", "upload complete...converting");
             Library.processUpload($scope).then(function(uFile){
                 $scope.spinner = false;

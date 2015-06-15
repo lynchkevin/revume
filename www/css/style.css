@@ -394,6 +394,10 @@ div.progress-value {
   text-align: center;
   font-weight: bold;
 }
+
+.white-background {
+    background-color: white;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {

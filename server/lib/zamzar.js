@@ -13,7 +13,7 @@ var formData = {
         target_format: 'png',
         source_file: undefined
     };
-var directory = 'img'
+var directory = 'tmp'
 var prefix = directory+'/';
 
     try {
@@ -24,13 +24,14 @@ var prefix = directory+'/';
         return new Promise(function(resolve, reject){    
             var input = prefix+file.name;
             var readStream = fs.createReadStream(input);
-            var writeStream = fstream.Writer(directory);
-            readStream.pipe(unzip.Parse()).pipe(writeStream);
-            console.log('extracted...deleting zip');
-            try{
-                fs.unlink(input);
-            }catch(e){console.log("file unlink failed");}
-            resolve();
+            readStream.pipe(unzip.Extract({path:directory}))
+            .on('close',function(){
+                console.log('extracted...deleting zip');
+                try{
+                    fs.unlink(input);
+                }catch(e){console.log("file unlink failed");}
+                resolve();
+            });
         });
     }
 
@@ -139,6 +140,7 @@ function callZamzar(status,params){
     zamzar.ppt2png = function(filePath){
         return new Promise(function(resolve, reject){        
         var filename = filePath;
+        var theJob = {}
         request.postAsync({url:'https://api.zamzar.com/v1/jobs/',
                            formData: {
                                 target_format: 'png',
@@ -150,45 +152,14 @@ function callZamzar(status,params){
                             }
         }).then(function(jobInfo){
             job = JSON.parse(jobInfo[1]);
-            console.log('Job posted successfully : ',job.id);
-            return waitForJob(job)
-        }).then(function(job){
-            console.log('downloading zipfile');
-            return promiseRetry(function(retry,number){
-                console.log('attempt number', number);
-                return downloadZipFile(job)
-                .catch(retry);
-            });
-        }).then(function(job){
-            console.log('unzipping file ',prefix+job.zipFile.name)
-            var result = unzipFile(job.zipFile);
-            resolve(job);
-        }).catch(function(e){
-            console.log('Error in chain: ',e);
-            reject(e);
-        });
-    });
-};
-    
-    zamzar.s3ppt2png = function(stream){
-        console.log(stream);
-        return new Promise(function(resolve, reject){        
-        request.postAsync({url:'https://api.zamzar.com/v1/jobs/',
-                           formData: {
-                                target_format: 'png',
-                                source_file: stream
-                            },
-                           auth:{user:apiKey,
-                                 pass:'',
-                                 sendImmediately:true
-                            }
-        }).then(function(jobInfo){
-            job = JSON.parse(jobInfo[1]);
-            console.log(job.errors);
-            if(job.errors != undefined ){
-                console.log('rejecting promise');
-                reject(job.errors[0]);
-            }else{
+            if(job.id == undefined){
+                reject('zamzar fails: ',job);
+                console.log(job);
+                job.errors.forEach(function(err){
+                    console.log(err.context);
+                    console.log(err);
+                });
+            } else{
             console.log('Job posted successfully : ',job.id);
             return waitForJob(job)
             }
@@ -200,14 +171,17 @@ function callZamzar(status,params){
                 .catch(retry);
             });
         }).then(function(job){
-            console.log('unzipping file ',prefix+job.zipFile.name)
-            var result = unzipFile(job.zipFile);
-            resolve(job);
+            console.log('unzipping file ',prefix+job.zipFile.name);
+            theJob = job;
+            return unzipFile(job.zipFile);
+        }).then(function(job){
+            resolve(theJob);
         }).catch(function(e){
             console.log('Error in chain: ',e);
             reject(e);
         });
     });
 };
+    
 
 module.exports = zamzar;

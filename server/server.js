@@ -67,7 +67,6 @@ app.use('/api',share);
 app.use(require('morgan')('dev'));
 //sign data for aws
 app.use('/api/signer',function(req,res){
-  console.log('signer is hit with : ',req.query.to_sign);
   if(req.query.to_sign != undefined)
       res.send(crypto
         .createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY)
@@ -82,13 +81,13 @@ app.use('/api/signer',function(req,res){
 app.listen(port, function () {
     console.log('Express server listening on port ' + port);
 }).on('error',function(err){
-    console.log('process.on handler');
+    console.log('process.on error handler');
     console.log(err);
 });      
 
 //catch uncaught exceptions and log
 process.on('uncaughtException', function(err) {
-    console.log('process.on handler');
+    console.log('process.on uncaughtException handler');
     console.log(err);
 });
 

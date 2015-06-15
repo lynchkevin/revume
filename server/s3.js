@@ -32,13 +32,14 @@ app.all('*', function(req, res, next) {
 
 AWS.config.update({region: 'us-east-1'});
 
-var params ={Bucket:'revu.volerro.com',Key:'uploads/revume.pptx'};
+/*var params ={Bucket:'revu.volerro.com',Key:'uploads/revume.pptx'};
 var url = s3.getSignedUrl('getObject',params,function(err,url){
     if(err) 
         console.log('Error: ',err);
     else 
         console.log('Url is: ',url);
 });
+*/
 /*
 s3.listBuckets(function(err,data){
     if(err) {console.log('Error : ',err);}
@@ -85,27 +86,36 @@ s3.getObjectAsync(params).then(function(data){
     console.log(err);
 });
 */
-var read = fs.createReadStream('Revume.pptx');
-read.close
+var fileName = './tmp/'+'1434130521175_May Work-0.png';
+var read = fs.createReadStream(fileName);
+var params = {Bucket:'revu.volerro.com',
+              Key: 'uploads/1434130521175_May Work-0.png',
+              Body: read
+             }
+ s3.putObjectAsync(params).then(function(data){
+     console.log(data);
+ });
+
 // Upload to s3....
-var upload = s3Stream.upload({
-  "Bucket": "revu.volerro.com",
-  "Key": "uploads/revume.pptx"
-});
+//var upload = s3Stream.upload({
+//  "Bucket": "revu.volerro.com",
+//  "Key": "uploads/revume.pptx"
+//});
 
 // Handle errors.
-upload.on('error', function (error) {
-  console.log(error);
-});
+//upload.on('error', function (error) {
+//  console.log(error);
+//});
 //handle parts
-upload.on('part', function (details) {
-  console.log(details);
-});
+//upload.on('part', function (details) {
+//  console.log(details);
+//});
 //handle completion
+/*
 upload.on('uploaded', function (details) {
   console.log(details);
 });
-
+*/
 //do it
 //console.log('uploading file...');
 //read.pipe(upload);

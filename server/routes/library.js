@@ -42,7 +42,6 @@ function getSignedUrl(src){
         var retVal = ''
         var expireTime = 60 * 60 * 12 //12 hours to expire
         var params ={Bucket:library.bucket+library.domain,Key:fileName,Expires:expireTime};
-        console.log('params: ',params);
         var url = s3.getSignedUrlAsync('getObject',params).then(function(url){
             resolve(url);
         }).catch(function(err){
@@ -56,7 +55,6 @@ function s3Thumb(thumb){
     return new Promise(function(resolve,reject){
         getSignedUrl(thumb).then(function(url){
             thumb = url;
-            console.log(thumb);
             resolve(thumb);
         }).catch(function(err){
             reject(err);
@@ -160,21 +158,26 @@ function saveVideoUpload(fileName,thumbFile,userId){
 }
 
 function getExtention(f){
-    return f.substr(f.lastIndexOf('.'),f.length-1);
+    return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
 }
 //test if powerpoint file
-function powerpointFile(filePath){
+function documentFile(filePath){
     var f = filePath;
+    var result = false;
     var ext = getExtention(f);
-    if(ext == ".ppt" || ext==".pptx") {
-        return true;
-    } else {
-    return false;
+    switch(ext){
+        case ".ppt"     :
+        case ".pptx"    :
+        case ".pdf"     :
+        case ".doc"     :
+        case ".docx"    :
+            result = true;
+            break
     }
+    return result;
 }
 function videoFile(filename){
     var ext = getExtention(filename)
-    console.log(ext);
     var result = false;
     switch (ext){
         case ".mp4":
@@ -198,14 +201,11 @@ function createVideoThumb(fileName){
         var params = { Bucket: library.bucket+library.domain,
                        Key: library.serve+'/'+justFile
                      };
-        console.log('target for download: ',source);
         s3.getObjectAsync(params).then(function(object){
-            console.log(object);
             fs.writeFile(source,object.Body);
             console.log('file written');
             //create the thumb
             var execStr = 'ffmpeg -i '+source+' -vframes 1 -s 320x240 -ss 00:00:10 '+'tmp/'+thumbFile;
-            console.log(execStr);
             return execAsync(execStr);
         }).then(function(status){
             //upload the thumb
@@ -233,34 +233,50 @@ function callZamzar(fileName){
         var justFile = fileName.slice(fileName.indexOf('/')+1);
         var thumbFile = justFile.substring(0,justFile.lastIndexOf('.')-1)+'.png';
         var source = 'tmp/'+justFile;
+        var job = {};
+        var images = [];
+        var promises = [];
         var params = { Bucket: library.bucket+library.domain,
                        Key: library.upload+'/'+justFile
                      };
         console.log('target for download: ',source);
-        console.log(params);
         s3.getObjectAsync(params).then(function(object){
-            console.log(object);
             fs.writeFile(source,object.Body);
             console.log('file written');
             //call zamzar
             return zamzar.ppt2png(source);
-        }).then(function(job){
-            //upload the thumb
-           resolve(job);
-/*
-            var fileStream = fs.createReadStream('tmp/'+justFile);
-            params.Bucket = library.bucket+library.domain;
-            params.Key = library.serve+'/'+thumbFile;
-            params.Body = fileStream;
-            return s3.putObjectAsync(params);
-        }).then(function(status){
-            console.log('upload status: ',status);
-            //delete the tmp files
-            console.log('deleting temp files...');
-            fs.unlink('tmp/'+thumbFile);
+        }).then(function(j){
+            //upload the png files
+            job = j;            
+            // delete the source file - zamzar deletes the zip
+            console.log('deleting: ',source);
             fs.unlink(source);
-            resolve(library.serve+'/'+thumbFile);
-*/
+            if(job.status != 'successful')
+              reject('zamzar fails');
+            else {
+              job.target_files.splice(-1,1);
+              console.log(job.target_files);
+              job.target_files.forEach(function(file){
+                var fileStream = fs.createReadStream('tmp/'+file.name);
+                params.Bucket = library.bucket+library.domain;
+                params.Key = library.serve+'/'+file.name;
+                params.Body = fileStream;
+                images.push(params.Key);
+                console.log('uploading: ',file.name);
+                promises.push(s3.putObjectAsync(params));
+              });
+              return Promise.settle(promises);
+            }
+        }).then(function(resArray){
+            job.target_files.forEach(function(file){
+                try{
+                console.log('deleting: ','tmp/'+file.name);
+                fs.unlink('tmp/'+file.name); 
+                } catch(err){
+                    console.log('error deleting file: ',file.name);
+                }
+            });
+           resolve(images);
         }).catch(function(err){
             console.log(err);
             reject(err);
@@ -292,7 +308,6 @@ function pptx2png(s3FileName,userId){
                 console.log(body);
                 if(body.status != 'ok')
                         reject(body.message);
-                    })
                 else {
                     var images = body.images;
                     return savePowerpointUpload(s3FileName,images,userId);
@@ -313,10 +328,11 @@ function processFile(fileName,userId){
     var uFile = {};
     if(fileName != undefined){
         console.log("processFile...",fileName);
-        if(powerpointFile(fileName)){
-            console.log("powerpoint!");
-            pptx2png(fileName,userId)
-            .then(function(uf){
+        if(documentFile(fileName)){
+            console.log("document!");
+            callZamzar(fileName).then(function(images){
+                return savePowerpointUpload(fileName,images,userId);
+            }).then(function(uf){
                 uFile = uf;
                 // delete uploaded file
                 var params = {
@@ -411,7 +427,6 @@ function getById(Model,req,res){
         item = result;
         return getSignedUrl(item.thumb);
     }).then(function(url){
-        console.log(url);
         item.thumb = url;
         return s3Slides(item.slides);
     }).then(function(){
@@ -469,6 +484,13 @@ library.delete('/library/uploadedFiles/:id',function(req,res){
     }).then(function(slds){
         console.log('removing slides');
         slds.forEach(function(slide){
+                var params = {
+                  Bucket: library.bucket+library.domain, 
+                  Key: fileName, 
+                };
+                console.log('deleting...');
+                console.log(params);
+                return s3.deleteObjectAsync(params);
             allPromises.push(slide.removeAsync());
         });
         return Promise.settle(allPromises);
