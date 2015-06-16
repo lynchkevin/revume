@@ -92,8 +92,9 @@ var Share = mongoose.model('Share',ShareSchema);
 var entries = [
 {firstName:"Kevin", lastName:"Lynch", email:"klynch@volerro.com"},
 {firstName:"Kathy", lastName:"Lynch", email:"kevkathboys@yahoo.com"},    
-{firstName:"Tom", lastName:"Vettel", email:"tvettel@acpartners.us"},
-{firstName:"Jason", lastName:"Sundby", email:"jsundnby@acpartners.us"}
+{firstName:"Jack", lastName:"Lynch", email:"jack.lynch.w@gmail.com"},
+{firstName:"Jason", lastName:"Sundby", email:"jsundnby@acpartners.us"},
+{firstName:"Rick", lastName:"Kelley", email:"rkelley@volerro.com"}
 ];
 
 function loadUsers(){
@@ -104,6 +105,7 @@ function loadUsers(){
         usr.email = entries[i].email;
         usr.save();
     }
+
     console.log(i,' Users Loaded');
 };
         

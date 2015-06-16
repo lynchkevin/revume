@@ -17,6 +17,7 @@ angular.module('starter')
                 publish_key: 'pub-c-19a2e5ee-5b70-435d-9099-65ae53e5b149',
                 subscribe_key: 'sub-c-0f2a418a-b9f1-11e4-80fe-02ee2ddab7fe',
                 uuid:uuid,
+                ssl: true
             });
         };
             
@@ -38,7 +39,8 @@ angular.module('starter')
                 channel : this.name,
                 presence : pcb,
                 message : mcb,
-                heartbeat : 60
+                heartbeat : 60,
+                connect: function(){console.log("Connected with SSL")}
             });
         };
         

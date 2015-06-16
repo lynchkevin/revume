@@ -8,11 +8,11 @@ var mongoose = Promise.promisifyAll(require('mongoose'));
 var request = Promise.promisifyAll(require('request'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
-var baseUrl = process.env.BASE_URL;
 var port = process.env.PORT;
 var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
 var zamzar = require('../lib/zamzar');
+var signer = require('../lib/s3Signer');
 
 
 
@@ -25,6 +25,8 @@ library.serve = 'img';
 library.fullPath = library.baseUrl+'/'+library.bucket+library.domain;
 console.log('Library url= ',library.fullPath);
 
+signer.setBucket('revu','volerro.com');
+
 var Slide = schema.Slide;
 var UploadedFile = schema.UploadedFile;
 var Deck = schema.Deck;
@@ -34,6 +36,7 @@ var Category = schema.Category;
 AWS.config.update({region: 'us-east-1'});
 
 //signing and link functions for S3 assets 
+/*
 function getSignedUrl(src){
     return new Promise(function(resolve, reject){
         var baseUrl = library.baseUrl+'/'+library.bucket+library.domain;
@@ -84,6 +87,7 @@ function s3Slides(slides){
         });
     })
 }
+*/
 //save uploaded slides to the database
 function savePowerpointUpload(fileName,images,userId){
     return new Promise(function(resolve, reject){ 
@@ -403,8 +407,8 @@ function getByUser(Model,req,res){
     .then(function(results){
         items = results;
         items.forEach(function(item){
-            promises.push(s3Thumb(item.thumb));
-            promises.push(s3Slides(item.slides));
+            promises.push(signer.thumb(item.thumb));
+            promises.push(signer.slides(item.slides));
         });
         return Promise.settle(promises);
     }).then(function(pees){
@@ -425,10 +429,10 @@ function getById(Model,req,res){
     .sort({createdDate:-1})
     .execAsync().then(function(result){
         item = result;
-        return getSignedUrl(item.thumb);
+        return signer.getSignedUrl(item.thumb);
     }).then(function(url){
         item.thumb = url;
-        return s3Slides(item.slides);
+        return signer.slides(item.slides);
     }).then(function(){
         res.send(item);
     }).catch(function(err){
@@ -512,7 +516,7 @@ library.get('/library/slides',function(req,res){
     .execAsync().then(function(slides){
         theSlides = slides;
         slides.forEach(function(slide){
-            promises.push(getSignedUrl(slide.src));
+            promises.push(signer.getSignedUrl(slide.src));
         });
         return Promise.settle(promises);
     }).then(function(urls){
@@ -556,6 +560,7 @@ library.get('/library/slides/convert',function(req,res){
 });
 function stripAccessKeys(urlWithKeys){
     var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
+    url = url.replace(/%20/g, " ");
     console.log('with keys: ',urlWithKeys,'stripped: ',url);
     return url;
 }

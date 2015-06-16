@@ -5,15 +5,18 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', 
-[   'ionic',
+[   'config',
+    'ionic',
     'ngResource',
     'ngAnimate',
     'evaporate'
 ]
 )
 
-.constant("baseUrl",{"endpoint": "http://192.168.1.167:5000",
-                     "volerro": "https://rb.volerro.com"})
+//.constant("baseUrl",{"endpoint": "http://192.168.1.167:5000",
+//                     "volerro": "https://rb.volerro.com"})
+//.constant("baseUrl",{"endpoint": "https://m.volerro.com",
+//                    "volerro": "https://rb.volerro.com"})
 .run(["$ionicPlatform",
       "$rootScope",
       "$window",
