@@ -297,6 +297,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         session.time.setDate(session.date.getDate());
         session.time.setMonth(session.date.getMonth());
         session.time.setFullYear(session.date.getFullYear());
+        session.offset = new Date().getTimezoneOffset();
         console.log('offset after fix: ',session.time.getTimezoneOffset());
     }
     //update the session in the database
