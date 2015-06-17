@@ -6,6 +6,7 @@ var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var iCalEvent = require('icalevent');
 var nodemailer = require('nodemailer');
+var signer = require('../lib/s3Signer');
 var volerroSender = 'invitation@volerro.com';
 var transporter = nodemailer.createTransport({
     service:'gmail',
@@ -17,6 +18,8 @@ var transporter = nodemailer.createTransport({
 
 var Session = schema.Session;
 var defaultBridgeNumber = '(805) 436-7615' //format works for android and iphone  
+//set the bucket on the signer
+signer.setBucket('revu','volerro.com');
 
 function addMinutes(date,minutes){
     return new Date(date.getTime() + minutes*60000);
@@ -249,6 +252,26 @@ function sendFollowUp(meeting){
             transporter.sendMail(mail);
         }); 
 };
+
+function doThumbs(results){
+ return new Promise(function(resolve,reject){
+    var promises = [];
+    var decks = [];
+    results.forEach(function(result){
+        result.decks.forEach(function(deck){
+            decks.push(deck);
+            promises.push(signer.thumb(deck.thumb));
+        });
+    });
+    Promise.settle(promises).then(function(pees){
+        for(var i=0; i < pees.length; i++)
+            decks[i].thumb = pees[i].value(); 
+        resolve(pees);
+    }).catch(function(err){
+        reject(err);
+    });
+ });
+};
 //CREATE
 //create a new session
 session.post('/sessions',function(req,res){
@@ -297,45 +320,49 @@ session.get('/sessions',function(req,res){
 
 //get a single session - populate decks and slides
 session.get('/sessions/:id',function(req,res){
+    var sessions;
     Session.find({_id:new ObjectId(req.params.id)})
         .populate('organizer decks attendees')
-        .exec(function(err,results){
-            if(err) {
-                console.log("error! ",err);
-                res.send(err);
-            }else{
-                res.send(results[0]);
-            }
+        .execAsync().then(function(results){
+            sessions = results;
+            return doThumbs(sessions);
+        }).then(function(){ 
+            res.send(sessions[0]);
+        }).catch(function(err){
+            res.send(err);
         });
 });
 //get all sessions where I'm the organizer
 session.get('/sessions/organizer/:id',function(req,res){
+    var sessions;
     console.log("session by organizer",req.params.id);   
     Session.find({organizer:new ObjectId(req.params.id)})
         .populate('organizer decks attendees')
         .sort({date:-1})    
-        .exec(function(err,results){
-            if(err) {
-                console.log("error! ",err);
-                res.send(err);
-            }else{
-                res.send(results);
-            }
+        .execAsync().then(function(results){
+            sessions = results;
+            return doThumbs(sessions);
+        }).then(function(pees){
+            res.send(sessions);
+        }).catch(function(err){
+            console.log('sessions by organizer: ',err);
+            res.send(err);
         });
 });
 //get all sessions where I am an attendee
 session.get('/sessions/attendee/:id',function(req,res){
+    var sessions;
     console.log("session by attendee",req.params.id);   
     Session.find({attendees:new ObjectId(req.params.id)})
         .populate('organizer decks attendees')
         .sort({date:-1})    
-        .exec(function(err,results){
-            if(err) {
-                console.log("error! ",err);
-                res.send(err);
-            }else{
-                res.send(results);
-            }
+        .execAsync().then(function(results){
+            sessions = results;
+            return doThumbs(sessions);
+        }).then(function(pees){
+            res.send(sessions);
+        }).catch(function(err){
+            res.send(err);
         });
 });
 //get all sessions and add a ufId field - this is a one time fix up function

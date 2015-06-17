@@ -35,59 +35,7 @@ var Category = schema.Category;
 //AWS setup
 AWS.config.update({region: 'us-east-1'});
 
-//signing and link functions for S3 assets 
-/*
-function getSignedUrl(src){
-    return new Promise(function(resolve, reject){
-        var baseUrl = library.baseUrl+'/'+library.bucket+library.domain;
-        var start = baseUrl.length+1;
-        var fileName = src.slice(start);
-        var retVal = ''
-        var expireTime = 60 * 60 * 12 //12 hours to expire
-        var params ={Bucket:library.bucket+library.domain,Key:fileName,Expires:expireTime};
-        var url = s3.getSignedUrlAsync('getObject',params).then(function(url){
-            resolve(url);
-        }).catch(function(err){
-            retVal = '';
-            reject(err);
-        });
-    });
-}
 
-function s3Thumb(thumb){
-    return new Promise(function(resolve,reject){
-        getSignedUrl(thumb).then(function(url){
-            thumb = url;
-            resolve(thumb);
-        }).catch(function(err){
-            reject(err);
-        });
-    });
-}
-function s3Slides(slides){
-    return new Promise(function(resolve,reject){
-        var promises = []
-        slides.forEach(function(slide){
-            if(slide.type == 'video')
-                promises.push(getSignedUrl(slide.poster));               
-            else
-                promises.push(getSignedUrl(slide.src));
-        });
-        Promise.settle(promises).then(function(urls){
-            var idx = 0;
-            slides.forEach(function(slide){
-                if(slide.type == 'video')
-                    slide.poster = urls[idx++].value();
-                else
-                    slide.src = urls[idx++].value();                    
-            });            
-            resolve(slides);
-        }).catch(function(err){
-            reject(err);
-        });
-    })
-}
-*/
 //save uploaded slides to the database
 function savePowerpointUpload(fileName,images,userId){
     return new Promise(function(resolve, reject){ 
@@ -147,6 +95,7 @@ function saveVideoUpload(fileName,thumbFile,userId){
     slide.poster = library.fullPath +'/'+thumbFile;
     uFile.thumb = slide.poster;
     slide.identifier = fileName.slice(fileName.indexOf('/')+1,fileName.indexOf('_'));
+    console.log('saveVideoUplaod: ',slide);
     uFile.slides.push(slide._id);
     console.log("saving slide",slide.name);
     slide.saveAsync().spread(function(sld){
@@ -429,7 +378,7 @@ function getById(Model,req,res){
     .sort({createdDate:-1})
     .execAsync().then(function(result){
         item = result;
-        return signer.getSignedUrl(item.thumb);
+        return signer.thumb(item.thumb);
     }).then(function(url){
         item.thumb = url;
         return signer.slides(item.slides);
@@ -559,7 +508,9 @@ library.get('/library/slides/convert',function(req,res){
     });
 });
 function stripAccessKeys(urlWithKeys){
-    var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
+    var url = urlWithKeys;
+    if(urlWithKeys.indexOf('?')>0)
+        var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
     url = url.replace(/%20/g, " ");
     console.log('with keys: ',urlWithKeys,'stripped: ',url);
     return url;

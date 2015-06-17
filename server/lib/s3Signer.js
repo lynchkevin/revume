@@ -52,16 +52,20 @@ var s3Signer = function(){
         return new Promise(function(resolve,reject){
             var promises = []
             slides.forEach(function(slide){
-                if(slide.type == 'video')
-                    promises.push(s3Signer.getSignedUrl(slide.poster));               
+                if(slide.type == 'video'){
+                    promises.push(s3Signer.getSignedUrl(slide.poster));  
+                    promises.push(s3Signer.getSignedUrl(slide.src));
+                }
                 else
                     promises.push(s3Signer.getSignedUrl(slide.src));
             });
             Promise.settle(promises).then(function(urls){
                 var idx = 0;
                 slides.forEach(function(slide){
-                    if(slide.type == 'video')
+                    if(slide.type == 'video'){
                         slide.poster = urls[idx++].value();
+                        slide.src = urls[idx++].value();
+                    }
                     else
                         slide.src = urls[idx++].value();                    
                 });            
