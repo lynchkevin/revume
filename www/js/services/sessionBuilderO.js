@@ -69,53 +69,48 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     var lengthOptions = [30,60,90,120];
     var tz = jstz.determine();
     
-    function initSession(){
-        if($.sessionForm != undefined)
-            $.sessionForm.$setPristine();
-        $.session.decks=[];
-        $.session.name = '';
-        $.session.description = '';
+    function initSession(session){
+        session.decks=[];
+        session.name = '';
+        session.description = '';
         $.session.date=new Date;
-        $.session.attendees=[];
-        $.session.attIds=[];
-        $.session.length = 60;
-        $.session.lengthOptions = lengthOptions;
-        $.session.time= '';
-        $.session.bridge=false;
-        $.session.invite=true;
-        $.session.timeZone = tz.name();
-        $.session.baseUrl = baseUrl.endpoint;
+        session.attendees=[];
+        session.attIds=[];
+        session.length = 60;
+        session.lengthOptions = lengthOptions;
+        session.time= '';
+        session.bridge=false;
+        session.invite=true;
+        session.timeZone = tz.name();
+        session.baseUrl = baseUrl.endpoint;
     };
     
     $.setScope = function($scope){
-        $.scope = $scope;
+        $.session.scope = $scope;
     };
     
     $.init=function($scope){
-        var deferred = $q.defer();
         $.session = {}
-        $.scope=$scope;
+        $.session.scope=$scope;
         $.session.baseUrl = baseUrl.endpoint;
         $.builderCallback = function(){};
         $.deckCallback = function(){};
         $.defer = [];
-        initSession();
+        initSession($.session);
         //modal for selecting decks to add to session
         $ionicModal.fromTemplateUrl('templates/addDeckTemplate.html',{
-            scope: $.scope,
+            scope: $scope,
             animation:'slide-in-up'
         }).then(function(modal){
             $.deckModal = modal;
         //Modal for editing the session
             $ionicModal.fromTemplateUrl('templates/buildSession.html', {
-            scope: $.scope,
+            scope: $scope,
             animation: 'slide-in-up'
         }).then(function(modal) {
             $.builderModal = modal;
-            deferred.resolve();
         });  
         });
-        return deferred.promise;
     };
     
     // A general purpose alert dialog
@@ -176,7 +171,8 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     //build a new session from a deck  
     $.build=function($index){
         var defer = $q.defer();
-        $.session.decks[0] = $.scope.navItems[$index];
+        initSession($.session);
+        $.session.decks[0] = $.session.scope.navItems[$index];
         $.show($.builderModal).then(function(){
             return $.saveSession();
         }).then(function(){
@@ -199,6 +195,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         session.date = new Date(d);
         session.timeZone = tz.name();
         session.baseUrl = baseUrl.endpoint;
+        session.scope = $.session.scope;
         $.session = session;
         $.session.attIds=[];
         $.session.lengthOptions = lengthOptions;

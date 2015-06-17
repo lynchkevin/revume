@@ -94,8 +94,20 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
         Decks.get({id:_id}).$promise.then(function(deck){
             if(deck._id!= undefined){
                 $scope.orgSessions[idx].decks[0] = deck;
-                $scope.sb.edit($scope.orgSessions[idx]);
+                return $scope.sb.init($scope);
             }
+        }).then(function(){
+            return $scope.sb.edit($scope.orgSessions[idx]);
+        }).then(function(){
+            $scope.doRefresh();
+        });
+    };
+    
+    $scope.newSession = function(){
+        $scope.sb.init($scope).then(function(){
+            return $scope.sb.new();
+        }).then(function(){
+            $scope.doRefresh();
         });
     };
         
@@ -103,6 +115,12 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
     //reinialize whem the userID is set
     $scope.$on('userID',function(event,user){
         $scope.init();
+    });
+    // refresh when transitioning into the state
+    $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+        if(toState.name == 'app.session' || toState.name != 'app.attendeeSessions'){
+            $scope.doRefresh();
+        };
     });
 }])
 

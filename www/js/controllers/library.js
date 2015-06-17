@@ -33,7 +33,7 @@ function ($scope,$rootScope,$state,
     $scope.w = angular.element($window);
     
     $scope.init = function(){
-        sb.init($scope);
+        sb.init($scope)
         Library.init($scope);
         $scope.baseUrl = baseUrl.endpoint;
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
@@ -112,8 +112,9 @@ function ($scope,$rootScope,$state,
         return "Edit";
     };
     $scope.buildSession = function($index){
-        sb.setScope($scope);
-        sb.build($index).then(function(){
+        sb.init($scope).then(function(){
+            return sb.build($index)
+        }).then(function(){
             $scope.slideBack();
         }).catch(function(err){
             $scope.slideBack();

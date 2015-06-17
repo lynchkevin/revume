@@ -44,6 +44,8 @@ angular.module('starter')
             
             scope.$watch(model, function (str) {
                 if(!autoFilled){
+                if(userService.popover == undefined)
+                    userService.createPopover();
                 switch(fieldType){
                         case 'name' : 
                                     if(str!=undefined)

@@ -15,7 +15,7 @@
                     ng-click="sb.subEdit()">
             </button>
         </div> 
-        <form name="sessionForm">
+        <form name="sb.sessionForm">
             <ion-list show-delete="shouldShowDelete" delegate-handle="sb" >
               <ion-item ng-repeat="deck in sb.session.decks" 
                         class="item item-thumbnail-left">
@@ -29,7 +29,7 @@
             </ion-list>
               <label class="item item-input">
                 <span class="input-label">Name</span>
-                <input type="text" name="sName" ng-model="sb.session.name" placeholder="Meeting Name" required>
+                <input type="text" ng-model="sb.session.name" placeholder="Meeting Name" required>
               </label>
               <label class="item item-input">
                 <span class="input-label">Description</span>
@@ -74,8 +74,8 @@
                         </label>
                         <button class="button button-small"
                                 ng-click="sb.addAttendee()" 
-                                ng-disabled="!sessionForm.aName.$dirty || !sessionForm.aEmail.$dirty 
-                                             || sessionForm.aEmail.$invalid">
+                                ng-disabled="!sb.sessionForm.aName.$dirty || !sb.sessionForm.aEmail.$dirty 
+                                             || sb.sessionForm.aEmail.$invalid">
                           add
                         </button>
                     </div>
@@ -102,7 +102,7 @@
 
             <div class="centered-container">
                  <button class="button button-positive" ng-click="sb.defer.pop().resolve()" 
-                         ng-disabled="sessionForm.$invalid">
+                         ng-disabled="sb.sessionForm.$invalid">
                     OK
                 </button>
                 <button class="button padding-left button-stable" ng-click="sb.defer.pop().reject()">
@@ -110,9 +110,9 @@
                 </button>          
             </div>
             <div class="centered-container">
-                <p ng-show="sessionForm.sName.$invalid">Session Name is Required</p>
-                <p ng-show="sessionForm.date.$invalid">Session Date is Required</p>
-                <p ng-show="sessionForm.time.$invalid">Session Time is Required</p>            
+                <p ng-show="sb.sessionForm.sName.$invalid">Session Name is Required</p>
+                <p ng-show="sb.sessionForm.date.$invalid">Session Date is Required</p>
+                <p ng-show="sb.sessionForm.time.$invalid">Session Time is Required</p>            
             </div>
 
         </form>
