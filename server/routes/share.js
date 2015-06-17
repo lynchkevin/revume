@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
+var signer = require('../lib/s3Signer');
 
 var Share = schema.Share;
 var models = [{name:'files',model:schema.UploadedFile},
@@ -18,8 +19,24 @@ function modelLookup(modelName){
         }
     }
 }
+function signItems(items){
+    return new Promise(function(resolve, reject){
+        var promises = [];
+        items.forEach(function(item){
+            promises.push(signer.thumb(item.thumb));
+            promises.push(signer.slides(item.slides));
+        });
+        Promise.settle(promises).then(function(pees){
+            for(var i=0,j=0; i < pees.length; i+=2,j++)
+                items[j].thumb = pees[i].value();
+            resolve(items);
+        })
+    })
+}
+
 function assembleResults(items,results){
-    var r = []
+    var r = [];
+    var promises = [];
     items.forEach(function(item){
         console.log('item._id = ',item._id);
         for(var i=0; i<results.length;i++){
@@ -36,8 +53,8 @@ function assembleResults(items,results){
         }
     });
     return r;
-}
-                                      
+} 
+
 function getSharedItems(userId,model){
     //get all the teams for which I'm a member
     return new Promise(function(resolve, reject){
@@ -79,6 +96,8 @@ function getSharedItems(userId,model){
             .populate('user slides')
             .execAsync();
         }).then(function(items){
+            return signItems(items);
+        }).then(function(items){
             var r = assembleResults(items,shareItems);
             resolve(r);
         }).catch(function(err){
@@ -87,7 +106,8 @@ function getSharedItems(userId,model){
         });
     })
 }
-                        
+
+
 //save a sharing object
 share.post('/share',function(req,res){
     console.log("share: got put (save)!");

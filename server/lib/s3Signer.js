@@ -19,6 +19,15 @@ var s3Signer = function(){
         console.log('s3Signer.setBucket : ',s3Signer.bucketPath)
     };
 
+    s3Signer.stripAccessKeys = function(urlWithKeys){
+        var url = urlWithKeys;
+        if(urlWithKeys.indexOf('?')>0)
+            var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
+        url = url.replace(/%20/g, " ");
+        console.log('with keys: ',urlWithKeys,'stripped: ',url);
+        return url;
+    }
+    
     s3Signer.getSignedUrl = function(src){
         return new Promise(function(resolve, reject){
             var preAmble = s3Signer.baseUrl+'/'+s3Signer.bucket+'.'+s3Signer.domain;

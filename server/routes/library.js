@@ -507,14 +507,6 @@ library.get('/library/slides/convert',function(req,res){
         console.log(err);
     });
 });
-function stripAccessKeys(urlWithKeys){
-    var url = urlWithKeys;
-    if(urlWithKeys.indexOf('?')>0)
-        var url = urlWithKeys.slice(0,urlWithKeys.indexOf('?'));
-    url = url.replace(/%20/g, " ");
-    console.log('with keys: ',urlWithKeys,'stripped: ',url);
-    return url;
-}
 
 function doGetSlides(model,req){
     var id = req.params.id;
@@ -565,12 +557,12 @@ function doSave(model,req){
     newDoc.name = newItem.name;
     newDoc.user = newItem.user._id;
     newItem.slides.forEach(function(slide){
-        slide.src = stripAccessKeys(slide.src);
+        slide.src = signer.stripAccessKeys(slide.src);
         if(slide.poster != undefined)
-            slide.poster = stripAccessKeys(slide.poster);
+            slide.poster = signer.stripAccessKeys(slide.poster);
     })
     newDoc.slides = newItem.slides;
-    newDoc.thumb = stripAccessKeys(newItem.thumb);
+    newDoc.thumb = signer.stripAccessKeys(newItem.thumb);
     console.log(newDoc);
     return newDoc.saveAsync();
 };
@@ -597,10 +589,10 @@ function doUpdate(model,req){
                 s.location = slide.location;
                 s.type = slide.type;
                 s.link = slide.link;
-                s.src = stripAccessKeys(slide.src);
+                s.src = signer.stripAccessKeys(slide.src);
                 s.identifier = slide.identifier;
                 if(slide.poster!= undefined)
-                    s.poster = stripAccessKeys(slide.poster);
+                    s.poster = signer.stripAccessKeys(slide.poster);
                 allPromises.push(s.saveAsync())
             })
             return Promise.settle(allPromises);
@@ -610,7 +602,7 @@ function doUpdate(model,req){
             slides.forEach(function(arr){ 
                 foundItem.slides.push(arr.value()[0]._id);
         });
-        foundItem.thumb = stripAccessKeys(req.body.thumb);
+        foundItem.thumb = signer.stripAccessKeys(req.body.thumb);
         foundItem.originalOrder = req.body.originalOrder;
         console.log('foundItem.user= ',foundItem.user);
         foundItem.lastUpdate = new Date();
