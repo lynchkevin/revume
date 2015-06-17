@@ -59,13 +59,14 @@ function endDate(meeting){
 };
 
 function initInvite(meeting){
+    console.log('initInvite: meeting is - \n',meeting);
     var fullStart = startDate(meeting);
     var fullEnd = endDate(meeting);
     var idStr = "confID :"+meeting.ufId;
     // now build the invite
     var invite = new iCalEvent({
         uid : meeting._id,
-        offset: new Date().getTimezoneOffset(),
+        offset: meeting.offset,
         method: 'request',
         status: 'confirmed',
         start: fullStart,
@@ -75,6 +76,7 @@ function initInvite(meeting){
         description:idStr,
         location:meeting.bridgeNumber,
     });
+    console.log('initInvite: invite is - \n',invite); 
     return invite;
 };
     
@@ -292,6 +294,7 @@ session.post('/sessions',function(req,res){
     model.invite = sent.invite;
     model.bridge = sent.bridge;
     model.baseUrl = sent.baseUrl;
+    model.offset = sent.offset;
     model.saveAsync().then(function(session){
         model.ufId = userFriendlyId(session[0]._id.toString());
         model.bridgeNumber = defaultBridgeNumber;
@@ -411,6 +414,7 @@ session.put('/sessions/:id',function(req,res){
             session.invite = sent.invite;
             session.bridge = sent.bridge;
             session.baseUrl = sent.baseUrl;
+            session.offset = sent.offset;
             return session.saveAsync();
         }).then(function(session){
             console.log('success! building invite...');

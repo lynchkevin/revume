@@ -58,6 +58,7 @@ var SessionSchema = new mongoose.Schema({
     leaveBehind:Boolean,
     bridgeNumber:String,
     baseUrl:String,
+    offset:Number,
 });
 
 //engagement analytics

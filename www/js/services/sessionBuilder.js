@@ -85,6 +85,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.invite=true;
         $.session.timeZone = tz.name();
         $.session.baseUrl = baseUrl.endpoint;
+        $.session.offset = new Date().getTimezoneOffset();
     };
     
     $.setScope = function($scope){
@@ -290,11 +291,20 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.attendees.splice($index,1);
         $.session.attIds.splice($index,1);
     };
+    //fix the time
+    function fixTime(session){
+        console.log('offset before fix: ',session.time.getTimezoneOffset());
+        session.time.setDate(session.date.getDate());
+        session.time.setMonth(session.date.getMonth());
+        session.time.setFullYear(session.date.getFullYear());
+        console.log('offset after fix: ',session.time.getTimezoneOffset());
+    }
     //update the session in the database
     $.updateSession = function(){
         var defer = $q.defer();
         var updateSession = {};
         angular.extend(updateSession,$.session);
+        fixTime(updateSession);
         console.log('Update Session');
         //make sure we are sending only _ids
         updateSession.decks=[];
@@ -314,6 +324,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         var defer = $q.defer();
         var saveSession = new Session;
         angular.extend(saveSession,$.session);
+        fixTime(saveSession);
         saveSession.decks = [];
         $.session.decks.forEach(function(deck){
             saveSession.decks.push(deck._id);
