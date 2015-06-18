@@ -53,7 +53,7 @@
               <ion-item class="item-icon-left" ng-repeat="user in users"
                         ng-click="login()">
                   <i class="icon ion-android-contact avatar_icon"></i>
-                <h2>{{user.name}}</h2>
+                <h2 ng-if="user.name != 'undefined undefined'">{{user.name}}</h2>
               </ion-item>
           </ion-list>    
             </div>

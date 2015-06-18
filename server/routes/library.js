@@ -12,7 +12,7 @@ var port = process.env.PORT;
 var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
 var zamzar = require('../lib/zamzar');
-var signer = require('../lib/s3Signer');
+var signer = require('../lib/cfSigner');
 
 
 

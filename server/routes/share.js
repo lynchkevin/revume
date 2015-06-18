@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
-var signer = require('../lib/s3Signer');
+var signer = require('../lib/cfSigner');
 
 var Share = schema.Share;
 var models = [{name:'files',model:schema.UploadedFile},

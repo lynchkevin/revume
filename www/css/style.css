@@ -66,6 +66,9 @@
 .slideshow-container {
   background-image: url("https://s3.amazonaws.com/revu.volerro.com/img/linen.png");
 }
+.presentation-background {
+    background: rgb(210, 208, 196);
+}
 .vid-content{
 }
 .slide-control{
@@ -364,6 +367,9 @@
     color:red !important;
 }
 
+.ionic-modal-hack{
+    overflow:hidden !important;
+}
 <!---evaporate css---------->
 div.progress {
   margin: 7px 0 21px;

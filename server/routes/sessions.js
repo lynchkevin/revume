@@ -6,7 +6,7 @@ var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var iCalEvent = require('icalevent');
 var nodemailer = require('nodemailer');
-var signer = require('../lib/s3Signer');
+var signer = require('../lib/cfSigner');
 var volerroSender = 'invitation@volerro.com';
 var transporter = nodemailer.createTransport({
     service:'gmail',
