@@ -92,15 +92,6 @@ function ($scope,$rootScope,$state,
             $scope.spinner = true;
             $scope.timeLeft = 0;
             Library.processUpload($scope,file);
-/*          we used to wait for the http request to respond - it takes too long
-                .then(function(uFile){
-                $scope.spinner = false;
-                $rootScope.$broadcast("show_message", 'Conversion Complete');
-                updateView();
-            }).catch(function(err){
-                console.log(err);
-            });    
-*/
           },
           onFileError: function (file, message) {
             console.log('onError || message: %s', message);

@@ -212,22 +212,65 @@ function callZamzar(fileName){
             // delete the source file - zamzar deletes the zip
             console.log('deleting: ',source);
             fs.unlink(source);
-            if(job.status != 'successful')
-              reject('zamzar fails');
-            else {
-              job.target_files.splice(-1,1);
-              console.log(job.target_files);
-              job.target_files.forEach(function(file){
-                var fileStream = fs.createReadStream('tmp/'+file.name);
-                params.Bucket = library.bucket+library.domain;
-                params.Key = library.serve+'/'+file.name;
-                params.Body = fileStream;
-                images.push(params.Key);
-                console.log('uploading: ',file.name);
-                promises.push(s3.putObjectAsync(params));
-              });
-              return Promise.settle(promises);
+            if(job.status != 'successful'){
+                // delete the uploaded object - params should still be valid
+                s3.deleteObjectAsync(params).then(function(object){
+                    reject('zamzar fails');    
+                });
+            } else {
+                resolve(job);
             }
+        });
+    });
+}
+function uploadFile(file){
+    var fileStream = fs.createReadStream('tmp/'+file.name);
+    var params = {};
+    params.Bucket = library.bucket+library.domain;
+    params.Key = library.serve+'/'+file.name;
+    params.Body = fileStream;
+    console.log('uploading: ',file.name);
+    return s3.putObjectAsync(params);
+}
+function retryFailedUploads(resArray,job,attempt){
+    return new Promise(function(resolve, reject){ 
+        var i = 0;
+        var retries = [];
+        promises = [];
+        resArray.forEach(function(r){
+            if(r.isRejected()){
+                console.log('index ',i,' fails: ',r.reason());
+                retries.push(i);
+            }
+            i++
+        });
+        // retry failed uploads
+        if(retries.length != 0){
+            console.log('Retrying uploads attempt: ',attempt);
+            retries.forEach(function(index){
+                var file = job.target_files[index];
+                promises.push(uploadFile(file));
+            });
+            resolve(Promise.settle(promises));
+        } else
+            resolve(resArray);
+    });
+}
+function uploadJob(job){
+    return new Promise(function(resolve, reject){ 
+        var attempt = 1;
+        var images = [];
+        var promises = [];
+        job.target_files.splice(-1,1);
+        job.target_files.forEach(function(file){
+            images.push(library.serve+'/'+file.name);
+            promises.push(uploadFile(file));
+        });
+        //wait for all files to upload and retry failed uploads twice
+        Promise.settle(promises).then(function(resArray){
+            return retryFailedUploads(resArray,job,attempt++);
+        }).then(function(resArray){
+            return retryFailedUploads(resArray,job,attempt++);
         }).then(function(resArray){
             job.target_files.forEach(function(file){
                 try{
@@ -291,7 +334,9 @@ function processFile(fileName,userId){
         console.log("processFile...",fileName);
         if(documentFile(fileName)){
             console.log("document!");
-            callZamzar(fileName).then(function(images){
+            callZamzar(fileName).then(function(job){
+                return uploadJob(job);
+            }).then(function(images){
                 return savePowerpointUpload(fileName,images,userId);
             }).then(function(uf){
                 uFile = uf;
