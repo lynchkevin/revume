@@ -366,7 +366,7 @@ function(uFiles,
         return defer.promise; 
     };
     //process the file uploaded to s3
-    $.processUpload = function($scope){
+    $.processUpload = function($scope,file){
         var defer = $q.defer();
         var srcPre = 'uploads/';
         var dstPre = 'img/';
@@ -376,9 +376,28 @@ function(uFiles,
                         {  convertFile: {method:'GET',params:{filePath:'@filePath'}}
                         });
         r.convertFile({filePath:encodeURI($scope.fullName),userId:$rootScope.user._id}).$promise
-        .then(function(uFile){
-            console.log(uFile);
-            defer.resolve(uFile);
+        .then(function(status){
+            console.log(status);
+            var time, timeLabel;
+            if(file.size < 5000000){
+                time = Math.floor(file.size/15000);
+                timeLabel = ' seconds';
+                if(time > 60){
+                    timeLabel = ' minute(s)'
+                    time = Math.floor(time/60);
+                }
+            }else{
+                timeLabel = ' minute(s)';
+                time = Math.floor(file.size/4000000);
+            }
+            var infoPopup = $ionicPopup.show({
+             title: 'Processing '+file.name,
+             subTitle: 'It should take about '+time+timeLabel,
+            });
+            $timeout(function(){
+                infoPopup.close();
+            },3000);
+            defer.resolve(status);
         }).catch(function(err){
             console.log(err);
             defer.reject(err);

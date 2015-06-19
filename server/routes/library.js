@@ -1,11 +1,12 @@
 var express = require('express');
 var library = express.Router();
-var fs = require('fs');
 var util = require('util');
 var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 var execAsync = Promise.promisifyAll(require('child_process')).execAsync;
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var request = Promise.promisifyAll(require('request'));
+var pnService = require('../lib/pnService');
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var port = process.env.PORT;
@@ -25,6 +26,12 @@ library.serve = 'img';
 library.fullPath = library.baseUrl+'/'+library.bucket+library.domain;
 console.log('Library url= ',library.fullPath);
 
+//set up the call back channel
+//initialize the pubnub channel for pub/sub with the client
+pnService.init("revume_server");
+var channel = pnService.newChannel("library::fileEvents");
+
+//set up the signer
 signer.setBucket('revu','volerro.com');
 
 var Slide = schema.Slide;
@@ -194,7 +201,8 @@ function callZamzar(fileName){
                      };
         console.log('target for download: ',source);
         s3.getObjectAsync(params).then(function(object){
-            fs.writeFile(source,object.Body);
+            return fs.writeFileAsync(source,object.Body);
+        }).then(function(){
             console.log('file written');
             //call zamzar
             return zamzar.ppt2png(source);
@@ -396,10 +404,13 @@ library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     filePath = filePath.replace(/%20/g, " ");
     console.log('filePath: ',filePath,'userId: ',userId);
     if (filePath != undefined){
+        res.send('OK - Processing file...');
         processFile(filePath,userId).then(function(uFile){
-        var response = [];
-        res.send(uFile[0]);
+        //send the uFile over pubnub
+        //channel.publish(uFile[0]);
+        channel.publish({success:true});
         }).catch(function(err){
+            channel.publish({success:false, error: err});
             console.log(err);
         });
     } else 

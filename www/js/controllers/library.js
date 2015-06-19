@@ -32,6 +32,11 @@ function ($scope,$rootScope,$state,
       
     $scope.w = angular.element($window);
     
+    //connect to server callbacks
+    pnFactory.init();
+    var channel = pnFactory.newChannel("library::fileEvents");
+    channel.subscribe(uploadComplete);
+    
     $scope.init = function(){
         sb.init($scope)
         Library.init($scope);
@@ -86,20 +91,35 @@ function ($scope,$rootScope,$state,
             $scope.progress = "0%";
             $scope.spinner = true;
             $scope.timeLeft = 0;
-            $rootScope.$broadcast("show_message", "upload complete...converting");
-            Library.processUpload($scope).then(function(uFile){
+            Library.processUpload($scope,file);
+/*          we used to wait for the http request to respond - it takes too long
+                .then(function(uFile){
                 $scope.spinner = false;
                 $rootScope.$broadcast("show_message", 'Conversion Complete');
                 updateView();
             }).catch(function(err){
                 console.log(err);
-            });        
+            });    
+*/
           },
           onFileError: function (file, message) {
             console.log('onError || message: %s', message);
           }
         };
     };
+    
+    //this is called back when conversions complete
+    function uploadComplete(result){
+        $scope.spinner = false;
+        if(result.success){
+            $rootScope.$broadcast("show_message", 'Conversion Complete');
+            updateView();
+        }else{
+            console.log(result.error);
+            updateView();
+        }
+    }
+        
     $scope.slideOver=function(){
         $scope.$broadcast("library::slide");
     }
@@ -415,6 +435,7 @@ function ($scope,$rootScope,$state,
     //handle system and window events
     $scope.$on('$destroy',function() {
         if($scope.shareMediator != undefined) $scope.shareMediator.destroy();
+        if(channel != undefined) channel.unsubscribe();
     });
 
     $scope.w.on('orientationchange',function(){
