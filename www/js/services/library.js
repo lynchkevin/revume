@@ -61,6 +61,9 @@ function(uFiles,
     $.files = uFiles;
     $.decks = decks;
     $.categories = categories;
+    
+    //files currently being uploaded
+    $.uploading = {files:[]};
 
     $.actionList = ['Edit','New Meeting','Share','Hide','Delete','Reorder'];
     
@@ -404,4 +407,29 @@ function(uFiles,
         });
         return defer.promise;
     };
+    function indexOfFile(file){
+        var idx = -1,i = 0;
+        $.uploading.files.forEach(function(f){
+            if(f.name == file.name)
+                idx = i;
+            i++;
+        });
+        return idx;
+    }
+    $.uploadComplete = function(result){
+        var idx = indexOfFile(result.file);
+        if(idx >=0 ){
+            $.uploading.files[idx].spinner = false;
+            $.uploading.files[idx].timeLeft = 0;
+            $.uploading.files.splice(idx,1);
+        }
+    }
+    $.startUpload = function(files){
+        for(var i = 0; i<files.length;i++){
+            files[i].spinner = false;
+            files[i].progress = '0%';
+            $.uploading.files.push(files[i]);
+        }
+    }
+            
 }]);

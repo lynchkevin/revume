@@ -453,9 +453,16 @@ library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
         processFile(filePath,userId).then(function(uFile){
         //send the uFile over pubnub
         //channel.publish(uFile[0]);
-        channel.publish({success:true});
+        result = {success:true,
+                  file : {name:filePath.slice(filePath.lastIndexOf('_')+1)},
+                  error: ''
+                 };
+        console.log('result: ',result);
+        channel.publish(result);
         }).catch(function(err){
-            channel.publish({success:false, error: err});
+            result.success = false;
+            result.error = err;
+            channel.publish(result);
             console.log(err);
         });
     } else 

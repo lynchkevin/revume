@@ -213,7 +213,15 @@
     position:absolute;
     top:20%;
 }
-
+.upload-spinner{
+    position:absolute;
+    top:20%;
+    left: 35px;
+}
+.upload-content{
+    padding-top:8px;
+    padding-left:106px;
+}
 .flow-drag-enter{
   border: 2px #d1d1d1 dashed;
 }
@@ -243,6 +251,9 @@
 .progress-bar {
     background:#a6bd39;
     width:0%;
+    position:absolute;
+    bottom:1%;
+    left:0;
 }
 .slide-adder{
     position:absolute;

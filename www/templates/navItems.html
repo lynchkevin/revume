@@ -41,11 +41,21 @@
                                  drag-leave="class='flow-drag-leave'" 
                                  evaporate eva-model="evaData"
                                  ng-class="class">
-                                <p ng-show="!spinner && timeLeft == 0">Drop your file here</p>
-                                <p ng-show="timeLeft != 0">{{timeLeft}} seconds remaining...</p>
-                                <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
-                                <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}"></div>
+                                <p>Drop your file here</p>     
                             </div>
+                            <ion-list>
+                                <ion-item ng-repeat="file in library.uploading.files"
+                                          class="upload-content" >
+                                    <ion-spinner class="upload-spinner" ng-show="file.spinner"></ion-spinner>
+                                    <h2>{{file.name}}</h2>
+                                    <p ng-show="file.timeLeft != 0">{{file.timeLeft}} seconds remaining...</p>
+                                    <div ng-show="!file.spinner"
+                                         class="progress-bar" 
+                                         elem-height="0.01" 
+                                         ng-style="{'width':file.progressString}">
+                                    </div>
+                                </ion-item>
+                            </ion-list>
                         </div>
 <!---------end evaporate-------------->
                     </div>

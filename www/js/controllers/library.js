@@ -38,7 +38,8 @@ function ($scope,$rootScope,$state,
     channel.subscribe(uploadComplete);
     
     $scope.init = function(){
-        sb.init($scope)
+        sb.init($scope);
+        $scope.library = Library;
         Library.init($scope);
         $scope.baseUrl = baseUrl.endpoint;
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
@@ -72,7 +73,7 @@ function ($scope,$rootScope,$state,
             'x-amz-acl': 'bucket-owner-full-control'
           },
           onFileSubmitted: function(files){
-              $scope.progess = '0%';
+              Library.startUpload(files);
           },
           onFileProgress: function (file) {
             console.log(
@@ -81,33 +82,31 @@ function ($scope,$rootScope,$state,
               file.progress,
               file.timeLeft
             );
-            $scope.progress = (file.progress).toString()+"%";
-            $scope.timeLeft = file.timeLeft;
+            file.progressString = (file.progress).toString()+"%";
           },
           onFileComplete: function (file) {
             console.log('onComplete || name: %s', file.name);
             $scope.fullName = file.path_
             console.log($scope.fullName);
-            $scope.progress = "0%";
-            $scope.spinner = true;
-            $scope.timeLeft = 0;
+            file.spinner = true;
             Library.processUpload($scope,file);
           },
           onFileError: function (file, message) {
             console.log('onError || message: %s', message);
+            file.errMessage = message;
           }
         };
     };
     
     //this is called back when conversions complete
     function uploadComplete(result){
-        $scope.spinner = false;
+        Library.uploadComplete(result);
+        updateView();
         if(result.success){
             $rootScope.$broadcast("show_message", 'Conversion Complete');
-            updateView();
+
         }else{
-            console.log(result.error);
-            updateView();
+            $rootScope.$broadcast("show_message", 'Conversion Error');
         }
     }
         
