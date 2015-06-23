@@ -26,6 +26,12 @@
             <div class="item item-body">
                 {{session.description}}
             </div>
+            <div class="item item-checkbox">
+                 <label class="checkbox">
+                   <input ng-model="session.bridge" type="checkbox">
+                 </label>
+                 conference bridge
+            </div>
             <div class="item item-checkbox"
                  ng-if="!reportDisabled($index)">
                  <label class="checkbox">

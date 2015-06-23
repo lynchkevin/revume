@@ -37,7 +37,7 @@ angular.module('starter')
         newPresentation($scope.presentation._id);
         $scope.setSlide($scope.current);
         sbDelegate.update();
-        if(!$scope.bridgeService.activeBridge())
+        if($scope.session.bridge && !$scope.bridgeService.activeBridge())
             $scope.bridgeService.startBridge($scope.session.ufId);
     }
 

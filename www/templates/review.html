@@ -1,13 +1,13 @@
 <ion-view view-title="{{name}}" >
-    <ion-content class="has-header slideshow-container" scroll="false">
-        <div class="centered-container slide" elem-size>
+    <ion-content class="has-header presentation-background" scroll="false">
+        <div class="centered-container slide" elem-size controls=true>
         <div class="row">
-            <div class="col col-10">
+            <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
                    ng-click="prevSlide()"
-                   ng-disabled="!prevEnabled">Back</a>
+                   ng-disabled="!prevEnabled"></a>
             </div>
-            <div class="col col-80" >
+            <div class="col col-90" >
                 <ion-slide-box disable-scroll="true"  class="bordered-drop-shadow">
                     <ion-slide ng-repeat="slide in presentation.slides">
 
@@ -25,10 +25,10 @@
                 </ion-slide-box>
                  <div class="presence-message dark-bg" appear-up="show_message">""</div>
                 </div>
-            <div class="col col-10 ">
-                <a class="button icon-left ion-chevron-right button-clear button-dark slider-button right" 
+            <div class="col col-5 ">
+                <a class="button icon-right ion-chevron-right button-clear button-dark slider-button right" 
                    ng-click="nextSlide()"
-                   ng-disabled="!nextEnabled">Next</a>
+                   ng-disabled="!nextEnabled"></a>
             </div>
             </div>
         </div>

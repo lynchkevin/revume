@@ -11,12 +11,13 @@
     </ion-nav-buttons>
     
     <ion-content class="has-header presentation-background" scroll="false">
-        <div class="centered-container slide" elem-size>    
+        <div class="centered-container slide" elem-size controls=true host=true>    
         <div class="row">
-            <div class="col col-10">
-                <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" ng-click="prevSlide()">Back</a>
+            <div class="col col-5">
+                <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
+                   ng-click="prevSlide()"></a>
             </div>
-            <div class="col col-80" >
+            <div class="col col-90" >
             <ion-slide-box class="bordered-drop-shadow" on-slide-changed="setSlide(index)">
                 <ion-slide ng-repeat="slide in presentation.slides">
                     <div ng-switch on="slide.type">
@@ -31,12 +32,15 @@
             </ion-slide-box>
              <div class="presence-message dark-bg" appear-up="show_message">""</div>
             </div>
-            <div class="col col-10 ">
-                <a class="button icon-left ion-chevron-right button-clear button-dark slider-button right" ng-click="nextSlide()">Next</a>
+            <div class="col col-5">
+                <a class="button icon-right ion-chevron-right button-clear button-dark slider-button right" 
+                   ng-click="nextSlide()"></a>
+            </div>
                 <!-- add a list of users that can float in -->
                 <div class="user-status-bar dark-bg" ng-if="showUsers">
                     <div ng-repeat="attendee in everyone" class="user-item">
-                        <i class="icon user-item-avatar" ng-class="{'user-online': attendee.isOnline, 'ion-eye-disabled user-distracted': attendee.distracted,'ion-person':!attendee.distracted}"></i>
+                        <i class="icon user-item-avatar" 
+                           ng-class="{'user-online': attendee.isOnline, 'ion-eye-disabled user-distracted': attendee.distracted,'ion-person':!attendee.distracted}"></i>
                         <span ng-if="attendee.itsMe != true" class="user-item-text">{{attendee.firstName}} {{attendee.lastName}}</span>
                         <span ng-if="attendee.itsMe" class="user-item-text">You</span>
                     </div>

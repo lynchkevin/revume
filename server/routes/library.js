@@ -199,11 +199,15 @@ function callZamzar(fileName){
         var params = { Bucket: library.bucket+library.domain,
                        Key: library.upload+'/'+justFile
                      };
+        // send progress update
+        sendProgress(fileName,'reading file...');
         console.log('target for download: ',source);
         s3.getObjectAsync(params).then(function(object){
             return fs.writeFileAsync(source,object.Body);
         }).then(function(){
             console.log('file written');
+        // send progress update
+            sendProgress(fileName,'converting to slides...');
             //call zamzar
             return zamzar.ppt2png(source);
         }).then(function(j){
@@ -325,7 +329,14 @@ function pptx2png(s3FileName,userId){
             });
     });
 }
-
+function sendProgress(fileName,message){
+    var progress = { event: 'progress',
+                     message:message,
+                     file : {name:fileName.slice(fileName.lastIndexOf('_')+1)},
+                     error: ''
+                   };
+    channel.publish(progress);
+}
 // process uploaded file based on file type
 function processFile(fileName,userId){
     return new Promise(function(resolve, reject){
@@ -335,6 +346,7 @@ function processFile(fileName,userId){
         if(documentFile(fileName)){
             console.log("document!");
             callZamzar(fileName).then(function(job){
+                sendProgress(fileName,'uploading slides...');
                 return uploadJob(job);
             }).then(function(images){
                 return savePowerpointUpload(fileName,images,userId);
@@ -446,14 +458,14 @@ function getById(Model,req,res){
 library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var filePath = req.params.filePath;
     var userId = req.query.userId;    //strip the encodedUri Name
+    var result = {};
     filePath = filePath.replace(/%20/g, " ");
     console.log('filePath: ',filePath,'userId: ',userId);
     if (filePath != undefined){
         res.send('OK - Processing file...');
         processFile(filePath,userId).then(function(uFile){
-        //send the uFile over pubnub
-        //channel.publish(uFile[0]);
-        result = {success:true,
+        result = {event: 'end',
+                  success:true,
                   file : {name:filePath.slice(filePath.lastIndexOf('_')+1)},
                   error: ''
                  };

@@ -100,13 +100,14 @@ function ($scope,$rootScope,$state,
     
     //this is called back when conversions complete
     function uploadComplete(result){
-        Library.uploadComplete(result);
-        updateView();
-        if(result.success){
-            $rootScope.$broadcast("show_message", 'Conversion Complete');
-
-        }else{
-            $rootScope.$broadcast("show_message", 'Conversion Error');
+        switch (result.event) {
+                case 'end' : 
+                    Library.uploadComplete(result);
+                    updateView();
+                    break;
+                case 'progress' : 
+                    Library.uploadProgress(result);
+                    break;
         }
     }
         
@@ -137,9 +138,13 @@ function ($scope,$rootScope,$state,
     $scope.addAll = function(){
         Library.addAll($scope);
     };
-    $scope.deleteSlide = function(index){
-        Library.deleteSlide($scope,index);
+    $scope.deleteSlide = function($index){
+        Library.deleteSlide($scope,$index);
     };
+    
+    $scope.playVideo = function($index){
+        $scope.slides[$index].playing = true;
+    }
     
     $scope.editContainer = function(index){
         if(!$scope.isEditing){

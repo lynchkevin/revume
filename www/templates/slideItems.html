@@ -34,9 +34,34 @@
                        ng-show="statesReady && isEditing && slide.available "  
                        ng-click="addSlide($index)"
                        ng-cloak></i>
-                    <img ng-src="{{slide.poster}}"  
+<!--
+                    <i class="icon ion-play slide-play-video" 
+                       ng-show="!slide.playing"  
+                       ng-click="playVideo($index)">
+                    </i>
+
+                    <video ng-show="slide.playing"
+                           class="rounded-corners shadow video-thumbnail"
+                           controls=true
+                           ng-click="tapThumb($index)"
+                           v-source={{slide.src}} auto-play="slide.playing">
+                    </video> 
+-->
+                    <video id="vid-slide" 
+                           class="rounded-corners shadow "
+                           poster="https://dw69ofzd8w57f.cloudfront.net/transparant.png"
+                           v-source={{slide.src}}
+                           v-background-image={{slide.poster}}
+                           controls=true
+                           ng-click="tapThumb($index)"
+                    > 
+                    </video> 
+<!--
+                    <img ng-show="!slide.playing"
+                         ng-src="{{slide.poster}}"  
                          style="width:100%" class="rounded-corners shadow"
                          ng-click="tapThumb($index)">
+-->
                 </div>
             </div>
         </div>

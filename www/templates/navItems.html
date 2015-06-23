@@ -49,6 +49,7 @@
                                     <ion-spinner class="upload-spinner" ng-show="file.spinner"></ion-spinner>
                                     <h2>{{file.name}}</h2>
                                     <p ng-show="file.timeLeft != 0">{{file.timeLeft}} seconds remaining...</p>
+                                    <p ng-show="file.message != ''">{{file.message}}</p>
                                     <div ng-show="!file.spinner"
                                          class="progress-bar" 
                                          elem-height="0.01" 

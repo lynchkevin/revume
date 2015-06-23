@@ -181,11 +181,21 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     $scope.go = function(id,index){
         if($scope.session.organizer._id == $rootScope.user._id){
             $scope.activeMeeting = true;
-            $state.transitionTo('app.presentation', {id:id,idx:index});
+            if($scope.session.bridge && !$scope.bridgeService.activeBridge()){
+                $scope.bridgeService.startBridge($scope.session.ufId).then(function(){  
+                    $state.transitionTo('app.presentation', {id:id,idx:index});
+                });
+            }else{
+                $state.transitionTo('app.presentation', {id:id,idx:index}); 
+            }
         }else{
-            $scope.bridgeService.startBridge($scope.session.ufId).then(function(){   
+            if($scope.session.bridge){
+                $scope.bridgeService.startBridge($scope.session.ufId).then(function(){   
+                    $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
+                });
+            }else{
                 $state.transitionTo('app.viewer', {id:$scope.session._id,idx:0});
-            });
+            }
         }
     }
 

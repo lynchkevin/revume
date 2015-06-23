@@ -85,6 +85,7 @@ function(uFiles,
     }
 
     $.init = function($scope){
+        $.scope = $scope;
         $scope.navItems =[];
         $scope.slides = [];
         $scope.slideStates =[]
@@ -393,13 +394,7 @@ function(uFiles,
                 timeLabel = ' minute(s)';
                 time = Math.floor(file.size/4000000);
             }
-            var infoPopup = $ionicPopup.show({
-             title: 'Processing '+file.name,
-             subTitle: 'It should take about '+time+timeLabel,
-            });
-            $timeout(function(){
-                infoPopup.close();
-            },3000);
+            file.message = 'Processing: est time: '+time+timeLabel;
             defer.resolve(status);
         }).catch(function(err){
             console.log(err);
@@ -424,10 +419,19 @@ function(uFiles,
             $.uploading.files.splice(idx,1);
         }
     }
+    $.uploadProgress = function(result){
+        var idx = indexOfFile(result.file);
+        if(idx>=0) {
+            $.scope.$apply(function(){
+                $.uploading.files[idx].message = result.message;
+            });
+        }
+    }
     $.startUpload = function(files){
         for(var i = 0; i<files.length;i++){
             files[i].spinner = false;
             files[i].progress = '0%';
+            files[i].message = ''
             $.uploading.files.push(files[i]);
         }
     }
