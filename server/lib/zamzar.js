@@ -90,7 +90,7 @@ function callZamzar(status,params){
 
     function waitForJob(job){
         return new Promise(function(resolve, reject){
-            var timeoutInSeconds = 60 * 10; //10 minute timeout
+            var timeoutInSeconds = 60 * 20; //20 minute timeout
             var pollingWaitSeconds = 2;
             var limit = timeoutInSeconds/pollingWaitSeconds;
             var delay = pollingWaitSeconds*1000;

@@ -27,6 +27,10 @@ try {
 }catch(e){
     console.log('Error connecting to mongo: ',e);
 }
+//attach lister to connected event
+mongoose.connection.once('connected', function() {
+	console.log("Connected to database")
+});
 
 app.use(bodyParser());          // pull information from html in POST
 app.use(methodOverride());      // simulate DELETE and PUT

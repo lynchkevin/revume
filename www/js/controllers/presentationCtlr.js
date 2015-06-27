@@ -12,12 +12,18 @@ angular.module('starter')
     
 
     //session and decks are now resolved during the state change so we can use them directly
+    $scope.footerClasses = ['normal','tall','hidden'];
+    $scope.footer = {};
+    $scope.footer.index = 0;
+    $scope.footer.class = $scope.footerClasses[$scope.footer.index];
+
      
     $scope.session = session;
     $scope.deckIdx = session.deckIdx;
     $scope.name = session.name;
     $scope.presentation=$scope.session.decks[$scope.deckIdx];
     $scope.bridgeService = BridgeService;
+
      
     $scope.init = function(){
         $scope.current = 0;
@@ -69,7 +75,10 @@ angular.module('starter')
     };     
     //toggle show users
     $scope.toggleShowUsers = function(){
-        $scope.showUsers = !$scope.showUsers;
+        $scope.footer.index += 1;
+        if($scope.footer.index == $scope.footerClasses.length)
+            $scope.footer.index = 0;
+        $scope.footer.class = $scope.footerClasses[$scope.footer.index];
     }
     
     //helper functions

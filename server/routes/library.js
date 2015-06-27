@@ -14,6 +14,7 @@ var AWS = require('aws-sdk');
 var s3 =  Promise.promisifyAll(new AWS.S3());
 var zamzar = require('../lib/zamzar');
 var signer = require('../lib/cfSigner');
+var tiny = require('../lib/tinypng');
 
 
 
@@ -265,7 +266,6 @@ function uploadJob(job){
         var attempt = 1;
         var images = [];
         var promises = [];
-        job.target_files.splice(-1,1);
         job.target_files.forEach(function(file){
             images.push(library.serve+'/'+file.name);
             promises.push(uploadFile(file));
@@ -290,6 +290,31 @@ function uploadJob(job){
             reject(err);
         });
     });
+}
+
+function compressJob(job){
+    return new Promise(function(resolve, reject){ 
+        var promises = [];
+        var morePromises = [];
+        job.target_files.forEach(function(file){
+            console.log('compressing ',file.name);
+            //compress adds 'tmp/$' to the file.name
+            promises.push(tiny.compress(file.name));
+        });
+        //wait for all files to compress 
+        Promise.settle(promises).then(function(resArray){
+            console.log('all files compressed!');
+            job.target_files.forEach(function(file){
+                var bigFile = 'tmp/'+file.name;
+                var smallFile = 'tmp/$'+file.name;
+                morePromises.push(fs.renameAsync(smallFile,bigFile));
+            });
+            Promise.settle(morePromises).then(function(){
+                console.log('all files renamed and ready for upload');
+                resolve(job);
+            });            
+        });
+    });    
 }
 
 function pptx2png(s3FileName,userId){
@@ -341,12 +366,20 @@ function sendProgress(fileName,message){
 function processFile(fileName,userId){
     return new Promise(function(resolve, reject){
     var uFile = {};
+    var status = '';
     if(fileName != undefined){
         console.log("processFile...",fileName);
         if(documentFile(fileName)){
             console.log("document!");
             callZamzar(fileName).then(function(job){
-                sendProgress(fileName,'uploading slides...');
+                //pull the zip file from target files
+                job.target_files.splice(-1,1);
+                status = 'Compressing '+job.target_files.length+' slides';
+                sendProgress(fileName,status);
+                return compressJob(job)
+            }).then(function(job){
+                status = 'Uploading '+job.target_files.length+' slides';
+                sendProgress(fileName,status);
                 return uploadJob(job);
             }).then(function(images){
                 return savePowerpointUpload(fileName,images,userId);

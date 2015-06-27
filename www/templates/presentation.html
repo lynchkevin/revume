@@ -12,7 +12,7 @@
     
     <ion-content class="has-header presentation-background" scroll="false">
         <div class="centered-container slide" elem-size controls=true host=true>    
-        <div class="row">
+            <div class="row">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
                    ng-click="prevSlide()"></a>
@@ -37,6 +37,7 @@
                    ng-click="nextSlide()"></a>
             </div>
                 <!-- add a list of users that can float in -->
+                <!--
                 <div class="user-status-bar dark-bg" ng-if="showUsers">
                     <div ng-repeat="attendee in everyone" class="user-item">
                         <i class="icon user-item-avatar" 
@@ -44,11 +45,21 @@
                         <span ng-if="attendee.itsMe != true" class="user-item-text">{{attendee.firstName}} {{attendee.lastName}}</span>
                         <span ng-if="attendee.itsMe" class="user-item-text">You</span>
                     </div>
-
-                    </div>
                 </div>
-            </div>            
-        </div>
+                -->
+            </div>
+        </div> 
+        <div class="bar bar-footer bar-dark"
+             ng-if="footer.class != 'hidden'"
+             ng-class="{'tall': footer.class == 'tall'}">
+            <div class="centered-container">
+                <div ng-repeat="attendee in everyone" class="user-item">
+                    <i class="icon user-item-avatar" 
+                       ng-class="{'user-online': attendee.isOnline, 'ion-eye-disabled user-distracted': attendee.distracted,'ion-person':!attendee.distracted}"></i>
+                    <span ng-if="attendee.itsMe != true" class="user-item-text">{{attendee.firstName}} {{attendee.lastName}}</span>
+                    <span ng-if="attendee.itsMe" class="user-item-text">You</span>            
+                </div>
+            </div>
         </div>
     </ion-content>
 </ion-view>
