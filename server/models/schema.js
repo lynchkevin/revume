@@ -29,7 +29,8 @@ var Container = new mongoose.Schema({
 var UserSchema = new mongoose.Schema({
     firstName:String,
     lastName:String,
-    email:String
+    email:String,
+    password:String
 });
 
     

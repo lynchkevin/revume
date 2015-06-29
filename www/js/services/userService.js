@@ -12,7 +12,10 @@ angular.module('starter')
         {id:'@id'},
         {  update: {method:'PUT', params:{id:'@id'}}
         }),
-        byEmail: $resource(emailTarget)
+        byEmail: $resource(emailTarget,
+        {email:'@email'},
+        {    update: {method:'PUT',params:{email:'@email'}}
+        })
     };
 }])
 
@@ -49,6 +52,7 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
     //this holds the auto completed user
     $.autoUser = undefined;
     
+    // some popover helper functions
     $.showPopover = function(scope,el){
         $.autoUser = undefined;
         $.directiveScope = scope;
@@ -118,18 +122,19 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
         });
     };
             
-    
+    //find users via a query
     $.find = function(query){
         return Users.byId.query(query).$promise;
     };
     
+    //get all users
     $.getAll = function($scope){
         Users.byId.query().$promise.then(function(users){
             $scope.allUsers = users;
             $scope.user.email = 'klynch@volerro.com'
         });
     };
-    
+    //find just the users that are in my teams
     $.usersIKnow = function(query){
         if($rootScope.user._id != undefined){
             var userId = $rootScope.user._id;
@@ -140,7 +145,7 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
             return Users.byId.query(sendQuery).$promise;
         } 
     }
-    
+    // old function for dropdown
     $.getUser = function($scope){
         var defer = $q.defer();
         $.getAll($scope);
@@ -176,9 +181,43 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope) {
               defer.reject(err);
           });
         return defer.promise;
-     };   
-    
-     $.register = function($scope){
+     };  
+     //check if a user exists in the database
+     $.checkExists = function(email){
+        var defer = $q.defer();
+        $.user.byEmail.get({email:email}).$promise.then(function(user){
+            if(user._id == undefined)
+                defer.resolve(false);
+            else
+                defer.resolve(true);
+        }).catch(function(err){
+            defer.reject(err);
+        });
+        return defer.promise;
+     };
+     // add a new user to the database
+     $.signUp = function(newUser){
+        var defer = $q.defer();
+        var usr = new $.user.byId;
+        angular.extend(usr,newUser);
+        usr.$save().then(function(u){
+            //user found return the user object
+            defer.resolve(u);
+        }).catch(function(err){
+                defer.reject(err);
+        });
+        return defer.promise;
+     };
+    //reset password
+    $.resetPassword=function(credentials){
+        var defer = $q.defer();
+        $.user.byEmail.update({email:credentials.email},credentials).$promise.then(function(response){
+                defer.resolve(response);
+        });
+        return defer.promise;
+    };
+        
+    $.register = function($scope){
          var defer = $q.defer();
          var usr = new $.user.byId;
           var myPopup = $ionicPopup.show({

@@ -79,6 +79,7 @@ users.post('/users',function(req,res){
     usr.firstName = sent.firstName;
     usr.lastName = sent.lastName;
     usr.email = sent.email;
+    usr.password = sent.password;
     usr.saveAsync().then(function(){
         console.log(usr);
         res.send(usr);
@@ -86,6 +87,27 @@ users.post('/users',function(req,res){
         res.send(err);
     });
 });
-
+//update a user
+//UPDATE
+users.put('/users/email/:email',function(req,res){
+    console.log("users update by email");
+    var sent = req.body;
+    console.log(sent);
+    User.findOneAsync({email:req.params.email}).then(function(user){
+        if(user.password != sent.oldPassword && user.password != undefined){
+            var result = {success:false,reason:'Old Password Does Not Match'};
+            res.send(result);
+        } else{
+            user.password = sent.password;
+            user.saveAsync().then(function(){
+                var result = {success:true};
+                res.send(result);
+            });
+        }
+        }).catch(function(err){
+            console.log(err);
+            res.send(err);
+        });
+});
 
 module.exports = users;

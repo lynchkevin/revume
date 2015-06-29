@@ -44,6 +44,19 @@
     color:white;
     padding-top:3%;
 }
+.hero-header{
+   width:100%;
+    font-size:200%;
+    line-height:200%;
+    color:white;
+    font-family: Cony-Regular;
+}
+.input-spacer{
+    min-height:15px;
+}
+.signin-message{
+    color:white;
+}
 .centered-container {
     margin-left:auto;
     margin-right:auto;    

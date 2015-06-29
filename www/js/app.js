@@ -153,6 +153,33 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
+  .state('app.signUp', {
+    url: "/signup",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/signup.html",
+        controller: 'signupCtrl'
+      }
+    }
+  })
+    .state('app.signIn', {
+    url: "/signin/:email",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/signin.html",
+        controller: 'signinCtrl'
+      }
+    }
+  })
+      .state('app.resetPassword', {
+    url: "/resetpassword",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/resetPassword.html",
+        controller: 'resetPasswordCtrl'
+      }
+    }
+  })
     .state('app.library', {
     url: "/library",
     views: {
