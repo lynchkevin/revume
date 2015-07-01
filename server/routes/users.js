@@ -109,5 +109,26 @@ users.put('/users/email/:email',function(req,res){
             res.send(err);
         });
 });
+//add an authentication route for the user
+users.put('/users/auth/:email',function(req,res){
+    console.log('authenticate user');
+    var sent = req.body;
+    console.log(sent);
+    User.findOneAsync({email:req.params.email}).then(function(user){
+        if(user == undefined){
+            var result = {success:false,reason:'User Not Found'};
+            res.send(result);
+        } else if(user.password != sent.password && user.password != undefined){
+            var result = {success:false,reason:'Incorrect User or Password'};
+            res.send(result);
+        } else{
+            var result = {success:true, user:user};
+            res.send(result);
+        }
+    }).catch(function(err){
+        console.log(err);
+        res.send(err);
+    });
+});
 
 module.exports = users;

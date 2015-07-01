@@ -9,7 +9,8 @@ angular.module('starter',
     'ionic',
     'ngResource',
     'ngAnimate',
-    'evaporate'
+    'evaporate',
+    'ngCookies'
 ]
 )
 
@@ -20,13 +21,16 @@ angular.module('starter',
 .run(["$ionicPlatform",
       "$rootScope",
       "$window",
+      "$http",
       "userService",
       "pnFactory",
       '$timeout',
       '$location',
       '$state',
-function($ionicPlatform,$rootScope,$window,userService,
-          pnFactory,$timeout,$location,$state) {
+      '$cookieStore',
+      'authService',
+function($ionicPlatform,$rootScope,$window,$http,userService,
+          pnFactory,$timeout,$location,$state,$cookieStore,authService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -39,10 +43,16 @@ function($ionicPlatform,$rootScope,$window,userService,
       StatusBar.styleDefault();
     }
   });
-    var userInit = function(user){
+    //initialize some globals
+    $rootScope.deepLink = false;
+    $rootScope.user = {};
+    
+    $rootScope.userInit = function(user,userOptions){
+        var options = angular.extend({},userOptions);
         $rootScope.user._id = user._id;   
         $rootScope.user.name = user.firstName+' '+user.lastName;
         $rootScope.user.email = user.email;
+        $rootScope.user.authData = user.authData;
         $rootScope.$broadcast("userID",$rootScope.user);
         //manage user presence on the rootScope so all controllers can use
         $rootScope.mHandler = function(message){
@@ -60,25 +70,39 @@ function($ionicPlatform,$rootScope,$window,userService,
         pnFactory.init(user._id);
         $rootScope.mainChannel = pnFactory.newChannel("volerro_user");
         $rootScope.mainChannel.setUser($rootScope.user.name);
-        $rootScope.mainChannel.subscribe($rootScope.mHandler,
-                                     $rootScope.pHandler);
+        $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
+        //set up the authorization headers
+        $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
+        if(!options.stealthMode) 
+            $cookieStore.put('user', $rootScope.user);  
         $rootScope.$broadcast('Revu.Me:Ready');
     };
         
-
+/*
     $rootScope.login = function(){
+        /*
         $rootScope.user = {};
         $rootScope.user.email = 'klynch@volerro.com';
         userService.getUser($rootScope).then(function(user) {
-            userInit(user);
+            $rootScope.userInit(user);
         },function(err){//user not found try to register
             userService.register($rootScope).then(function(user){
-                userInit(user);
+                $rootScope.userInit(user);
             }).catch(function(err){
                 console.log(err);
             });
         });
+
+        authService.signIn().then(function(result){
+            if(result.success)
+                $rootScope.userInit(result.user);
+            else if(result.reason == 'resetPassword')
+                console.log('resetPassword');
+            else
+                $rootScope.login();
+        });
     };
+*/  
     //test to see if cordova.js is available if so - we're on a mobile device
     var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
     if ( app ) {
@@ -88,7 +112,8 @@ function($ionicPlatform,$rootScope,$window,userService,
         // Web page
         $rootScope.isMobile = false;
     };
-    //get a user.id then call init...
+    //See if we have authenticated get a user.id then call init...
+    /*
     $rootScope.deepLink = false;
     if($rootScope.user == undefined){
         var param = $location.search();
@@ -100,11 +125,15 @@ function($ionicPlatform,$rootScope,$window,userService,
             var User = userService.user.byId;
             User.get({id:param.uid}).$promise.then(function(user){
                 $rootScope.user={};
-                userInit(user);
+                $rootScope.userInit(user);
             });
-        };
-            
+        };       
     };
+    */
+
+    $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+        authService.listen(event,toState);
+    });
     //go to the home page after a deep link
     $rootScope.goHome = function(){
         $rootScope.deepLink = false;
@@ -127,7 +156,8 @@ function($ionicPlatform,$rootScope,$window,userService,
            return false;
     };
     $window.addEventListener("beforeunload", function (e) {
-        $rootScope.mainChannel.unsubscribe();
+        if($rootScope.mainChannel != undefined)
+            $rootScope.mainChannel.unsubscribe();
 
       //(e || $window.event).returnValue = null;
       return null;
@@ -139,6 +169,7 @@ function($ionicPlatform,$rootScope,$window,userService,
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   
+
   .state('app', {
     url: "/app",
     abstract: true,
@@ -153,7 +184,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-  .state('app.signUp', {
+  .state('app.signup', {
     url: "/signup",
     views: {
       'menuContent': {
@@ -162,8 +193,8 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-    .state('app.signIn', {
-    url: "/signin/:email",
+  .state('app.signIn', {
+    url: "/signin",
     views: {
       'menuContent': {
         templateUrl: "templates/signin.html",
@@ -171,16 +202,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-      .state('app.resetPassword', {
-    url: "/resetpassword",
-    views: {
-      'menuContent': {
-        templateUrl: "templates/resetPassword.html",
-        controller: 'resetPasswordCtrl'
-      }
-    }
-  })
-    .state('app.library', {
+  .state('app.library', {
     url: "/library",
     views: {
       'menuContent': {
@@ -189,7 +211,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-    .state('app.mobileLib', {
+  .state('app.mobileLib', {
     url: "/mobile/library",
     views: {
       'menuContent': {
@@ -225,7 +247,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-    .state('app.viewerSessions', {
+  .state('app.viewerSessions', {
     url: "/viewerSessions",
     views: {
       'menuContent': {
@@ -234,7 +256,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
   })
-    .state('app.sessions', {
+  .state('app.sessions', {
       url: "/sessions",
       views: {
           'menuContent': {
@@ -243,7 +265,7 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
-    .state('app.attendeeSessions', {
+  .state('app.attendeeSessions', {
       url: "/attendeeSessions",
       views: {
           'menuContent': {
@@ -253,7 +275,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     })
     // organizer session view
-    .state('app.session', {
+  .state('app.session', {
         url: "/sessions/:id",
         resolve: {
           session : ['Session','$stateParams','$q',
@@ -284,7 +306,7 @@ function($ionicPlatform,$rootScope,$window,userService,
         }
     })
     //attendee session view
-    .state('app.attsession', {
+  .state('app.attsession', {
       url: "/attsessions/:id",
     resolve: {
       session : ['Session','$stateParams','$q',
@@ -314,7 +336,7 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
-    .state('app.presentations', {
+  .state('app.presentations', {
       url: "/presentations",
       views:{
           'menuContent':{
@@ -323,7 +345,7 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
-    .state('app.presentation', {
+  .state('app.presentation', {
     url: "/presentations/:id?idx",
       resolve: {
           session : ['Session','Decks','$stateParams','$q',
@@ -353,7 +375,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
     }) 
-    .state('app.revu', {
+  .state('app.revu', {
     url: "/revu/:id?uid",
       resolve: {
           session : ['Session','Decks','$stateParams','$q',
@@ -388,7 +410,7 @@ function($ionicPlatform,$rootScope,$window,userService,
       }
     }
     }) 
-    .state('app.teams', {
+  .state('app.teams', {
       url: "/teams",
       views:{
           'menuContent':{
@@ -397,7 +419,7 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
-    .state('app.team', {
+  .state('app.team', {
       url: "/team/:id?name",
       views:{
           'menuContent':{
@@ -406,8 +428,8 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
-    .state('app.team.new', {
-      url: "/team/new",
+  .state('app.newteam', {
+      url: "/newTeam",
       views:{
           'menuContent':{
             templateUrl: "templates/team.html",  
@@ -415,6 +437,33 @@ function($ionicPlatform,$rootScope,$window,userService,
           }
       }
     })
+  .state('app.batman', {
+      url: "/batman",
+      views:{
+          'menuContent':{
+            templateUrl: "templates/batman.html",  
+            controller: 'batmanCtrl'
+          }
+      }
+    })
+  .state('app.settings', {
+      url: "/settings",
+      views:{
+          'menuContent':{
+            templateUrl: "templates/settings.html",  
+            controller: 'settingsCtrl'
+          }
+      }
+    })
+  .state('app.changePassword', {
+    url: "/changepassword",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/changePassword.html",
+        controller: 'changePasswordCtrl'
+      }
+    }
+  })  
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/welcome');
+  $urlRouterProvider.otherwise('/app/signup');
 });

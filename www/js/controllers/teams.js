@@ -19,7 +19,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
             case 'app.team' :
                 $scope.teamName = $state.params.name;
                 break;
-            case 'app.team.new':
+            case 'app.newteam':
                 $scope.teamName = 'New Team';
                 break;
     }
@@ -43,7 +43,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
                                 $scope.modalCallback = $scope.updateTeam;
                             }
                             break;
-                        case 'app.team.new' :
+                        case 'app.newteam' :
                             {      
                                 teamService.newTeam($scope);
                                 $scope.modalCallback = $scope.saveTeam;
@@ -65,7 +65,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         $scope.modalTitle='New Team';
         //set the callback so that the modal saves a new team
         $scope.modalCallback = $scope.saveTeam;
-        $state.transitionTo('app.team.new');
+        $state.transitionTo('app.newteam');
     }
     //add a member to the team
     $scope.addMember = function(){
@@ -163,7 +163,6 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
     $scope.setDirty = function(){
         $scope.forms.teamForm.$setDirty();
     }
-    $scope.init();
     //reinialize whem the userID is set
     $scope.$on('userID',function(event,user){
         $scope.init();
@@ -180,7 +179,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
     $scope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
         switch(fromState.name){
             case 'app.team' :
-            case 'app.team.new':
+            case 'app.newteam':
                 //check if form is dirty then ask if they want to save
                 if($scope.forms.teamForm != undefined)
                     if(!$scope.forms.teamForm.$pristine)
@@ -201,5 +200,10 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
                 },0);                
     });
     
-    
+    if($rootScope.user._id == undefined)
+        $rootScope.$on('Revu.Me:Ready',function(event, data){
+            $scope.init();
+        });
+     else
+         $scope.init();
 }])

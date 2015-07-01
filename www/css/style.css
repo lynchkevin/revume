@@ -56,6 +56,12 @@
 }
 .signin-message{
     color:white;
+    display:block;
+}
+.signin-button{
+    position:absolute;
+    right:30px;
+    bottom:15px;
 }
 .centered-container {
     margin-left:auto;
@@ -276,7 +282,7 @@
     top:3%;
     color:#159139;
     font-size: 170%;
-
+    z-index:100;
 }
 .slide-deleter{
     position:absolute;
@@ -284,7 +290,7 @@
     top:3%;
     color: #f03729; 
     font-size: 170%;
-
+    z-index:100;
 }
 .slide-included{
     position:absolute;

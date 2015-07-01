@@ -447,5 +447,11 @@ function ($scope,$rootScope,$state,
      else
          $scope.init();
 
-
+    $scope.$on('$ionicView.enter', function(){
+        if($rootScope.user._id != undefined)
+            if($state.current.name == 'app.library')
+                setTimeout(function(){
+                    $scope.setModel($scope.modelName);
+                },0);                
+    });
 }]);

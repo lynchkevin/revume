@@ -8,7 +8,7 @@
         </div>
     <div class="col col-80 ">
      <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div class="centered-container hero-container positive-bg" elem-height="0.50">
+        <div class="centered-container hero-container positive-bg padding-bottom rounded-corners" >
             <span class="hero-header">Revu.Me</span> 
             <p ng-if="message != undefined"
                class="signin-message">{{message}}</p>
@@ -17,20 +17,39 @@
                     <div class="list list-inset">
                       <label class="item item-input">
                         <span class="input-label">Email</span>
-                        <input ng-model="forms.signup.email"
-                               type="email">
+                        <input name="inpEmail"
+                               ng-model="forms.signin.email"
+                               type="email"
+                               required>
                       </label>
                       <div class="input-spacer positive-bg"></div>
                       <label class="item item-input">
                         <span class="input-label">Password</span>
-                        <input ng-model="forms.signup.password"
-                               type="password">
+                        <input name="inpPassword"
+                               ng-model="forms.signin.password"
+                               type="password" 
+                               required>
                       </label>
                     </div>
                     <button class="button "
-                            ng-click="doSignIn()">Sign In</button>
+                            ng-click="doSignIn()"
+                            ng-disabled="!forms.signin.inpPassword.$dirty || !forms.signin.inpEmail.$dirty 
+                                             || forms.signin.inpEmail.$invalid">
+                        Sign In
+                    </button>
+                    <div>
+                        <span ng-if="forms.signin.inpEmail.$dirty && forms.signin.inpEmail.$invalid"
+                              class="signin-message">
+                            Invalid Email Format
+                        </span>
+                        <span ng-if="forms.signin.inpPassword.$dirty && forms.signin.inpPassword.$error.required"
+                              class="signin-message">
+                        Password is Required</span>
+                    </div>
                 </form>
             </div>
+
+
         </div>
 
     </div>

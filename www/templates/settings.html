@@ -1,0 +1,27 @@
+
+<ion-view view-title="Settings">
+  <ion-content ng-class="{'dark-bg':isMobile}">
+
+    <div class="row row-center">
+        <div class="col col-10">
+        </div>
+        <div class="col col-80">
+            <div class="centered-container user_list">
+            
+          <ion-list>
+              <div class="item item-divider">
+                Setting List
+              </div>
+              <ion-item ng-repeat="action in setting.actions"
+                        ng-click="action.action()">
+                <h2>{{action.name}}</h2>
+              </ion-item>
+          </ion-list>    
+            </div>
+        </div>
+        <div class="col col-10">
+        </div>        
+    </div>
+    </div>
+  </ion-content>
+</ion-view>

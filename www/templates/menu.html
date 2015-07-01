@@ -1,4 +1,4 @@
-<ion-side-menus enable-menu-with-back-views="false">
+<ion-side-menus enable-menu-with-back-views="true">
   <ion-side-menu-content>
     <ion-nav-bar class="bar-stable">
       <ion-nav-back-button>
@@ -6,10 +6,10 @@
 
       <ion-nav-buttons side="left">
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left"
-                ng-show="!deepLink">
+                ng-if="!deepLink">
         </button>
         <a class="button button-icon button-clear ion-home" 
-                ng-show="deepLink"
+                ng-if="deepLink"
                 href="http://revu.me">
         </a>
       </ion-nav-buttons>
@@ -23,23 +23,26 @@
     </ion-header-bar>
     <ion-content>
       <ion-list>
-        <ion-item nav-clear menu-close href="#/app/welcome">
-          Login
-        </ion-item>
-        <ion-item nav-clear menu-close href="#/app/teams">
-          Teams
+        <ion-item nav-clear menu-close href="#/app/settings">
+          Settings
         </ion-item>
         <ion-item nav-clear menu-close ng-if="smallScreen()" href="#/app/mobile/library">
           Library
-          </ion-item>
+        </ion-item>
         <ion-item nav-clear menu-close ng-if="!smallScreen()" href="#/app/library">
           Library
+        </ion-item>
+        <ion-item nav-clear menu-close href="#/app/teams">
+          Teams
         </ion-item>
         <ion-item nav-clear menu-close href="#/app/sessions">
           Meetings You Lead
         </ion-item>
         <ion-item nav-clear menu-close href="#/app/attendeeSessions">
           Meeting Invitations
+        </ion-item>
+        <ion-item ng-if="user.email=='klynch@volerro.com' || user.batman" nav-clear menu-close href="#/app/batman">
+          I'm Batman
         </ion-item>
       </ion-list>
     </ion-content>

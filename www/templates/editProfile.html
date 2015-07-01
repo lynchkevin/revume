@@ -1,5 +1,5 @@
 
-<ion-view view-title="Sign Up">
+<ion-view view-title="Your Profile">
   <ion-content ng-class="{'dark-bg':isMobile}">
 
     <div class="centered-container"  >
@@ -8,7 +8,7 @@
         </div>
     <div class="col col-80 ">
      <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div class="centered-container hero-container positive-bg padding-bottom rounded-corners" >
+        <div class="centered-container hero-container positive-bg padding-bottom" >
             <span class="hero-header">Revu.Me</span> 
             <div class="signup-form">
                 <form name="forms.signup" ng-controller="signupCtrl">
@@ -36,36 +36,20 @@
                                type="email"
                                required>
                       </label>
-                      <div class="input-spacer positive-bg"></div>
-                      <label class="item item-input">
-                        <span class="input-label">Password</span>
-                        <input name="inpPassword"
-                               ng-model="forms.signup.password"
-                               type="password"
-                               required>
-                      </label>
                     </div>
                     <button class="button "
-                            ng-click="doSignUp()"
+                            ng-click="updateProfile()"
                             ng-disabled="!forms.signup.fName.$dirty || 
                                          !forms.signup.lName.$dirty || 
-                                         !forms.signup.inpPassword.$dirty || 
                                          !forms.signup.inpEmail.$dirty || 
                                          forms.signup.inpEmail.$invalid">
-                        Sign Up
+                        Update
                     </button>
-                    <div class="signin-button">
-                        <p class="signin-message" ng-click="signIn()">Sign In</p>
-                    </div>
                     <div>
                         <span ng-if="forms.signup.inpEmail.$dirty && forms.signup.inpEmail.$invalid"
                               class="signin-message">
                             Invalid Email Format
-                        </span>
-                        <span ng-if="forms.signup.inpPassword.$dirty && forms.signup.inpPassword.$error.required"
-                              class="signin-message">
-                            Password is Required
-                        </span>      
+                        </span> 
                         <span ng-if="forms.signup.fName.$dirty && forms.signup.fName.$error.required"
                               class="signin-message">
                             First Name is Required
