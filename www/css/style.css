@@ -470,6 +470,16 @@ div.progress-value {
     font-size: 200%;
 
 }
+.tab-selected{
+    border-bottom:solid white !important;
+}
+.with-subheader{
+    margin-top:50px;
+}
+.narrow{
+    width:80%;
+    margin:auto;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {

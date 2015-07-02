@@ -64,17 +64,19 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
      $.showBridgeInfo = function() {
             var defer = $q.defer();
             var bridge = $.currentBridge;
-            var confId = bridge.conferenceID.slice(0,3)+'-'+bridge.conferenceID.slice(3,6)+'-'+bridge.conferenceID.slice(6,9);
-            var ph = bridge.tollNumber;
-            var num = '('+ph.slice(2,5)+')'+' '+ph.slice(5,8)+'-'+ph.slice(8,12);
-            var dialIt = num+',,,'+bridge.conferenceID+'#';
-            var alertPopup = $ionicPopup.alert({
-                title: 'Please Dial In',
-                template: buildTemplate(bridge.tollNumber, bridge.conferenceID, bridge.sipURI)
-            });
-            alertPopup.then(function(res) {
-                defer.resolve();
-            });
+            if(bridge.conferenceID != undefined){
+                var confId = bridge.conferenceID.slice(0,3)+'-'+bridge.conferenceID.slice(3,6)+'-'+bridge.conferenceID.slice(6,9);
+                var ph = bridge.tollNumber;
+                var num = '('+ph.slice(2,5)+')'+' '+ph.slice(5,8)+'-'+ph.slice(8,12);
+                var dialIt = num+',,,'+bridge.conferenceID+'#';
+                var alertPopup = $ionicPopup.alert({
+                    title: 'Please Dial In',
+                    template: buildTemplate(bridge.tollNumber, bridge.conferenceID, bridge.sipURI)
+                });
+                alertPopup.then(function(res) {
+                    defer.resolve();
+                });
+            }
             return defer.promise;
      };
 
@@ -84,5 +86,13 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
         Bridges.delete({id:confId}).$promise.then(function(){
             $.currentBridge = {};
         });
+    };
+    $.endMeeting = function(){
+        var m = {action:"end"};
+        if($.currentChannel)
+            $.currentChannel.publish(m);
+    };
+    $.setChannel = function(channel){
+        $.currentChannel = channel;
     };
 }]);

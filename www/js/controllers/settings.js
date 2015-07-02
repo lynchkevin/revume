@@ -13,6 +13,8 @@ angular.module('starter')
 
     $scope.logOut = function(){
         $cookieStore.remove('user');
+        $rootScope.user._id = undefined;
+        $state.go('app.welcome');
     };
     $scope.changePassword = function(){
         $state.go('app.changePassword');

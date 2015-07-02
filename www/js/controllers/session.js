@@ -229,6 +229,7 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     };
     $scope.endMeeting = function(){
         $scope.activeMeeting = false;
+        $scope.bridgeService.endMeeting();
         if($scope.bridgeService.activeBridge())
             $scope.bridgeService.endBridge($scope.session.ufId);
     };

@@ -1,10 +1,15 @@
 
             <div class="lib-list-header">
                 <div class="button-bar bar-positive">
-                  <a class="button" ng-click="setModel('files')">Files</a>
-                  <a class="button" ng-click="setModel('categories')">Categories</a>                  
-                  <a class="button" ng-click="setModel('decks')">Decks</a>
-
+                  <a class="button" 
+                     ng-click="setModel('files')" 
+                     ng-class="{'tab-selected': modelName=='files'}">Files</a>
+                  <a class="button" 
+                     ng-click="setModel('categories')" 
+                     ng-class="{'tab-selected': modelName=='categories'}">Categories</a>                  
+                  <a class="button" 
+                     ng-click="setModel('decks')"
+                     ng-class="{'tab-selected': modelName=='decks'}">Decks</a>
                 </div>
             </div>            
             <div class="revu-list-header calm-bg">

@@ -1,0 +1,40 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-calm"> <h1 class="title"> Thank You</h1> 
+    <div class="buttons">
+      <button class="button button-clear button-light" 
+              ng-click="signupModal.hide()">Close</button>
+    </div>
+    </ion-header-bar> 
+     <div class="bar bar-subheader">
+      <h2 class="title">The Meeting Has Ended</h2>
+    </div>
+    <ion-content has-subheader="true"> 
+                <div class="centered-container hero-container positive-bg padding-bottom with-subheader"
+                     ng-class="{'rounded-corners': !smallScreen()}">
+                    <p style="color:white">Presented By:</p>
+                    <p class="hero-header" style="line-height:100%">Revu.Me</p> 
+                    <p style="color:white">If You Like Our Product<br>Just Enter a Password<br>and Click "Sign Up"</p>
+                    <form name="forms.signup" >
+                      <label class="item item-input padding-bottom"
+                             ng-class="{narrow : !smallScreen()}">
+                        <span class="input-label">Password</span>
+                        <input name="inpPassword"
+                               ng-model="forms.signup.password"
+                               type="password"
+                               required>
+                      </label>
+                        <button class="button button-balanced"
+                            style="margin-top:10px"
+                            ng-click="doSignUp()"
+                            ng-disabled="!forms.signup.inpPassword.$dirty">
+                        Sign Up
+                        </button>
+                    <div class="signin-button">
+                        <p class="signin-message" ng-click="signupModal.hide()">No Thanks</p>
+                    </div>
+                    </form>
+                </div>
+
+    </ion-content>
+
+</ion-modal-view>

@@ -110,10 +110,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
      $.checkExists = function(email){
         var defer = $q.defer();
         $.user.byEmail.get({email:email}).$promise.then(function(user){
-            if(user._id == undefined)
-                defer.resolve(false);
-            else
-                defer.resolve(user);
+            defer.resolve(user);
         }).catch(function(err){
             defer.reject(err);
         });

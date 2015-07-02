@@ -6,9 +6,20 @@
 
 angular.module('starter')
 
-.controller('presentationCtrl', 
-['$scope', '$rootScope', '$stateParams', '$timeout','pnFactory','$ionicSlideBoxDelegate','session','userMonitor','recorder','presAnalyzer','BridgeService',
- function ($scope, $rootScope, $stateParams, $timeout,pnFactory,sbDelegate,session, monitor,recorder,analyzer,BridgeService) {
+.controller('presentationCtrl', ['$scope', 
+                                 '$rootScope', 
+                                 '$stateParams',  
+                                 '$timeout',
+                                 'pnFactory',
+                                 '$ionicSlideBoxDelegate',
+                                 'session',
+                                 'userMonitor',
+                                 'recorder',
+                                 'presAnalyzer',
+                                 'BridgeService',
+ function ($scope, $rootScope, $stateParams, 
+           $timeout,pnFactory,sbDelegate,session, 
+           monitor,recorder,analyzer,BridgeService) {
     
 
     //session and decks are now resolved during the state change so we can use them directly
@@ -39,6 +50,7 @@ angular.module('starter')
         $scope.channel = pnFactory.newChannel(channelName);
         $scope.channel.setUser($rootScope.user.name);
         recorder.setChannel($scope.channel);
+        BridgeService.setChannel($scope.channel);
         $scope.channel.subscribe(handleMessage,handlePresence);
         newPresentation($scope.presentation._id);
         $scope.setSlide($scope.current);
@@ -58,6 +70,7 @@ angular.module('starter')
     //end the presentation
      $scope.endPresentation = function(){
         sendEnd();
+        
         var results = analyzer.analyze(recorder.export());
         var record = {session:$stateParams.id,
                       presentation:$scope.presentation._id,

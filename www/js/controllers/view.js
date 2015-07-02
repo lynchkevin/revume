@@ -20,9 +20,13 @@ angular.module('starter')
                            '$ionicSlideBoxDelegate',
                            'BridgeService',
                            '$q',
+                           '$ionicModal',
+                           'authService',
+                           '$state',
+                           '$ionicPopup',
 function ($scope, $rootScope, $stateParams, 
            $timeout, $window, pnFactory, monitor, 
-           session,Decks,sbDelegate,BridgeService,$q) {
+           session,Decks,sbDelegate,BridgeService,$q,$ionicModal,authService,$state,$ionicPopup) {
   
 
     var filename = "";
@@ -40,20 +44,59 @@ function ($scope, $rootScope, $stateParams,
     $scope.init = function() {
         //load the session deck and then subscribe and listen
         newPresentation($scope.deckId).then(function(){
-        var channelName = $stateParams.id.toString()+".view_channel";
-        $scope.channel = pnFactory.newChannel(channelName);
-        var everyone = $scope.session.attendees;
-        everyone.push($scope.session.organizer);
-        monitor.init(everyone);
-        // subscribe and wait for presentation and slide number...
-        $scope.channel.subscribe(handleMessage,handlePresence);
-    });
+            var channelName = $stateParams.id.toString()+".view_channel";
+            $scope.channel = pnFactory.newChannel(channelName);
+            var everyone = $scope.session.attendees;
+            everyone.push($scope.session.organizer);
+            monitor.init(everyone);
+            // subscribe and wait for presentation and slide number...
+            $scope.channel.subscribe(handleMessage,handlePresence);
+        });
+        //modal for selecting decks to add to session
+        $ionicModal.fromTemplateUrl('templates/presEndTemplate.html',{
+            scope: $scope,
+            animation:'slide-in-up'
+        }).then(function(modal){
+            $scope.signupModal = modal;
+        }); 
     };
     
     $scope.cleanUp = function(){
         $scope.channel.unsubscribe();
     };
       
+    $scope.doSignUp = function(){
+        $scope.signupModal.hide();
+        var newMember = {};
+        if(this.forms != undefined){
+            var password = this.forms.signup.password;
+            var names = $rootScope.user.name.split(' ');
+            newMember.firstName = names[0];
+            newMember.lastName = names[1];
+            newMember.email = $rootScope.user.email;
+            newMember.password = password;
+            newMember.oldPassword = '';
+            authService.checkExists(newMember.email).then(function(user){
+                if(!user.password){ //only sigup members if they aren't already members
+                    authService.resetPassword(newMember).then(function(result){
+                       if(result.success){
+                           $state.go('app.welcome');
+                       }else{
+                            var alert = $ionicPopup.alert({
+                                title:'Error Setting PW!',
+                                template:'Please Try Again',
+                            });
+                            alert.then(function(){       
+                            });
+                        }
+                    });
+                } else {
+                    //alread a member - sign them in
+                    $state.go('app.welcome');
+                }
+            });
+        }
+    }
     function newPresentation(id){
         var defer = $q.defer();
         Decks.get({id:id}).$promise.then(function(decks){
@@ -85,10 +128,13 @@ function ($scope, $rootScope, $stateParams,
                 });
                 console.log($scope.presentation.name);
                 break;
+            case "end" :
+                $scope.signupModal.show();
+                break;
             default: break;
         }
     };
- 
+
     function handleHistory(hArray) {
         console.log(hArray);
         for(i = 0; i<hArray.length; i++){
