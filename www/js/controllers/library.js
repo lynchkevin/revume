@@ -454,4 +454,7 @@ function ($scope,$rootScope,$state,
                     $scope.setModel($scope.modelName);
                 },0);                
     });
+    $scope.$on('SUCCESS', function() {
+      alert('ALL LOADED');
+    });
 }]);

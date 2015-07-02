@@ -16,7 +16,7 @@ module.exports = function(grunt) {
         constants: {
           baseUrl: {
             name: 'development',
-            endpoint: 'http://10.1.10.216:5000',
+            endpoint: 'http://192.168.1.166:5000',
             volerro: 'https://rb.volerro.com'
           }
         }

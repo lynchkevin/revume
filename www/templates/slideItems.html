@@ -16,10 +16,12 @@
                        ng-show="statesReady && isEditing && slide.available " 
                        ng-click="addSlide($index)"
                        ng-cloak></i>
+            <div data-images-loaded>
                     <img ng-src="{{slide.src}}"  
                          style="width:100%" 
                          class="rounded-corners shadow white-background"
                          ng-click="tapThumb($index)">
+            </div>
                 </div>
             </div>
             <div ng-switch-when="video" > 

@@ -117,12 +117,17 @@ users.put('/users/auth/:email',function(req,res){
     User.findOneAsync({email:req.params.email}).then(function(user){
         if(user == undefined){
             var result = {success:false,reason:'User Not Found'};
+            console.log(result);
             res.send(result);
         } else if(user.password != sent.password && user.password != undefined){
             var result = {success:false,reason:'Incorrect User or Password'};
+            console.log(result);
+            console.log('user pass= ',user.password,'sent pass=',sent.password);
+            console.log(user.password == sent.password);
             res.send(result);
         } else{
             var result = {success:true, user:user};
+            console.log(result);
             res.send(result);
         }
     }).catch(function(err){

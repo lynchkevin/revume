@@ -37,15 +37,34 @@ angular.module('starter')
   .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup',
    function ($scope,$rootScope,$state,authService,$ionicPopup) {
        $scope.doSignUp = function(){
-           authService.checkExists($scope.forms.signup.email).then(function(exists){
-               if(exists){
-                    var alert = $ionicPopup.alert({
-                        title:'You\'re Already Signed Up',
-                        template:'Please Sign In',
-                    });
-                    alert.then(function(){
-                        $state.go('app.welcome');
-                    });
+           authService.checkExists($scope.forms.signup.email).then(function(user){
+               if(user){ //this user is in the system
+                   if( user.password){ //if the have a password - don't sign them up again
+                        var alert = $ionicPopup.alert({
+                            title:'You\'re Already Signed Up',
+                            template:'Please Sign In',
+                        });
+                        alert.then(function(){
+                            $state.go('app.welcome');
+                        });
+                    } else{ // otherwise it's an attendee becoming a new member - set their password
+                        var credentials = {};
+                        credentials.oldPassword = '';
+                        credentials.email = $scope.forms.signup.email;
+                        credentials.password = $scope.forms.signup.password;
+                        authService.resetPassword(credentials).then(function(result){
+                           if(result.success){
+                               $state.go('app.welcome');
+                           }else{
+                                var alert = $ionicPopup.alert({
+                                    title:'Error Setting PW!',
+                                    template:'Please Try Again',
+                                });
+                                alert.then(function(){       
+                                });
+                            }
+                        });
+                    }
                } else {
                    var newUser = {};
                    newUser.firstName = $scope.forms.signup.firstName;
@@ -53,8 +72,8 @@ angular.module('starter')
                    newUser.email = $scope.forms.signup.email;
                    newUser.password = $scope.forms.signup.password;
                    authService.signUp(newUser).then(function(user){
-                       //validate email
-                       console.log(user);
+                       //validate email since they're new
+                        $state.go('app.welcome');
                    });
                 }
            });            

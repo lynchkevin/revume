@@ -114,9 +114,12 @@ angular.module('starter')
         var getUser = function(uuid){
             var defer = new $q.defer();
             Users.byId.get({id:uuid}).$promise.then(function(usr){
+                if(usr._id){
                 var userName = usr.firstName+' '+usr.lastName;
                 usr.userName = userName;
                 defer.resolve(usr);
+                } else 
+                    defer.reject('pnFactory uuid in message not found in user db');
             }).catch(function(err){
                 defer.reject(err)
             });

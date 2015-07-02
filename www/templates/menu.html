@@ -24,7 +24,7 @@
     <ion-content>
       <ion-list>
         <ion-item nav-clear menu-close href="#/app/settings">
-          Settings
+        {{user.name}}
         </ion-item>
         <ion-item nav-clear menu-close ng-if="smallScreen()" href="#/app/mobile/library">
           Library
@@ -42,7 +42,7 @@
           Meeting Invitations
         </ion-item>
         <ion-item ng-if="user.email=='klynch@volerro.com' || user.batman" nav-clear menu-close href="#/app/batman">
-          I'm Batman
+
         </ion-item>
       </ion-list>
     </ion-content>

@@ -113,7 +113,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
             if(user._id == undefined)
                 defer.resolve(false);
             else
-                defer.resolve(true);
+                defer.resolve(user);
         }).catch(function(err){
             defer.reject(err);
         });

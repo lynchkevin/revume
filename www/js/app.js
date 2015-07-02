@@ -10,7 +10,8 @@ angular.module('starter',
     'ngResource',
     'ngAnimate',
     'evaporate',
-    'ngCookies'
+    'ngCookies',
+    'imagesLoaded'
 ]
 )
 
@@ -65,6 +66,8 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
                 $timeout(function(){
                     $rootScope.$broadcast("presence_change");
                 },0);
+            }).catch(function(err){
+                console.log(err);
             });
         }
         pnFactory.init(user._id);
@@ -72,7 +75,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         $rootScope.mainChannel.setUser($rootScope.user.name);
         $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
         //set up the authorization headers
-        $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
+        //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
         if(!options.stealthMode) 
             $cookieStore.put('user', $rootScope.user);  
         $rootScope.$broadcast('Revu.Me:Ready');
