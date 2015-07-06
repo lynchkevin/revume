@@ -145,17 +145,19 @@ function ($scope, $rootScope, $stateParams,
     
     function handlePresence(m){
         monitor.rollCall(m);
-        var statusMessage = m.userName+" has ";
-        switch(m.action){
-            case "join" : 
-                statusMessage = statusMessage+"joined";
-                break;
-            case "leave":
-            case "timeout":
-                statusMessage = statusMessage+"left";
-                break;
+        if(m.userName != undefined){
+            var statusMessage = m.userName+" has ";
+            switch(m.action){
+                case "join" : 
+                    statusMessage = statusMessage+"joined";
+                    break;
+                case "leave":
+                case "timeout":
+                    statusMessage = statusMessage+"left";
+                    break;
+            }
+            $scope.$broadcast("show_message", statusMessage);
         }
-        $scope.$broadcast("show_message", statusMessage);
     }
       
     $scope.nextSlide = function() {

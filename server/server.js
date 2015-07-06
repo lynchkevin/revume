@@ -16,11 +16,13 @@ var     revu = require('./routes/revu');
 var     sfdc = require('./routes/salesforce');
 var     teams = require('./routes/teams');
 var     share = require('./routes/share');
+var     confirm = require('./routes/confirmEmail');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
 
 console.log('connectString :',connectString);
+console.log('BASE_URL : ',process.env.BASE_URL);
 //setup the database
 try {
     mongoose.connect(connectString);
@@ -68,6 +70,8 @@ app.use('/api',revu);
 app.use('/api',sfdc);
 app.use('/api',teams);
 app.use('/api',share);
+app.use('/api',confirm);
+
 // stuff for evaporate uploader
 // console logger
 app.use(require('morgan')('dev'));

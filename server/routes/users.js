@@ -136,4 +136,25 @@ users.put('/users/auth/:email',function(req,res){
     });
 });
 
+//add an email confirmation route for the user
+users.put('/users/confirm/:id',function(req,res){
+    console.log('email is now confirmed');
+
+    User.findOneAsync({_id:new ObjectId(req.params.id)}).then(function(user){
+        if(user == undefined){
+            var result = {success:false,reason:'User Not Found'};
+            console.log(result);
+            res.send(result);
+        } else {
+            user.confirmed = true;
+            user.saveAsync().then(function(){
+                var result = {success:true};
+                res.send(result);
+            });            
+        }
+    }).catch(function(err){
+        console.log(err);
+        res.send(err);
+    });
+});
 module.exports = users;

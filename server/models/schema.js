@@ -30,7 +30,8 @@ var UserSchema = new mongoose.Schema({
     firstName:String,
     lastName:String,
     email:String,
-    password:String
+    password:String,
+    confirmed:Boolean,
 });
 
     

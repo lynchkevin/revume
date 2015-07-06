@@ -479,6 +479,7 @@ div.progress-value {
 .narrow{
     width:80%;
     margin:auto;
+    height:35px;
 }
 <!-- MEDIA QUERIES --------->
 

@@ -34,11 +34,11 @@ angular.module('starter')
        };
            
   }])
-  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup',
-   function ($scope,$rootScope,$state,authService,$ionicPopup) {
+  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm',
+   function ($scope,$rootScope,$state,authService,$ionicPopup,confirm) {
        $scope.doSignUp = function(){
            authService.checkExists($scope.forms.signup.email).then(function(user){
-               if(user){ //this user is in the system
+               if(user._id){ //this user is in the system
                    if( user.password){ //if the have a password - don't sign them up again
                         var alert = $ionicPopup.alert({
                             title:'You\'re Already Signed Up',
@@ -47,7 +47,7 @@ angular.module('starter')
                         alert.then(function(){
                             $state.go('app.welcome');
                         });
-                    } else{ // otherwise it's an attendee becoming a new member - set their password
+                    } else { // otherwise it's an attendee becoming a new member - set their password
                         var credentials = {};
                         credentials.oldPassword = '';
                         credentials.email = $scope.forms.signup.email;
@@ -73,6 +73,7 @@ angular.module('starter')
                    newUser.password = $scope.forms.signup.password;
                    authService.signUp(newUser).then(function(user){
                        //validate email since they're new
+                        confirm.send(user);
                         $state.go('app.welcome');
                    });
                 }
@@ -82,6 +83,10 @@ angular.module('starter')
             authService.forceCredentials('app.welcome');
        }
            
+  }])
+  .controller('confirmCtrl', ['$scope','user',
+   function ($scope,user) {
+       $scope.user = user;
   }])
   .controller('profileCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup',
    function ($scope,$rootScope,$state,authService,$ionicPopup) {

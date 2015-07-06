@@ -103,7 +103,8 @@ angular.module('starter')
 
     function handlePresence(m){
         m.caller="handlePresence";
-            monitor.rollCall(m)
+            monitor.rollCall(m);
+        if(m.userName != undefined){
             recorder.record(m);
             var statusMessage = m.userName +" has ";
             switch(m.action){
@@ -121,6 +122,7 @@ angular.module('starter')
                 $scope.$broadcast("show_message", statusMessage);
             },0);
             console.log($scope.everyone);
+        }
     };
      
     function handleMessage(msg){

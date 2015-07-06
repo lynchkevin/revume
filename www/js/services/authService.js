@@ -205,7 +205,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
         return defer.promise;  
      };
     //authenticate certain routes
-    var publicStates = ['app.signup','app.changePassword'];
+    var publicStates = ['app.signup','app.changePassword','app.confirmEmail'];
     function isPrivate(state){
         var isPrivate=true;
         publicStates.forEach(function(publicState){

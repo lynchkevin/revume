@@ -6,8 +6,8 @@
 
 angular.module('starter')
     .service('Presentation', ['$resource','baseUrl',function ($resource,baseUrl) {
-
-    var target = baseUrl.endpoint+'/api/presentations/:id';
-    return $resource(target);
+        var $ = this;
+//        var target = baseUrl.endpoint+'/api/presentations/:id';
+//        return $resource(target);
         
 }]);

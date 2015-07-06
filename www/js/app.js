@@ -467,6 +467,32 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
       }
     }
   })  
+  .state('app.confirmEmail', {
+    url: "/confirmEmail/:id?",
+      resolve: {
+          user : ['Users','DoConfirm','$stateParams','$q',
+                function(User,DoConfirm,$stateParams,$q){ 
+                               var defer = new $q.defer();
+                               var byId = User.byId;
+                               DoConfirm.confirm({id:$stateParams.id}).$promise.then(function(result){
+                                   if(result.success){
+                                       byId.get({id:$stateParams.id}).$promise.then(function(user){
+                                           defer.resolve(user);
+                                       });
+                                   } else
+                                       defer.reject(result.reason);
+                               });
+                               return defer.promise;
+                }]
+    
+      }, 
+    views: {
+    'menuContent': {
+        templateUrl: "templates/emailConfirmed.html",
+        controller : 'confirmCtrl'    
+      }
+    }
+    }) 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
 });

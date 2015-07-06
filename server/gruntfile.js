@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
-
+    
+    grunt.option('ip','http://10.1.10.216:5000');
     grunt.initConfig({
     ngconstant: {
       // Options for all targets
@@ -16,7 +17,7 @@ module.exports = function(grunt) {
         constants: {
           baseUrl: {
             name: 'development',
-            endpoint: 'http://10.1.10.216:5000',
+            endpoint: grunt.option('ip'),
             volerro: 'https://rb.volerro.com'
           }
         }
@@ -54,13 +55,37 @@ module.exports = function(grunt) {
             'server.js'
           ]
         }
+    },
+    env : {
+        options : {
+        //Shared Options Hash 
+        },
+        development : {
+          options : {
+              replace : {
+                  BASE_URL : grunt.option('ip')
+              },
+          }
+        },
+        production : {
+            options : {
+                replace : {
+                    BASE_URL : 'm.volerro.com',
+                }
+            }
+        }
     }
     });
     grunt.loadNpmTasks('grunt-ng-constant');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-env');    
     
     grunt.registerTask('dev', function () {
+        grunt.log.writeln("ip is: " + grunt.option("ip"));
+      grunt.task.run([
+        'env:development'
+      ]);
       grunt.task.run([
         'ngconstant:development'
       ]);
@@ -70,6 +95,9 @@ module.exports = function(grunt) {
     });
     
     grunt.registerTask('prod', function () {
+       grunt.task.run([
+        'env:production'
+      ]);   
       grunt.task.run([
         'ngconstant:production'
       ]);
