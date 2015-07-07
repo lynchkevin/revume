@@ -157,8 +157,10 @@ function ($scope,$rootScope,$state,
                    
     function updateView(){
         var defer = $q.defer();
+        $rootScope.showLoading();
         Library.updateModel($scope).then(function(){
             defer.resolve();
+            $rootScope.hideLoading();
             $timeout(function(){
                 $ionicScrollDelegate.scrollTop();
             },0);
@@ -210,6 +212,7 @@ function ($scope,$rootScope,$state,
         })
     }
     $scope.setModel = function(model){
+        $rootScope.showLoading();
         $scope.modelName = model;
         switch(model){
             case 'files': 
@@ -230,6 +233,7 @@ function ($scope,$rootScope,$state,
         }
         Library.updateModel($scope).then(function(){
             fixSharedTeams($scope);
+            $rootScope.hideLoading()
             $timeout(function(){
                 $ionicScrollDelegate.scrollTop();
             },0);
@@ -287,10 +291,13 @@ function ($scope,$rootScope,$state,
     };
 
     $scope.setNavSelection = function(id){
+      $rootScope.showLoading();
       $scope.slideOver();
       $scope.selectedNavId = id;
-      Library.updateSlides($scope);
-      $ionicScrollDelegate.scrollTop();
+      Library.updateSlides($scope).then(function(){
+        $ionicScrollDelegate.scrollTop();
+        $rootScope.hideLoading();
+      });
     };
 
     $scope.shareNavItem = function($index){

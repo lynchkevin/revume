@@ -81,7 +81,9 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.attIds=[];
         $.session.length = 60;
         $.session.lengthOptions = lengthOptions;
-        $.session.time= '';
+        $.session.time= $.session.date;
+        $.session.time.setMilliseconds(0);
+        $.session.time.setSeconds(0);
         $.session.bridge=false;
         $.session.invite=true;
         $.session.timeZone = tz.name();
@@ -180,7 +182,6 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         });    
         return defer.promise;   
     };
-    
     //build a new session from a deck  
     $.build=function($index){
         var defer = $q.defer();

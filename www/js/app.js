@@ -30,8 +30,9 @@ angular.module('starter',
       '$state',
       '$cookieStore',
       'authService',
+      '$ionicLoading',
 function($ionicPlatform,$rootScope,$window,$http,userService,
-          pnFactory,$timeout,$location,$state,$cookieStore,authService) {
+          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -47,7 +48,17 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     //initialize some globals
     $rootScope.deepLink = false;
     $rootScope.user = {};
-    
+    $rootScope.showLoading = function(){
+        $ionicLoading.show({
+            content: 'Loading',
+            animation: 'fade-in',
+            noBackdrop:true
+         // template: 'Loading...'
+        });
+    };   
+    $rootScope.hideLoading = function(){
+        $ionicLoading.hide();
+    };
     $rootScope.userInit = function(user,userOptions){
         var options = angular.extend({},userOptions);
         $rootScope.user._id = user._id;   

@@ -84,12 +84,24 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
             member.user = user;
         });
     }
+    function buildPreviewString(team){
+        var members = team.members.slice(0,4);
+        var previewString = '';
+        for(var i = 0; i<members.length;i++){
+            var name = members[i].firstName+' '+members[i].lastName;
+            previewString += name;
+            if(i<members.length-1)
+                previewString += ',';
+        }
+        team.previewString = previewString;
+    };
     //get all teams
     $.getAll = function(userId){
         var defer = $q.defer();
         Teams.query({user:userId}).$promise.then(function(teams){
             teams.forEach(function(team){
                 $.toMemberShim(team);
+                buildPreviewString(team);
             });
             defer.resolve(teams);
         });
