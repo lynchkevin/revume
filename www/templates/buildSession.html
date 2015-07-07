@@ -55,7 +55,26 @@
                   </label>    
                 </div>
              </div>
-            </div>
+            <!--
+              <div class="row">
+                <div class="col col-50">
+                <div class="item item-checkbox">
+                     <label class="checkbox">
+                       <input ng-model="sb.session.showTeams" type="checkbox">
+                     </label>
+                     Add Teams?
+                </div>
+                </div>
+                <div class="col col-50">
+                  <label class="item item-input">
+                    <span class="input-label">length</span>
+                    <select ng-model="sb.session.length">
+                        <option ng-repeat="l in sb.session.lengthOptions">{{l}}</option>
+                    </select>
+                  </label>    
+                </div>
+             </div>
+            -->
                 <div class="list">
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper">
@@ -79,25 +98,42 @@
                           add
                         </button>
                     </div>
-                </div>
-            <div class="list">
-                <div class="item item-divider">
-                    Attendees
-                </div> 
-                <div class="list">
-                    <div ng-repeat="attendee in sb.session.attendees" class="item item-icon-left" >
-                        <i class="icon ion-minus-circled " style="font-size:95%" ng-click="sb.delAttendee($index)">
-                        <p class="padding-left">{{sb.session.attendees[$index].name}}     {{sb.session.attendees[$index].email}}</p>         
-                        </i>
-
+                    <div class="item item-divider item-button-right">
+                        Attendees
+                        <button class="button button-small button-positive divider-button"
+                                ng-click="sb.session.showTeams=!sb.session.showTeams">Add Teams?</button>
+                    </div> 
+                    <div class="item item-button-right"
+                         ng-if="sb.session.showTeams && sb.session.teamList.length > 0"
+                         style="padding:0px">
+                          <label class="item-input">
+                            <span class="input-label"
+                                  style="width:20%">Teams</span>
+                            <select ng-model="sb.session.team" ng-options="t.name for t in sb.session.teamList">
+                            </select>
+                          </label> 
+                            <button class="button button-small"
+                                    ng-click="sb.addTeam()" 
+                                    style="font-size:14px"
+                                    ng-class="{'shove-right':smallScreen() == false}">
+                              add
+                            </button>
                     </div>
-                </div>
-                <div class="item item-checkbox">
-                     <label class="checkbox">
-                       <input ng-model="sb.session.bridge" type="checkbox">
-                     </label>
-                     conference bridge
-                </div>
+                        <div class="list">
+                            <div ng-repeat="attendee in sb.session.attendees" class="item item-icon-left" >
+                                <i class="icon ion-minus-circled " style="font-size:95%" ng-click="sb.delAttendee($index)">
+                                <p class="padding-left">{{sb.session.attendees[$index].name}}     {{sb.session.attendees[$index].email}}</p>         
+                                </i>
+
+                            </div>
+                        </div>
+                        <div class="item item-checkbox">
+                             <label class="checkbox">
+                               <input ng-model="sb.session.bridge" type="checkbox">
+                             </label>
+                             conference bridge
+                        </div>
+                    </div>
             </div>
 
             <div class="centered-container">

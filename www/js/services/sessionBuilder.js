@@ -63,7 +63,8 @@ angular.module('starter')
                               '$q', 
                               '$timeout',
                               'baseUrl',
-function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl) {
+                              'TeamService',
+function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl,teamService) {
     var $ = this;
     var $user = userService.user;
     var lengthOptions = [30,60,90,120];
@@ -86,6 +87,12 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.timeZone = tz.name();
         $.session.baseUrl = baseUrl.endpoint;
         $.session.offset = new Date().getTimezoneOffset();
+        $.session.showTeams = false;
+        teamService.getAll().then(function(teams){
+            $.session.teamList = teams;
+            if($.session.teamList.length >0)
+                $.session.team = $.session.teamList[0];
+        });
     };
     
     $.setScope = function($scope){
@@ -291,6 +298,12 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.attendees.splice($index,1);
         $.session.attIds.splice($index,1);
     };
+    $.addTeam = function(){
+        $.session.team.members.forEach(function(member){
+            $.session.attendees.push(member);
+            $.session.attIds.push(member._id);
+        });
+    }
     //fix the time
     function fixTime(session){
         console.log('offset before fix: ',session.time.getTimezoneOffset());
