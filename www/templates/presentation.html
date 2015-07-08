@@ -18,7 +18,7 @@
                    ng-click="prevSlide()"></a>
             </div>
             <div class="col col-90" >
-            <ion-slide-box class="bordered-drop-shadow" on-slide-changed="setSlide(index)">
+            <ion-slide-box class="bordered-drop-shadow" on-slide-changed="setSlide(index)" show-pager="false">
                 <ion-slide ng-repeat="slide in presentation.slides">
                     <div ng-switch on="slide.type">
                         <div ng-switch-when="img">

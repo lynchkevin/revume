@@ -29,7 +29,7 @@ module.exports = function(grunt) {
         constants: {
           baseUrl: {
             name: 'production',
-            endpoint: 'https://m.revu.me',
+            endpoint: 'http://m.revu.me',
             volerro: 'https://rb.volerro.com'
           }
         }
