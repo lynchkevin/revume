@@ -24,22 +24,22 @@
     <ion-content>
       <ion-list>
         <ion-item nav-clear menu-close href="#/app/settings">
-        {{user.name}}
+        <i class='ion-gear-b menu-icon dark'></i>{{user.name}}
         </ion-item>
         <ion-item nav-clear menu-close ng-if="smallScreen()" href="#/app/mobile/library">
-          Library
+          <i class='ion-ios-paper menu-icon royal'></i>Library
         </ion-item>
         <ion-item nav-clear menu-close ng-if="!smallScreen()" href="#/app/library">
-          Library
+          <i class='ion-ios-paper menu-icon royal'></i>Library
         </ion-item>
         <ion-item nav-clear menu-close href="#/app/teams">
-          Teams
+          <i class='ion-android-contacts menu-icon positive'></i>Teams
         </ion-item>
         <ion-item nav-clear menu-close href="#/app/sessions">
-          Meetings You Lead
+          <i class='ion-speakerphone menu-icon balanced'></i>Meetings You Lead
         </ion-item>
         <ion-item nav-clear menu-close href="#/app/attendeeSessions">
-          Meeting Invitations
+           <i class='ion-calendar menu-icon calm'></i>Meeting Invitations
         </ion-item>
         <ion-item ng-if="user.email=='klynch@volerro.com' || user.batman" nav-clear menu-close href="#/app/batman">
 

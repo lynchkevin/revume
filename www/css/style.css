@@ -502,6 +502,12 @@ div.progress-value {
 .circle-offline{
     background-color:rgba(117, 117, 117, 0.5);
 }
+.menu-icon{
+    padding-right:10px;
+    font-size:25px;
+    line-height:25px;
+}
+
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
