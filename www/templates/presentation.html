@@ -54,8 +54,15 @@
              ng-class="{'tall': footer.class == 'tall'}">
             <div class="centered-container">
                 <div ng-repeat="attendee in everyone" class="user-item">
-                    <i class="icon user-item-avatar" 
+                    <div class="circle-initials"
+                         ng-class="{'calm-bg': attendee.isOnline,
+                                   'circle-offline':!attendee.isOnline,
+                                   'ion-eye-disabled user-distracted circle-offline': attendee.distracted}">
+                        <p ng-show=!attendee.distracted>{{attendee.initials}}</p>
+                    </div>
+                    <!--<i class="icon user-item-avatar" 
                        ng-class="{'user-online': attendee.isOnline, 'ion-eye-disabled user-distracted': attendee.distracted,'ion-person':!attendee.distracted}"></i>
+-->
                     <span ng-if="attendee.itsMe != true" class="user-item-text">{{attendee.firstName}} {{attendee.lastName}}</span>
                     <span ng-if="attendee.itsMe" class="user-item-text">You</span>            
                 </div>

@@ -35,8 +35,16 @@ angular.module('starter')
     $scope.presentation=$scope.session.decks[$scope.deckIdx];
     $scope.bridgeService = BridgeService;
 
+    function setInitials(){
+        $scope.session.attendees.forEach(function(attendee){
+            attendee.initials = attendee.firstName[0]+attendee.lastName[0];
+        });
+        var organizer = $scope.session.organizer;
+        organizer.initials = organizer.firstName[0]+organizer.lastName[0];
+    };
      
     $scope.init = function(){
+        setInitials();
         $scope.current = 0;
         $scope.showUsers = true;
         var everyone = $scope.session.attendees;

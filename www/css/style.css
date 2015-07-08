@@ -83,10 +83,11 @@
 }
 
 .slideshow-container {
-  background-image: url("https://s3.amazonaws.com/revu.volerro.com/img/linen.png");
+  /*background-image: url("https://s3.amazonaws.com/revu.volerro.com/img/linen.png");*/
+    background:#E2DDCD;
 }
 .presentation-background {
-    background: rgb(210, 208, 196);
+    background: #E2DDCD;
 }
 .vid-content{
 }
@@ -189,7 +190,8 @@
         color:white;
 }
 .user-distracted{
-    color:#fcF00A;
+    color:#fcF00A !important;
+    font-size:26px;
 }
 
 .no-corners {
@@ -198,7 +200,7 @@
     -webkit-border-radius: 0px !important;
 }
 .slide-report-header{
-    background:rgba(163, 156, 86, 0.48);
+    background:#E2DDCD;
 }
 .session-item-button{
 
@@ -488,6 +490,17 @@ div.progress-value {
 }
 .shove-right{
     margin-right:50%;
+}
+.circle-initials{
+    border-radius:50%;
+    height:26px;
+    width:26px;
+    line-height: 26px;
+    margin-top:-18px;
+    color:white;
+}
+.circle-offline{
+    background-color:rgba(117, 117, 117, 0.5);
 }
 <!-- MEDIA QUERIES --------->
 

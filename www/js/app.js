@@ -50,8 +50,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     $rootScope.user = {};
     $rootScope.showLoading = function(){
         $ionicLoading.show({
-            content: 'Loading',
-            animation: 'fade-in',
+            template:'<ion-spinner></ion-spinner>',
             noBackdrop:true
          // template: 'Loading...'
         });
