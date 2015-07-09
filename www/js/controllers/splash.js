@@ -12,7 +12,6 @@ angular.module('starter')
                              function ($scope,$rootScope,$timeout,$http,baseUrl,$ionicNavBarDelegate) {
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
-    $ionicNavBarDelegate.showBackButton(false);
     $scope.init = function(){
         $timeout(function(){
             $scope.user._id = $rootScope.user._id;
@@ -20,9 +19,6 @@ angular.module('starter')
             $scope.users = $rootScope.users;
         },0);
     };
-    $scope.dialOut = function(){
-            window.open('tel:' + 6122458866, '_system');
-    }
 
     $scope.$on("presence_change",function(){
         $scope.$apply(function(){
