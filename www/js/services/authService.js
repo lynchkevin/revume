@@ -220,7 +220,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
             if(result.success){
                 $rootScope.userInit(result.user);
                 if(successState != undefined)
-                    $state.transitionTo(successState);
+                    $state.go(successState);
             }
             else if(result.reason == 'resetPassword')
                 console.log('resetPassword');

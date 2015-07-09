@@ -1,9 +1,11 @@
-<ion-view title="{{teamName}}" ng-cloak>
-  <ion-nav-back-button>
-  </ion-nav-back-button>
-  <ion-nav-buttons side="left">
-      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
-  </ion-nav-buttons>
+<ion-view title="{{teamName}}" >
+    <ion-nav-buttons side="left">
+      <button class="button-clear" ng-click="history.goBack()" style="color:white">
+        <i class="ion-arrow-left-c"></i> Your Teams
+      </button>
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        </button>
+    </ion-nav-buttons>
   <ion-nav-buttons side="right">
       <button class="button button-balanced"
               ng-disabled="teamForm.teamName.$invalid || (addTeam.members.length == 0) || !_$Save"

@@ -38,7 +38,13 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
         var confId = id.replace(/-/g,'');
         Bridges.save({confId:confId}).$promise.then(function(bridge){
             $.currentBridge = bridge;
-            return $.showBridgeInfo(bridge);
+            if(!$rootScope.isMobile)
+                return $.showBridgeInfo(bridge);
+            else{
+                var dialIt = bridge.tollNumber+',,,'+bridge.conferenceID;
+                window.open('tel:' + dialIt, '_system'); 
+                defer.resolve();
+            }
         }).then(function(){
             defer.resolve();
         }).catch(function(err){
@@ -56,7 +62,7 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
              template += '<a href=\"tel:'+dialIt+'\">'+num+'</a>';
          else 
              template += '<p>'+num+'</p>'
-         template += '<br><p><strong>ConfID:</strong></p><p>'+confId+'</p><br><p><strong>Viop:</strong></p><p>'+voip+'</p><br>'
+         template += '<br><p><strong>ConfID:</strong></p><p>'+confId+'</p><br><p><strong>Voip:</strong></p><p>'+voip+'</p><br>'
          return template;
      };
     
@@ -76,6 +82,7 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
                 alertPopup.then(function(res) {
                     defer.resolve();
                 });
+                
             }
             return defer.promise;
      };

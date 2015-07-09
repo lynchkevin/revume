@@ -157,6 +157,7 @@
     display:inline-block;
     margin-right:5px;
     text-overflow: ellipsis;
+    margin-bottom:18px
 }
 .user-indicator{
     position: absolute;
@@ -184,7 +185,7 @@
     color:#B5D7A4;
 }
 .user-item-text{
-   font-size:65%;
+   font-size:90%;
 }
 .user-online{
         color:white;
@@ -493,14 +494,17 @@ div.progress-value {
 }
 .circle-initials{
     border-radius:50%;
-    height:26px;
-    width:26px;
-    line-height: 26px;
-    margin-top:-18px;
-    color:white;
+    height:30px;
+    width:30px;
+    line-height: 30px;
+    margin:0 auto;
+    margin-top:-22px;
+    color:#313131;
+    font-weight:500;
 }
 .circle-offline{
     background-color:rgba(117, 117, 117, 0.5);
+    color:white;
 }
 .menu-icon{
     padding-right:10px;

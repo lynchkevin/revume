@@ -65,7 +65,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         $scope.modalTitle='New Team';
         //set the callback so that the modal saves a new team
         $scope.modalCallback = $scope.saveTeam;
-        $state.transitionTo('app.newteam');
+        $state.go('app.newteam');
     }
     //add a member to the team
     $scope.addMember = function(){
@@ -142,7 +142,7 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
         $scope.modalTitle='Edit Team';
         $scope.modalCallback=$scope.updateTeam;
         var teamName = $scope.teams[idx].name;
-        $state.transitionTo('app.team', {id:idx,name:teamName});
+        $state.go('app.team', {id:idx,name:teamName});
     }
     //update the team in the database
     // save the team to the database

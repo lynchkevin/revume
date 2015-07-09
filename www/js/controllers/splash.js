@@ -20,6 +20,9 @@ angular.module('starter')
             $scope.users = $rootScope.users;
         },0);
     };
+    $scope.dialOut = function(){
+            window.open('tel:' + 6122458866, '_system');
+    }
 
     $scope.$on("presence_change",function(){
         $scope.$apply(function(){

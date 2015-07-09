@@ -31,8 +31,9 @@ angular.module('starter',
       '$cookieStore',
       'authService',
       '$ionicLoading',
+      '$ionicHistory',
 function($ionicPlatform,$rootScope,$window,$http,userService,
-          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading) {
+          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -58,6 +59,9 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     $rootScope.hideLoading = function(){
         $ionicLoading.hide();
     };
+    //Give Access to History
+    $rootScope.history = $ionicHistory;
+    
     $rootScope.userInit = function(user,userOptions){
         var options = angular.extend({},userOptions);
         $rootScope.user._id = user._id;   
@@ -91,31 +95,18 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         $rootScope.$broadcast('Revu.Me:Ready');
     };
         
-/*
-    $rootScope.login = function(){
-        /*
-        $rootScope.user = {};
-        $rootScope.user.email = 'klynch@volerro.com';
-        userService.getUser($rootScope).then(function(user) {
-            $rootScope.userInit(user);
-        },function(err){//user not found try to register
-            userService.register($rootScope).then(function(user){
-                $rootScope.userInit(user);
-            }).catch(function(err){
-                console.log(err);
-            });
-        });
-
-        authService.signIn().then(function(result){
-            if(result.success)
-                $rootScope.userInit(result.user);
-            else if(result.reason == 'resetPassword')
-                console.log('resetPassword');
-            else
-                $rootScope.login();
-        });
-    };
-*/  
+    // load up device information
+    var device = {};
+    
+    device.isWebView = ionic.Platform.isWebView();
+    device.isIPad = ionic.Platform.isIPad();
+    device.isIOS = ionic.Platform.isIOS();
+    device.isAndroid = ionic.Platform.isAndroid();
+    device.isWindowsPhone = ionic.Platform.isWindowsPhone();
+    device.currentPlatform = ionic.Platform.platform();
+    device.currentPlatformVersion = ionic.Platform.version();
+    $rootScope.device = device;
+    console.log('device is: ',$rootScope.device);
     //test to see if cordova.js is available if so - we're on a mobile device
     var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
     if ( app ) {
@@ -125,32 +116,15 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         // Web page
         $rootScope.isMobile = false;
     };
-    //See if we have authenticated get a user.id then call init...
-    /*
-    $rootScope.deepLink = false;
-    if($rootScope.user == undefined){
-        var param = $location.search();
-        if(param.uid == undefined){
-            $rootScope.deepLink = false;
-            $rootScope.login();
-        }else{
-            $rootScope.deepLink = true;
-            var User = userService.user.byId;
-            User.get({id:param.uid}).$promise.then(function(user){
-                $rootScope.user={};
-                $rootScope.userInit(user);
-            });
-        };       
-    };
-    */
 
+    // listen for authenticated routes and force login if needed
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
         authService.listen(event,toState);
     });
     //go to the home page after a deep link
     $rootScope.goHome = function(){
         $rootScope.deepLink = false;
-        $state.transitionTo('app.welcome');
+        $state.go('app.welcome');
     }
     $rootScope.fullUrl = function(src){
         return baseUrl+src;

@@ -29,6 +29,16 @@
                         ng-click="action.action()">
                 <h2>{{action.name}}</h2>
               </ion-item>
+              <ion-item>
+                  <h2>Device Info:</h2>
+                  <p>Platform: {{device.currentPlatform}}</p>
+                  <p>Mobile:{{isMobile}}</p>
+                  <p ng-if="device.isIPad">iPad</p>
+                  <p ng-if="device.isIPad">iPad</p>
+                  <p ng-if="device.isIOS">IOS</p>
+                  <p ng-if="device.isAndroid">Android</p>
+                  <p ng-if="device.isWindowsPhone">WindowPhone</p>
+              </ion-item>
           </ion-list>    
             </div>
         </div>

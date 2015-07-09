@@ -1,4 +1,11 @@
 <ion-view view-title="{{session.name}}" ng-cloak>
+    <ion-nav-buttons side="left">
+      <button class="button-clear" ng-click="history.goBack()" style="color:white">
+        <i class="ion-arrow-left-c"></i> {{history.backTitle()}}
+      </button>
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        </button>
+    </ion-nav-buttons>
     <ion-content class="has-header">
         <div class="list card">
             <div class="item item-divider">
