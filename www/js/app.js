@@ -11,7 +11,8 @@ angular.module('starter',
     'ngAnimate',
     'evaporate',
     'ngCookies',
-    'imagesLoaded'
+    'imagesLoaded',
+    'angular-intro',
 ]
 )
 
@@ -49,6 +50,11 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     //initialize some globals
     $rootScope.deepLink = false;
     $rootScope.user = {};
+    $rootScope.archive = {};
+    $rootScope.archive.menu = false;
+    $rootScope.toggleArchive = function(){
+        $rootScope.archive.menu = !$rootScope.archive.menu;
+    }
     $rootScope.showLoading = function(){
         $ionicLoading.show({
             template:'<ion-spinner></ion-spinner>',
@@ -160,7 +166,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
   .state('app', {
     url: "/app",
     abstract: true,
-    templateUrl: "templates/menu.html",
+    templateUrl: "templates/menu.html"
   })  
   .state('app.welcome', {
     url: "/welcome",

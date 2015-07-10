@@ -18,29 +18,57 @@
   </ion-side-menu-content>
 
   <ion-side-menu side="left">
-    <ion-header-bar class="bar-stable">
-      <h1 class="title">Menu</h1>
+    <ion-header-bar ng-class={'bar-calm':!archive.menu,'bar-stable':archive.menu}>
+      <h1 ng-if="!archive.menu" class="title">Menu</h1>
+      <h1 ng-if="archive.menu" class="title">Archive</h1>
     </ion-header-bar>
-    <ion-content>
+    <ion-content >
       <ion-list>
-        <ion-item nav-clear menu-close href="#/app/settings">
+        <!-- Non-Archive Menu Items -->
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/settings">
         <i class='ion-gear-b menu-icon dark'></i>{{user.name}}
         </ion-item>
-        <ion-item nav-clear menu-close ng-if="smallScreen()" href="#/app/mobile/library">
+        <ion-item nav-clear menu-close ng-if="smallScreen()&&!archive.menu" href="#/app/mobile/library">
           <i class='ion-ios-paper menu-icon royal'></i>Library
         </ion-item>
-        <ion-item nav-clear menu-close ng-if="!smallScreen()" href="#/app/library">
+        <ion-item nav-clear menu-close ng-if="!smallScreen()&&!archive.menu" href="#/app/library">
           <i class='ion-ios-paper menu-icon royal'></i>Library
         </ion-item>
-        <ion-item nav-clear menu-close href="#/app/teams">
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/teams">
           <i class='ion-android-contacts menu-icon positive'></i>Teams
         </ion-item>
-        <ion-item nav-clear menu-close href="#/app/sessions">
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/sessions">
           <i class='ion-speakerphone menu-icon balanced'></i>Meetings You Lead
         </ion-item>
-        <ion-item nav-clear menu-close href="#/app/attendeeSessions">
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/attendeeSessions">
            <i class='ion-calendar menu-icon calm'></i>Meeting Invitations
         </ion-item>
+        <ion-item ng-if="!archive.menu" nav-clear menu-close ng-click="toggleArchive()">
+           <i class='ion-filing menu-icon energized'></i>Archive
+        </ion-item>
+        <!-- Archive Menu Items -->
+        <ion-item ng-if="archive.menu" nav-clear menu-close ng-click="toggleArchive()">
+        <i class='ion-arrow-left-b menu-icon dark'></i>Main Menu
+        </ion-item>
+        <ion-item nav-clear menu-close
+                  ng-if="smallScreen()&&archive.menu"
+                  href="#/app/mobile/library">
+          <i class='ion-ios-paper menu-icon royal'></i>Library
+        </ion-item>
+        <ion-item nav-clear menu-close
+                  ng-if="!smallScreen()&&archive.menu" 
+                  href="#/app/library">
+          <i class='ion-ios-paper menu-icon royal'></i>Library
+        </ion-item>
+        <ion-item ng-if="archive.menu" nav-clear menu-close 
+                  href="#/app/sessions">
+          <i class='ion-speakerphone menu-icon balanced'></i>Past Meetings
+        </ion-item>
+        <ion-item ng-if="archive.menu" nav-clear menu-close 
+                  href="#/app/attendeeSessions">
+           <i class='ion-calendar menu-icon calm'></i>Past Invitations
+        </ion-item>
+        <!-- backdoor menu item for me -->
         <ion-item ng-if="user.email=='klynch@volerro.com' || user.batman" nav-clear menu-close href="#/app/batman">
 
         </ion-item>

@@ -474,7 +474,7 @@ div.progress-value {
 
 }
 .tab-selected{
-    border-bottom:solid white !important;
+    opacity:0.75 !important;
 }
 .with-subheader{
     margin-top:50px;
