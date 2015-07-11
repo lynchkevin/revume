@@ -14,14 +14,16 @@ angular.module('starter')
                             '$state',
                             
 function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
+
     
     $scope.init = function(){
         var _id = $rootScope.user._id;
+        $scope.action = {selected:$scope.actions[0]};
         if(_id != undefined){
-            Sess.orgSessions.get({id:_id})
+            Sess.orgSessions.get({id:_id,isArchived:$rootScope.archiveOn()})
             .$promise.then(function(os){
                 $scope.orgSessions = os;
-                return Sess.attSessions.get({id:_id}).$promise;
+                return Sess.attSessions.get({id:_id,isArchived:$rootScope.archiveOn()}).$promise;
             }).then(function(as){
                 $scope.attSessions = as;
                 $scope.sb = sb;
@@ -32,13 +34,14 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
             });
         };
     };
-    
+
     $scope.doRefresh = function(){
         var _id = $rootScope.user._id;
+        $scope.checkArchive();
         if(_id != undefined){
-            Sess.orgSessions.get({id:_id}).$promise.then(function(os){
+            Sess.orgSessions.get({id:_id,isArchived:$rootScope.archiveOn()}).$promise.then(function(os){
                 $scope.orgSessions = os;
-                return Sess.attSessions.get({id:_id}).$promise;
+                return Sess.attSessions.get({id:_id,isArchived:$rootScope.archiveOn()}).$promise;
             }).then(function(as){
                 $scope.attSessions = as;
                 $scope.$broadcast('scroll.refreshComplete');
@@ -110,10 +113,59 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
             $scope.doRefresh();
         });
     };
-        
+    
+    $scope.markArchive = function(idx){
+        //if this gets called normally - it will set archive true
+        //if this is called when archive view is active this will set to false;
+        var user = $rootScope.user;
+        var _id = $scope.orgSessions[idx]._id;
+        $scope.orgSessions[idx].archiveStatus.forEach(function(stat){
+            if(stat.id == user._id)
+                stat.isArchived = !$rootScope.archiveOn();
+        });
+        Sess.archive.update({id:_id},$scope.orgSessions[idx]).$promise.then(function(){
+            $scope.doRefresh();
+        });
+    };
+    
+    $scope.markAttArchive = function(idx,$event){
+        $event.preventDefault();
+        $event.stopPropagation();
+        var user = $rootScope.user;
+        var _id = $scope.orgSessions[idx]._id;
+        $scope.attSessions[idx].archiveStatus.forEach(function(stat){
+            if(stat.id == user._id)
+                stat.isArchived = !$rootScope.archiveOn();
+        });
+        Sess.archive.update({id:_id},$scope.attSessions[idx]).$promise.then(function(){
+            $scope.doRefresh();
+        });
+    }
+    
+    $scope.actions = [{name:'Options',callback:{}},
+                      {name:'Edit',callback:$scope.editSession},
+                      {name:'Archive',callback:$scope.markArchive}
+                     ];
+     $scope.doAction = function(idx){
+         var action = $scope.action.selected;
+         console.log('Session doAction: ',action);
+         action.callback(idx);
+         
+         $scope.action.selected = $scope.actions[0];
+    }
+    $scope.checkArchive = function(){
+        if($rootScope.archiveOn())
+            $scope.actions[2].name = 'UnArchive';
+        else
+            $scope.actions[2].name = 'Archive';
+    }
     $scope.init();
     //reinialize whem the userID is set
     $scope.$on('userID',function(event,user){
+        $scope.init();
+    });
+    $scope.$on('Revu.Me:Archive',function(event){
+        $scope.checkArchive();
         $scope.init();
     });
     // refresh when transitioning into the state

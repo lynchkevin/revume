@@ -287,6 +287,10 @@ session.post('/sessions',function(req,res){
         model.decks.push(new ObjectId(value));
     });
     model.attendees = sent.attendees;
+    model.archiveStatus = [];
+    model.attendees.forEach(function(attendee){
+        model.archiveStatus.push({id:attendee,isArchived:false});
+    });
     model.date = sent.date;
     model.time = sent.time;
     model.timeZone = sent.timeZone;
@@ -338,8 +342,9 @@ session.get('/sessions/:id',function(req,res){
 //get all sessions where I'm the organizer
 session.get('/sessions/organizer/:id',function(req,res){
     var sessions;
-    console.log("session by organizer",req.params.id);   
-    Session.find({organizer:new ObjectId(req.params.id)})
+    console.log("session by organizer with Archive",req.params.id,req.query.isArchived); 
+    Session.find({organizer:new ObjectId(req.params.id),
+                  archiveStatus: {$elemMatch:{id:new ObjectId(req.params.id),isArchived:req.query.isArchived}}})
         .populate('organizer decks attendees')
         .sort({date:-1})    
         .execAsync().then(function(results){
@@ -355,8 +360,9 @@ session.get('/sessions/organizer/:id',function(req,res){
 //get all sessions where I am an attendee
 session.get('/sessions/attendee/:id',function(req,res){
     var sessions;
-    console.log("session by attendee",req.params.id);   
-    Session.find({attendees:new ObjectId(req.params.id)})
+    console.log("session by Attendee with Archive",req.params.id,req.query.isArchived);   
+    Session.find({attendees:new ObjectId(req.params.id),
+                 archiveStatus: {$elemMatch:{id:new ObjectId(req.params.id),isArchived:req.query.isArchived}}})
         .populate('organizer decks attendees')
         .sort({date:-1})    
         .execAsync().then(function(results){
@@ -370,14 +376,17 @@ session.get('/sessions/attendee/:id',function(req,res){
 });
 //get all sessions and add a ufId field - this is a one time fix up function
 //get all sessions
-session.get('/sessions/addUfId/now',function(req,res){
+session.get('/sessions/addArchiveStatus/now',function(req,res){
     console.log("add ufId!");
     var allPromises=[];
     Session.findAsync().then(function(sessions){
+        console.log('Found ',sessions.length,' sessions')
         sessions.forEach(function(session){
-            //session.ufId = userFriendlyId(session._id.toString());
-            session.bridgeNumber = defaultBridgeNumber;
-            console.log(session._id.toString,session.ufId);
+            session.archiveStatus = [];
+            session.attendees.forEach(function(attendee){
+                session.archiveStatus.push({id:attendee,isArchived:false});
+            });
+            console.log('Archive Status: ',session.archiveStatus);
             allPromises.push(session.saveAsync());
         });
         allPromises.settle().then(function(){
@@ -415,6 +424,7 @@ session.put('/sessions/:id',function(req,res){
             session.bridge = sent.bridge;
             session.baseUrl = sent.baseUrl;
             session.offset = sent.offset;
+            session.archiveStatus = sent.archiveStatus;
             return session.saveAsync();
         }).then(function(session){
             console.log('success! building invite...');
@@ -447,6 +457,29 @@ session.put('/sessions/setLB/:id',function(req,res){
                     }else{
                         console.log('no leaveBehind');
                     };
+                    res.send('success');
+                }).catch(function(err){
+                    console.log(err);
+                    res.send(err);
+                });
+            }
+        });
+});
+//set archive
+//set the archive attribute of the session 
+session.put('/sessions/archive/:id',function(req,res){
+    console.log("session archive by id");
+    var sent = req.body;
+    Session.findOne({_id:new ObjectId(req.params.id)})
+        .populate('organizer attendees')
+        .exec(function(err,session){
+            if(err) {
+                console.log("error! ",err);
+                res.send(err);
+            }else{
+                session.archiveStatus = sent.archiveStatus;
+                session.saveAsync().then(function(session){
+                    console.log('success!');
                     res.send('success');
                 }).catch(function(err){
                     console.log(err);

@@ -54,7 +54,13 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     $rootScope.archive.menu = false;
     $rootScope.toggleArchive = function(){
         $rootScope.archive.menu = !$rootScope.archive.menu;
+        $rootScope.$broadcast('Revu.Me:Archive');
     }
+    $rootScope.archiveOn = function(){
+        var isArchive = $rootScope.archive.menu;
+        return isArchive;
+    };
+    
     $rootScope.showLoading = function(){
         $ionicLoading.show({
             template:'<ion-spinner></ion-spinner>',

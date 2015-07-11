@@ -61,6 +61,7 @@ var SessionSchema = new mongoose.Schema({
     bridgeNumber:String,
     baseUrl:String,
     offset:Number,
+    archiveStatus:[{id:mongoose.Schema.Types.ObjectId,isArchived:Boolean}],
 });
 
 //engagement analytics

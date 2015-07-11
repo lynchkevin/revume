@@ -16,23 +16,24 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
-.factory('Sess', ['$resource','baseUrl',function ($resource, baseUrl) {
+.factory('Sess', ['$resource','baseUrl','$rootScope',function ($resource, baseUrl,$rootScope) {
     var oTarget = baseUrl.endpoint+'/api/sessions/organizer/:id';
     var aTarget = baseUrl.endpoint+'/api/sessions/attendee/:id';
     var target = baseUrl.endpoint+'/api/sessions/:id';
     var lbTarget = baseUrl.endpoint+'/api/sessions/setLB/:id';
+    var archiveTarget = baseUrl.endpoint+'/api/sessions/archive/:id';
     return {
         orgSessions: $resource(oTarget,
-        {id:'@id'},
+        {id:'@id',isArchived:'@isArchived'},
         {   delete: {method:'DELETE', params:{id:'@id'}},
             update: {method:'PUT', params:{id:'@id'}},
-            get:{method:'GET',  params:{id:'@id'}, isArray:true}
+            get:{method:'GET',  params:{id:'@id',isArchived:'@isArchived'}, isArray:true}
         }),
         attSessions: $resource(aTarget,
-        {id:'@id'},
+        {id:'@id',isArchived:'@isArchived'},
         {   delete: {method:'DELETE', params:{id:'@id'}},
             update: {method:'PUT', params:{id:'@id'}},
-            get:{method:'GET',  params:{id:'@id'}, isArray:true}
+            get:{method:'GET',  params:{id:'@id',isArchived:'@isArchived'}, isArray:true}
         }),
         sessions: $resource(target,
         {id:'@id'},
@@ -41,6 +42,10 @@ angular.module('starter')
             get:{method:'GET',  params:{id:'@id'}, isArray:true}
         }),
         leaveBehind: $resource(lbTarget,
+        {id:'@id'},
+        {   update: {method:'PUT', params:{id:'@id'}}
+        }),
+        archive: $resource(archiveTarget,
         {id:'@id'},
         {   update: {method:'PUT', params:{id:'@id'}}
         })
@@ -90,6 +95,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.baseUrl = baseUrl.endpoint;
         $.session.offset = new Date().getTimezoneOffset();
         $.session.showTeams = false;
+        $.session.isArchived = false;
         teamService.getAll().then(function(teams){
             $.session.teamList = teams;
             if($.session.teamList.length >0)
@@ -355,6 +361,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         });
         return defer.promise;
     };
+
     //remove a session from the database
     $.deleteSession = function(session){
         Sess.session.delete({id:session._id});

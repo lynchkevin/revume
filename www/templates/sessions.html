@@ -23,7 +23,7 @@
        
 
       <ion-list show-delete="shouldShowDelete" delegate-handle="org" >
-          <ion-item class="item-thumbnail-left item-button-right" 
+          <ion-item class="item-thumbnail-left item-select" 
                     ng-repeat="session in orgSessions" 
                     href="#/app/sessions/{{session._id}}">
             <ion-delete-button class="ion-minus-circled" 
@@ -38,10 +38,21 @@
                       ng-click="editSession($index); $event.preventDefault(); $event.stopPropogation();">
                   Edit
               </ion-option-button>
+              <ion-option-button ng-if="smallScreen()" class="button button-energized" 
+                      ng-click="markArchive($index); $event.preventDefault(); $event.stopPropogation();">
+                  Archive
+              </ion-option-button>
+              <select ng-if="!smallScreen()"
+                      ng-options="action as action.name for action in actions"
+                      ng-model="action.selected"
+                      ng-change="doAction($index)">
+              </select>
+              <!--
               <button ng-if="!smallScreen()" class="button button-positive" 
                       ng-click="editSession($index); $event.preventDefault(); $event.stopPropogation();">
                   Edit
               </button>
+                -->
           </ion-item>
         </ion-list>
     </ion-scroll> 

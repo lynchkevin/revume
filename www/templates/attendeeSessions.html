@@ -15,13 +15,20 @@
       </ion-refresher>
             
         <ion-list show-delete="shouldShowDelete" delegate-handle="att">
-          <ion-item class="item-thumbnail-left" ng-repeat="session in attSessions" href="#/app/attsessions/{{session._id}}">
+          <ion-item class="item-thumbnail-left item-button-right" ng-repeat="session in attSessions" href="#/app/attsessions/{{session._id}}">
             <ion-delete-button class="ion-minus-circled" 
                                ng-click="delAttSession($index)"></ion-delete-button>
               <img ng-src="{{session.decks[0].thumb}}">
               <h2>{{session.name}}</h2>
               <p>{{session.date | date:"MM/dd/yyyy"}} {{session.time | date:"h:mma"}}</p>
-              </div>
+              <ion-option-button ng-if="smallScreen()" class="button button-energized" 
+                      ng-click="markAttArchive($index); $event.preventDefault(); $event.stopPropogation();">
+                  {{actions[2].name}}
+              </ion-option-button>
+              <button ng-if="!smallScreen()" class="button item-button button-energized" 
+                      ng-click="markAttArchive($index,$event); $event.preventDefault(); $event.stopPropogation();">
+                  {{actions[2].name}}
+              </button>
           </ion-item>
       </ion-list>
       </ion-scroll>

@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     
-    grunt.option('ip','http://10.1.10.216:5000');
+    grunt.option('ip','http://192.168.1.102:5000');
     grunt.initConfig({
     ngconstant: {
       // Options for all targets
