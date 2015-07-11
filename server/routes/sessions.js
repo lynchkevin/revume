@@ -291,6 +291,7 @@ session.post('/sessions',function(req,res){
     model.attendees.forEach(function(attendee){
         model.archiveStatus.push({id:attendee,isArchived:false});
     });
+    model.archiveStatus.push({id:model.organizer,isArchived:false});
     model.date = sent.date;
     model.time = sent.time;
     model.timeZone = sent.timeZone;

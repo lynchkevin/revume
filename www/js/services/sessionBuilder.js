@@ -95,7 +95,6 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.baseUrl = baseUrl.endpoint;
         $.session.offset = new Date().getTimezoneOffset();
         $.session.showTeams = false;
-        $.session.isArchived = false;
         teamService.getAll().then(function(teams){
             $.session.teamList = teams;
             if($.session.teamList.length >0)
