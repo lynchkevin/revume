@@ -6,7 +6,8 @@
         <div class="revu-list-header calm-bg">
             <button ng-if="!archiveOn()" 
                     class="button button-icon icon ion-minus-circled revu-list-button revu-left"
-                     ng-click="toggleListDelete('att')"></button>
+                     ng-click="toggleListDelete('att')"
+                   ></button>
             You're an Attendee:
         </div> 
         <ion-scroll elem-height="0.8">
@@ -18,17 +19,18 @@
         <ion-list show-delete="shouldShowDelete" delegate-handle="att">
           <ion-item class="item-thumbnail-left item-button-right" ng-repeat="session in attSessions" href="#/app/attsessions/{{session._id}}">
             <ion-delete-button class="ion-minus-circled" 
-                               ng-click="delAttSession($index)"></ion-delete-button>
+                               ng-click="markAttArchive($index)"
+                               style="color:#ffe900"></ion-delete-button>
               <img ng-src="{{session.decks[0].thumb}}">
               <h2>{{session.name}}</h2>
               <p>{{session.date | date:"MM/dd/yyyy"}} {{session.time | date:"h:mma"}}</p>
-              <ion-option-button ng-if="smallScreen()" class="button button-energized" 
+              <ion-option-button ng-if="smallScreen()&&archiveOn()" class="button button-energized" 
                       ng-click="markAttArchive($index); $event.preventDefault(); $event.stopPropogation();">
-                  {{actions[2].name}}
+                  UnArchive
               </ion-option-button>
-              <button ng-if="!smallScreen()" class="button item-button button-energized" 
+              <button ng-if="!smallScreen()&&archiveOn()" class="button item-button button-energized" 
                       ng-click="markAttArchive($index,$event); $event.preventDefault(); $event.stopPropogation();">
-                  {{actions[2].name}}
+                  UnArchive
               </button>
           </ion-item>
       </ion-list>

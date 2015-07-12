@@ -163,6 +163,12 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
         $scope.init();
     });
     $scope.$on('Revu.Me:Archive',function(event){
+        //close the delete button
+        if($listDel.$getByHandle('att').showDelete())
+            $listDel.$getByHandle('att').showDelete(false);
+                //close the delete button
+        if($listDel.$getByHandle('org').showDelete())
+            $listDel.$getByHandle('org').showDelete(false);
         $scope.checkArchive();
         $scope.init();
     });
