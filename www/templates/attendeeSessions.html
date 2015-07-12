@@ -4,7 +4,8 @@
   </ion-nav-buttons>
   <ion-content class="has-header">
         <div class="revu-list-header calm-bg">
-            <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
+            <button ng-if="!archiveOn()" 
+                    class="button button-icon icon ion-minus-circled revu-list-button revu-left"
                      ng-click="toggleListDelete('att')"></button>
             You're an Attendee:
         </div> 

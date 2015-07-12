@@ -128,11 +128,9 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
         });
     };
     
-    $scope.markAttArchive = function(idx,$event){
-        $event.preventDefault();
-        $event.stopPropagation();
+    $scope.markAttArchive = function(idx){
         var user = $rootScope.user;
-        var _id = $scope.orgSessions[idx]._id;
+        var _id = $scope.attSessions[idx]._id;
         $scope.attSessions[idx].archiveStatus.forEach(function(stat){
             if(stat.id == user._id)
                 stat.isArchived = !$rootScope.archiveOn();
