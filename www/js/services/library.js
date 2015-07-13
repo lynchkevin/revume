@@ -30,7 +30,13 @@ angular.module('starter')
             update: {method:'PUT', params:{id:'@id'}}
         });
 }])
-
+.factory('Archiver', ['$resource','baseUrl',function ($resource, baseUrl) {
+    var target = baseUrl.endpoint+'/api/library/:modelName/setarchive/:id/:isArchived';
+    return $resource(target,
+        {modelName:'@modelName',id:'@id',isArchived:'@isArchived'},
+        {  update: {method:'PUT', params:{modelName:'@modelName',id:'@id',isArchived:'@isArchived'}}
+        });
+}])
 
 //library service
 .service('Library',['UploadedFiles',
@@ -44,6 +50,7 @@ angular.module('starter')
                     '$ionicPopup',
                     'rightsManager',
                     'shareMediator',
+                    'Archiver',
 function(uFiles,
           decks,
           categories,
@@ -53,7 +60,8 @@ function(uFiles,
           $rootScope,
           $ionicPopup,
           rightsAuth,
-          shareMediator){
+          shareMediator,
+          archiver){
     
     var $ = this;
     var collection={};
@@ -434,6 +442,17 @@ function(uFiles,
             files[i].message = ''
             $.uploading.files.push(files[i]);
         }
+    }
+    $.setArchive = function($scope,index){
+        var defer = $q.defer();
+        console.log($scope.navItems[index]);
+        var navItem = $scope.navItems[index];
+        var modelName = $scope.modelName;
+        archiver.update({modelName:modelName,id:navItem._id,isArchived:navItem.isArchived})
+        .$promise.then(function(){
+            defer.resolve();
+        });
+        return defer.promise;
     }
             
 }]);

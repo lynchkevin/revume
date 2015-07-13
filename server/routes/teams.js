@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
+var share = require('./share');
 
 var Team = schema.Team;
 var User = schema.User;
@@ -145,7 +146,10 @@ teams.delete('/teams/:id',function(req,res){
         .remove()
         .execAsync()
         .then(function(){
-            res.send('success');
+            return share.cleanUpTeam(req.params.id);
+        }).then(function(result){
+            console.log('cleanupTeam returns: ',result);
+            res.send({success:true});
         }).catch(function(err){
             res.send(err);
         });

@@ -205,7 +205,7 @@ share.get('/share/item',function(req,res){
 //get sharing object by team and user
 share.get('/share/team/:team/:user',function(req,res){
     console.log("Share get by /:team/:user",req.params.team,req.params.user);   
-    Share.find({item:new ObjectId(req.params.team),user:new ObjectId(req.params.user)})
+    Share.find({teams:new ObjectId(req.params.team),user:new ObjectId(req.params.user)})
     .populate('teams user')
     .execAsync().then(function(result){
         console.log(result);
@@ -254,7 +254,20 @@ share.delete('/share/:id',function(req,res){
             res.send(err);
         });
 });
-
+//delete all shares for a given team
+share.cleanUpTeam = function(teamId){ 
+    console.log('clean up team');
+    return new Promise(function(resolve, reject){
+        Share.find({teams:new ObjectId(teamId)})
+        .remove()
+        .execAsync()
+        .then(function(){
+            resolve({success:true});
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+};
 module.exports = share;
 
 

@@ -184,7 +184,8 @@ angular.module('starter')
         var sharedItems = [];
         var promises = [];
         //get all of the owned navItems - need to get the model name somehow
-        model.query({user:$rootScope.user._id}).$promise.then(function(owned){
+        model.query({user:$rootScope.user._id,archiveOn:$rootScope.archiveOn()})
+        .$promise.then(function(owned){
             owned.forEach(function(item){
                 item.role = 'Admin';
                 allItems.push(item);

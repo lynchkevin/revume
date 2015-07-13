@@ -14,12 +14,14 @@
             </div>            
             <div class="revu-list-header calm-bg">
             <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
-                    ng-click="toggleListDelete()"></button>
+                    ng-click="toggleListDelete()"
+                    ng-if="!archiveOn()"></button>
                 <p  class="sub-title"
                     ng-if="modelName=='decks'&&smallScreen()">(options:swipe left)</p>   
                 {{listName}}
             <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
-                    ng-click="toggleNavAdd()"></button>
+                    ng-click="toggleNavAdd()"
+                    ng-if="!archiveOn()"></button>
                 </div>
             </div> 
             <div ng-show="showAddItem" >
@@ -105,11 +107,13 @@
             <ion-list show-delete="shouldShowDelete">
                 <ion-item 
                           ng-repeat="(itemIndex,item) in navItems" 
-                          class="item-thumbnail-left item-select" 
+                          class="item-thumbnail-left" 
+                          ng-class="{'item-select':!archiveOn()}"
                           ng-click="setNavSelection($index)">
                         <ion-delete-button class="ion-minus-circled" 
-                                           ng-click="delNavItem($index)"
-                                           ng-disabled="!item._$Delete">
+                                           ng-click="archiveNavItem($index)"
+                                           ng-disabled="!item._$Delete"
+                                           style="color:#ffe900">
                         </ion-delete-button>
                         <img ng-if="item.slides.length != 0"
                              ng-src="{{item.thumb}}"  class="white-background">
@@ -117,20 +121,33 @@
                         <p>{{item.user.firstName}} {{item.user.lastName}}</p>
                         <p>{{item.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>  
                         <span ng-if="item.sharingString" class="positive">Sharing:{{item.sharingString}}</span>
-                            <select ng-if="!smallScreen() && item.actions.length > 1 "
+                            <select ng-if="!smallScreen() && item.actions.length > 1 && !archiveOn()"
                                     ng-model="item.action.selected"
                                     ng-options="action.name for action in item.actions"
                                     ng-change="item.action.selected.callBack(itemIndex,item.action.selected.idx,$event,'option')"
                                     ng-class="{'edit-color':item.beingEdited}" >
                                 {{option.callBack}}
                             </select>
+                            <div class="buttons">
+                            <button ng-if="!smallScreen()&&archiveOn()"
+                                    class="button button-energized archive-button"
+                                    ng-click="unArchiveNavItem($index,$event)">
+                                UnArchive
+                            </button>
+                            </div>
                             <ion-option-button
                                     ng-repeat="action in item.actions"
                                     ng-model="item.action.selected"
-                                    ng-if="smallScreen() && $index!=0 && $index!=item.actions.length-1"
+                                    ng-if="smallScreen() && $index!=0 && $index!=item.actions.length-1 && !archiveOn()"
                                     ng-click="action.callBack(itemIndex,$index,$event,'button')"
                                     class="button ng-class:action.class;">
                                 {{action.name}}
+                            </ion-option-button>
+                            <ion-option-button
+                                    ng-if="smallScreen() && archiveOn()"
+                                    class="button button-energized"
+                                    ng-click="unArchiveNaveItem($index)">
+                                UnArchive
                             </ion-option-button>
                     <i class="icon ion-plus-circled slide-adder top-corner" 
                        ng-show="isEditing && !showEdit && (selectedNavId == $index) "  

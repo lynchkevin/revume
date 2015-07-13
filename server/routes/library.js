@@ -55,6 +55,7 @@ function savePowerpointUpload(fileName,images,userId){
         uFile.name = justFileName;
         uFile.user = userId;
         uFile.createdDate = new Date();
+        uFile.isArchived=false;
         for(var i=0; i< images.length-1; i++){
             var slide = new Slide;
             slide.name = images[i];
@@ -94,6 +95,7 @@ function saveVideoUpload(fileName,thumbFile,userId){
     uFile.createdDate = new Date();
     uFile.slides = [];
     uFile.user = userId;
+    uFile.isArchived = false;
     slide.name = justFileName;
     slide.originalOrder = 0;
     slide.location = library.fullPath +'/'+library.serve+'/'+withIdentifier;
@@ -443,11 +445,19 @@ function processFile(fileName,userId){
 // some handy queries
 //GET functionality
 function getByUser(Model,req,res){
-    var userId = req.query.user;
-    console.log(Model.modelName,' query! with userID populate - id: ',userId);
+    var userId = req.query.user; 
     var promises = [];
     var items = {};
-    Model.find({user:new ObjectId(userId)})
+    var query = {};
+    if(req.query.archiveOn!=undefined){
+        var archiveOn = req.query.archiveOn;
+        query = {user:new ObjectId(userId),isArchived:archiveOn};
+        console.log(Model.modelName,' query! with userID populate - id: archiveOn:',userId,archiveOn);
+    }else{
+        query = {user:new ObjectId(userId)};
+        console.log(Model.modelName,' query! with userID populate - id: ',userId);
+    }
+    Model.find(query)
     .populate('user slides')
     .sort({createdDate:-1})
     .execAsync()
@@ -525,7 +535,10 @@ library.delete('/library/uploadedFiles',function(req,res){
 library.get('/library/uploadedFiles/:id',function(req,res){
     getById(UploadedFile,req,res);
 });
-
+library.get('/library/uploadedFiles/:id/:archiveOn',function(req,res){
+    console.log('uploaded files get with archiveOn: ',req.params);
+ //ß   getById(UploadedFile,req,res);
+});
 library.delete('/library/uploadedFiles/:id',function(req,res){
     var id = req.params.id;
     var x = new ObjectId(id);
@@ -589,6 +602,7 @@ library.get('/library/slides',function(req,res){
         res.send(err);
     });
 });
+
 library.get('/library/slides/convert',function(req,res){
     var prefix = 'http://192.168.1.167:5000/facades/';
     var start = prefix.length;
@@ -611,6 +625,48 @@ library.get('/library/slides/convert',function(req,res){
             res.send('conversion complete');
         });
     }).catch(function(err){
+        res.send(err);
+        console.log(err);
+    });
+});
+
+library.get('/library/setArchive',function(req,res){
+    var promises = [];
+    Category.find()
+        .execAsync()
+        .then(function(items){
+            console.log(items);
+            items.forEach(function(item){
+                item.isArchived = false;
+                promises.push(item.saveAsync());
+            });
+            return Promise.settle(promises);
+        }).then(function(){
+            console.log('Categories complete');
+            return Deck.find().execAsync();
+        }).then(function(items){
+            promises = [];
+            console.log(items);
+            items.forEach(function(item){
+                item.isArchived = false;
+                promises.push(item.saveAsync());
+            });
+            return Promise.settle(promises); 
+        }).then(function(){
+            console.log('Decks complete');
+            return UploadedFile.find().execAsync();
+        }).then(function(items){
+            promises = [];
+            console.log('items');
+            items.forEach(function(item){
+                item.isArchived = false;
+                promises.push(item.saveAsync());
+            });
+            return Promise.settle(promises);
+        }).then(function(){
+            console.log('UploadedFiles complete');
+            res.send('conversion complete');
+        }).catch(function(err){
         res.send(err);
         console.log(err);
     });
@@ -819,6 +875,52 @@ library.put('/library/categories/:id',function(req,res){
     }).catch(function(err){
         console.log('Error:',err);
         res.send(err);
+    });
+});
+//set archive for each model type
+library.put('/library/files/setArchive/:id/:isArchived',function(req,res){
+    console.log("Uploaded Files - set Archive",req.params.id,req.params.isArchived);
+    UploadedFile.findOneAsync(new ObjectId(req.params.id)).then(function(ufile){
+        if(ufile != undefined){
+          console.log(req.params);
+            ufile.isArchived = req.params.isArchived;
+            ufile.saveAsync().then(function(){
+                res.send('success');
+            }).catch(function(err){
+                res.send(err);
+            });
+        }else
+            res.send('not found');
+    });
+});
+library.put('/library/categories/setArchive/:id/:isArchived',function(req,res){
+    console.log("Categories - set Archive",req.params.id,req.params.isArchived);
+    Category.findOneAsync(new ObjectId(req.params.id)).then(function(ufile){
+        if(ufile != undefined){
+            console.log(req.params);
+            ufile.isArchived = req.params.isArchived;
+            ufile.saveAsync().then(function(){
+                res.send('success');
+            }).catch(function(err){
+                res.send(err);
+            });
+        }else
+            res.send('not found');
+    });
+});
+library.put('/library/decks/setArchive/:id/:isArchived',function(req,res){
+    console.log("Decks - set Archive",req.params.id,req.params.isArchived);
+    Deck.findOneAsync(new ObjectId(req.params.id)).then(function(ufile){
+        if(ufile != undefined){
+          console.log(req.params);
+            ufile.isArchived = req.params.isArchived;
+            ufile.saveAsync().then(function(){
+                res.send('success');
+            }).catch(function(err){
+                res.send(err);
+            });
+        }else
+            res.send('not found');
     });
 });
 module.exports = library;

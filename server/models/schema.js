@@ -22,7 +22,8 @@ var Container = new mongoose.Schema({
     lastUpdate: {type: Date, default: Date.now},
     thumb : String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    slides: [{type: mongoose.Schema.Types.ObjectId, ref: 'Slide'}]
+    slides: [{type: mongoose.Schema.Types.ObjectId, ref: 'Slide'}],
+    isArchived:Boolean
 });
 
 //users and teams

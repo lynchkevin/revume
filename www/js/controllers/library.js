@@ -179,6 +179,7 @@ function ($scope,$rootScope,$state,
         $scope.addingTo.user._id = $rootScope.user._id;
         $scope.addingTo.slides=[];
         $scope.addingTo.thumb='';
+        $scope.addingTo.isArchived = false;
         Library.newNavItem($scope).then(function(result){
             Library.updateModel($scope).then(function(){
                 $timeout(function(){
@@ -361,7 +362,25 @@ function ($scope,$rootScope,$state,
             $scope.tap.on = !$scope.tap.on;
             $scope.tap.index = index;
         }
-    }
+    };
+    
+    $scope.archiveNavItem = function(index){
+        console.log('Archive Nav Item: ',index);
+        $scope.navItems[index].isArchived = true;
+        Library.setArchive($scope,index).then(function(){
+            Library.updateModel($scope);
+        });
+    };
+    
+    $scope.unArchiveNavItem = function(index,$event){
+        $event.stopPropagation();
+        $event.preventDefault();
+        console.log('UnArchive Nav Item: ',index);
+        $scope.navItems[index].isArchived = false;
+        Library.setArchive($scope,index).then(function(){
+            Library.updateModel($scope);
+        });
+    };
 
     //handle actions with rights management
     function editCB(index,buttonIndex,$event,type){
@@ -409,29 +428,36 @@ function ($scope,$rootScope,$state,
         $scope.delNavItem(index);
         $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
     }
+    function archiveCB(index,buttonIndex,$event,type){
+        if(!$rootScope.archiveOn())
+            $scope.archiveNavItem(index);
+        else
+            $scope.unArchiveNavItem(index);
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+    }
     function setActions($scope){
         //set the available action actions
         $scope.actions = [{name:'Options'},
                           {name:'Edit',class:'button-positive'},
                           {name:'New Meeting',class:'button-calm'},
                           {name:'Share',class:'button-royal'},
-                          {name:'Delete'}
+                          {name:'Archive'}
                          ];
         $scope.actions[1].callBack=editCB
         $scope.actions[2].callBack=newMeetingCB;
         $scope.actions[3].callBack=shareCB;
-        $scope.actions[4].callBack=delCB;
+        $scope.actions[4].callBack=archiveCB;
         //when an item is being edited - user these actions
         $scope.editActions = [{name:'Editing...'},
                               {name:'Done',class:'button-assertive'},
                               {name:'New Meeting',class:'button-calm'},
                               {name:'Share',class:'button-royal'},
-                              {name:'Delete'}
+                              {name:'Archive'}
                              ];
         $scope.editActions[1].callBack=doneCB
         $scope.editActions[2].callBack=newMeetingCB;
         $scope.editActions[3].callBack=shareCB;
-        $scope.editActions[4].callBack=delCB;
+        $scope.editActions[4].callBack=archiveCB;
     }
 
     //handle system and window events
@@ -460,6 +486,9 @@ function ($scope,$rootScope,$state,
                 setTimeout(function(){
                     $scope.setModel($scope.modelName);
                 },0);                
+    });
+    $scope.$on('Revu.Me:Archive',function(event){
+        Library.updateModel($scope);
     });
     $scope.$on('SUCCESS', function() {
       alert('ALL LOADED');

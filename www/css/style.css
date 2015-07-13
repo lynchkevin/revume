@@ -511,7 +511,11 @@ div.progress-value {
     font-size:25px;
     line-height:25px;
 }
-
+.archive-button{
+    position:absolute;
+    top:50%;
+    left:75%;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
