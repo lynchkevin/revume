@@ -720,6 +720,7 @@ function doSave(model,req){
     var newDoc = new model;
     newDoc.name = newItem.name;
     newDoc.user = newItem.user._id;
+    newDoc.isArchived = newItem.isArchived;
     newItem.slides.forEach(function(slide){
         slide.src = signer.stripAccessKeys(slide.src);
         if(slide.poster != undefined)

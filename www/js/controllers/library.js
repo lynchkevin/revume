@@ -441,7 +441,7 @@ function ($scope,$rootScope,$state,
                           {name:'Edit',class:'button-positive'},
                           {name:'New Meeting',class:'button-calm'},
                           {name:'Share',class:'button-royal'},
-                          {name:'Archive'}
+                          {name:'Archive',class:'button-energized'}
                          ];
         $scope.actions[1].callBack=editCB
         $scope.actions[2].callBack=newMeetingCB;
@@ -452,7 +452,7 @@ function ($scope,$rootScope,$state,
                               {name:'Done',class:'button-assertive'},
                               {name:'New Meeting',class:'button-calm'},
                               {name:'Share',class:'button-royal'},
-                              {name:'Archive'}
+                              {name:'Archive',class:'button-energized'}
                              ];
         $scope.editActions[1].callBack=doneCB
         $scope.editActions[2].callBack=newMeetingCB;

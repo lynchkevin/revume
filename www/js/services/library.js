@@ -73,7 +73,7 @@ function(uFiles,
     //files currently being uploaded
     $.uploading = {files:[]};
 
-    $.actionList = ['Edit','New Meeting','Share','Hide','Delete','Reorder'];
+    $.actionList = ['Edit','New Meeting','Share','Hide','Archive','Delete','Reorder'];
     
     function establishRights($scope){
         $.fileRights = rightsAuth.register('files',$scope,$.actionList,$.files);
@@ -86,10 +86,10 @@ function(uFiles,
         $.catRights.setAll('Admin',true); //all are false by default so set admin true
         $.catRights.setRight('Admin','New Meeting',false);
         $.catRights.setRight('Admin','Hide',false);
-        $.catRights.setRight('Viewer','Hide',true);
+        $.catRights.setRight('Viewer','Share',true);
         $.deckRights.setAll('Admin',true); //all are false by default so set admin true
         $.deckRights.setRight('Admin','Hide',false);
-        $.deckRights.setRight('Viewer','Hide',true);
+        $.deckRights.setRight('Viewer','Share',true);
     }
 
     $.init = function($scope){

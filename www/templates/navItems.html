@@ -138,7 +138,7 @@
                             <ion-option-button
                                     ng-repeat="action in item.actions"
                                     ng-model="item.action.selected"
-                                    ng-if="smallScreen() && $index!=0 && $index!=item.actions.length-1 && !archiveOn()"
+                                    ng-if="smallScreen() && $index!=0 && !archiveOn()"
                                     ng-click="action.callBack(itemIndex,$index,$event,'button')"
                                     class="button ng-class:action.class;">
                                 {{action.name}}
