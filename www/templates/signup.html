@@ -1,6 +1,6 @@
 
 <ion-view view-title="Sign Up">
-  <ion-content class="presentation-background">
+  <ion-content ng-class="{'presentation-background':smallScreen(),'flashy-background':!smallScreen()}">
 
     <div class="centered-container"  >
     <div class="row row-center">
@@ -8,40 +8,43 @@
         </div>
     <div class="col col-80 ">
      <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div class="centered-container hero-container positive-bg padding-bottom rounded-corners" >
+        <div ng-class="{'centered-container hero-container positive-bg padding-bottom':smallScreen(),
+                       'left-container hero-container positive-bg padding-bottom':!smallScreen()}" >
             <span class="hero-header">Revu.Me</span> 
-            <div class="signup-form">
+            <div class="signup-form ">
                 <form name="forms.signup" ng-controller="signupCtrl">
-                    <div class="list list-inset">
-                      <label class="item item-input">
-                        <span class="input-label">First Name</span>
+                    <div class="list">
+                      <label class="item item-input item-floating-label light-bg">
+                        <span class="input-label" style="text-align:left">First Name</span>
                         <input name="fName"
                                ng-model="forms.signup.firstName"
                                type="text"
+                               placeholder="firstName"
                                required>
                       </label>
-                      <div class="input-spacer positive-bg"></div>
-                      <label class="item item-input">
-                        <span class="input-label">Last Name</span>
+      
+                      <label class="item item-input item-floating-label light-bg">
+                        <span class="input-label" style="text-align:left">Last Name</span>
                         <input name="lName"
                                ng-model="forms.signup.lastName"
                                type="text"
+                               placeholder="Lastname"
                                required>
                       </label>
-                      <div class="input-spacer positive-bg"></div>
-                      <label class="item item-input">
-                        <span class="input-label">Email</span>
+                      <label class="item item-input item-floating-label light-bg">
+                        <span class="input-label" style="text-align:left">Email</span>
                         <input name="inpEmail"
                                ng-model="forms.signup.email"
                                type="email"
+                               placeholder="Email"
                                required>
                       </label>
-                      <div class="input-spacer positive-bg"></div>
-                      <label class="item item-input">
-                        <span class="input-label">Password</span>
+                      <label class="item item-input item-floating-label light-bg">
+                        <span class="input-label" style="text-align:left">Password</span>
                         <input name="inpPassword"
                                ng-model="forms.signup.password"
                                type="password"
+                               placeholder="Password"
                                required>
                       </label>
                     </div>

@@ -1,8 +1,10 @@
 
-<ion-view view-title="Slide Library" ng-cloak>
+<ion-view view-title="{{title}}"
+          ng-cloak>
+
 
   <ion-content      has-bouncing="false"
-                    class="slideshow-container">
+                    ng-class="{'slideshow-container':!archiveOn(),'archive-container':archiveOn()}">
 
     <div class="row " style="padding:0px 5px 0px 0px;">
         <div class="{{navClass}}" style="padding:0px 5px 0px 0px;">

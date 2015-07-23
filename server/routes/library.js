@@ -56,7 +56,7 @@ function savePowerpointUpload(fileName,images,userId){
         uFile.user = userId;
         uFile.createdDate = new Date();
         uFile.isArchived=false;
-        for(var i=0; i< images.length-1; i++){
+        for(var i=0; i< images.length; i++){
             var slide = new Slide;
             slide.name = images[i];
             slide.originalOrder = i;
@@ -239,6 +239,13 @@ function uploadFile(file){
     console.log('uploading: ',file.name);
     return s3.putObjectAsync(params);
 }
+function deleteFile(file){
+    var params = {};
+    params.Bucket = library.bucket+library.domain;
+    params.Key = library.serve+'/'+file.name;
+    console.log('deleting image: ',file.name);
+    return s3.deleteObjectAsync(params);
+}
 function retryFailedUploads(resArray,job,attempt){
     return new Promise(function(resolve, reject){ 
         var i = 0;
@@ -374,8 +381,13 @@ function processFile(fileName,userId){
         if(documentFile(fileName)){
             console.log("document!");
             callZamzar(fileName).then(function(job){
-                //pull the zip file from target files
-                job.target_files.splice(-1,1);
+                //pull the zip file from target files - if one slide - no zip
+                var lastFile = job.target_files[job.target_files.length-1];
+                console.log('last file is: ',lastFile);
+                if(getExtention(lastFile.name) == '.zip'){
+                    console.log('removing zip file from target list');
+                    job.target_files.splice(-1,1);
+                }
                 status = 'Compressing '+job.target_files.length+' slides';
                 sendProgress(fileName,status);
                 return compressJob(job)
@@ -556,15 +568,10 @@ library.delete('/library/uploadedFiles/:id',function(req,res){
         console.log('uFile Removed!');
         return Slide.findAsync({_id:{$in:idArray}})
     }).then(function(slds){
+        console.log('removing images if not linked...')
+        deleteImages(slds); //this will run async - no need to wait to delete from database
         console.log('removing slides');
         slds.forEach(function(slide){
-                var params = {
-                  Bucket: library.bucket+library.domain, 
-                  Key: fileName, 
-                };
-                console.log('deleting...');
-                console.log(params);
-                return s3.deleteObjectAsync(params);
             allPromises.push(slide.removeAsync());
         });
         return Promise.settle(allPromises);
@@ -694,6 +701,14 @@ function doGetSlides(model,req){
     });
 };
 
+function deleteImages(slides){
+    slides.forEach(function(slide){
+        if(slide.link == null || slide.link == '')
+            deleteFile(slide);
+    });
+}
+    
+
 function doDelete(model,req){
     var id = req.params.id;
     var x = new ObjectId(id);
@@ -703,6 +718,10 @@ function doDelete(model,req){
     console.log('Library about to remove id: ',id, 'objId:',x);
     model.findAsync({_id:new ObjectId(id)}).spread(function(item){
             foundItem = item;
+            if(model == UploadedFile){
+                console.log('UploadedFile - deleting images from amazon');
+                deleteImages(item); //this will run async - no need to wait to delete from database
+            }   
             return Slide.removeAsync({_id:{$in:item.slides}})
     }).then(function(){ 
         console.log('deleting navItem');

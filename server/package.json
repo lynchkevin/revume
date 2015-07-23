@@ -23,7 +23,7 @@
     "nforce": "~1.1.x",
     "nodemailer": "~1.3.x",
     "promise-retry": "~0.2.9",
-    "pubnub": "~3.7.10",
+    "pubnub": "~3.7.x",
     "request": "~2.55.x",
     "unzip": "~0.1.11",
     "video-thumb": "~0.0.2",

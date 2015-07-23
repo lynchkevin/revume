@@ -69,6 +69,12 @@
     text-align: center;
     position:relative;
 }
+.left-container {
+    margin-left:50%;
+    margin-top:7%;
+    text-align: center;
+    position:relative;
+}
 .slide-container {
     width:90%;
 }
@@ -88,6 +94,13 @@
 }
 .presentation-background {
     background: #E2DDCD;
+}
+.archive-container{
+    background: #353535;
+}
+.flashy-background{
+    background-image: url("/img/start-meeting.png");
+    background-size:100% 100%;
 }
 .vid-content{
 }
@@ -273,7 +286,7 @@
     box-shadow: 5px 5px 2px #888888;
 }
 .progress-bar {
-    background:#a6bd39;
+    background:#1D75B7;
     width:0%;
     position:absolute;
     bottom:1%;

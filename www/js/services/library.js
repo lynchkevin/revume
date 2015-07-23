@@ -80,7 +80,7 @@ function(uFiles,
         $.deckRights = rightsAuth.register('decks',$scope,$.actionList,$.decks);
         $.catRights = rightsAuth.register('categories',$scope,$.actionList,$.categories);
         $.fileRights.setAll('Admin',true); //all are false by default so set admin true
-        $.fileRights.setRight('Admin','New Meeting',false);
+        //$.fileRights.setRight('Admin','New Meeting',false);
         $.fileRights.setRight('Admin','Hide',false);  
         $.fileRights.setRight('Viewer','Share',true);
         $.catRights.setAll('Admin',true); //all are false by default so set admin true

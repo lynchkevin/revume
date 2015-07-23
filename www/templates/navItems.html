@@ -13,9 +13,9 @@
                 </div>
             </div>            
             <div class="revu-list-header calm-bg">
-            <button class="button button-icon icon ion-minus-circled revu-list-button revu-left"
-                    ng-click="toggleListDelete()"
-                    ng-if="!archiveOn()"></button>
+            <button ng-if="archiveOn()"
+                    class="button button-icon icon ion-minus-circled revu-list-button revu-left"
+                    ng-click="toggleListDelete()"></button>
                 <p  class="sub-title"
                     ng-if="modelName=='decks'&&smallScreen()">(options:swipe left)</p>   
                 {{listName}}
@@ -110,10 +110,16 @@
                           class="item-thumbnail-left" 
                           ng-class="{'item-select':!archiveOn()}"
                           ng-click="setNavSelection($index)">
-                        <ion-delete-button class="ion-minus-circled" 
+                        <ion-delete-button ng-if="!archiveOn()"
+                                           class="ion-minus-circled" 
                                            ng-click="archiveNavItem($index)"
-                                           ng-disabled="!item._$Delete"
+                                           ng-disabled="!item._$Archive"
                                            style="color:#ffe900">
+                        </ion-delete-button>
+                        <ion-delete-button ng-if="archiveOn()"
+                                           class="ion-minus-circled" 
+                                           ng-click="delNavItem($index)"
+                                           ng-disabled="!item._$Delete">
                         </ion-delete-button>
                         <img ng-if="item.slides.length != 0"
                              ng-src="{{item.thumb}}"  class="white-background">
@@ -146,7 +152,7 @@
                             <ion-option-button
                                     ng-if="smallScreen() && archiveOn()"
                                     class="button button-energized"
-                                    ng-click="unArchiveNaveItem($index)">
+                                    ng-click="unArchiveNavItem($index,$event)">
                                 UnArchive
                             </ion-option-button>
                     <i class="icon ion-plus-circled slide-adder top-corner" 

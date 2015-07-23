@@ -20,6 +20,10 @@ var prefix = directory+'/';
         fs.mkdirSync(directory);
     } catch (e) {}    
     
+    function getExtention(f){
+        return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
+    }
+
     function unzipFile(file){
         return new Promise(function(resolve, reject){    
             var input = prefix+file.name;
@@ -171,9 +175,17 @@ function callZamzar(status,params){
                 .catch(retry);
             });
         }).then(function(job){
-            console.log('unzipping file ',prefix+job.zipFile.name);
-            theJob = job;
-            return unzipFile(job.zipFile);
+            var extension = getExtention(job.zipFile.name);
+            console.log('zipfile.extenstion is ',extension);
+            if(extension != '.zip'){
+                console.log('not a zip file - must be a single slide');
+                console.log('job is: ',job);
+                resolve(job);
+            } else {
+                console.log('unzipping file ',prefix+job.zipFile.name);
+                theJob = job;
+                return unzipFile(job.zipFile);
+            } 
         }).then(function(job){
             resolve(theJob);
         }).catch(function(e){

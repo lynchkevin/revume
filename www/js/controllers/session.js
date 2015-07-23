@@ -15,9 +15,11 @@ angular.module('starter')
                             
 function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
 
-    
+    $scope.titles = {};
+       
     $scope.init = function(){
         var _id = $rootScope.user._id;
+        $scope.setTitles();
         $scope.action = {selected:$scope.actions[0]};
         if(_id != undefined){
             Sess.orgSessions.get({id:_id,isArchived:$rootScope.archiveOn()})
@@ -157,11 +159,22 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
         else
             $scope.actions[2].name = 'Archive';
     }
+    $scope.setTitles = function(){
+        if($rootScope.archiveOn()){
+           $scope.titles.organizer = 'Your ARCHIVED Meetings';
+           $scope.titles.attendee = 'Your ARCHIVED Invitations';
+        } else {
+            $scope.titles.organizer ='Your Meetings';
+            $scope.titles.attendee = 'Your Invitations';
+        }
+    };
     $scope.init();
     //reinialize whem the userID is set
     $scope.$on('userID',function(event,user){
         $scope.init();
     });
+    
+        
     $scope.$on('Revu.Me:Archive',function(event){
         //close the delete button
         if($listDel.$getByHandle('att').showDelete())

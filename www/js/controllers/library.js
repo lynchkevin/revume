@@ -39,6 +39,7 @@ function ($scope,$rootScope,$state,
     
     $scope.init = function(){
         sb.init($scope);
+        $scope.title = "Slide Library";
         $scope.library = Library;
         Library.init($scope);
         $scope.baseUrl = baseUrl.endpoint;
@@ -368,7 +369,7 @@ function ($scope,$rootScope,$state,
         console.log('Archive Nav Item: ',index);
         $scope.navItems[index].isArchived = true;
         Library.setArchive($scope,index).then(function(){
-            Library.updateModel($scope);
+            updateView();
         });
     };
     
@@ -378,7 +379,7 @@ function ($scope,$rootScope,$state,
         console.log('UnArchive Nav Item: ',index);
         $scope.navItems[index].isArchived = false;
         Library.setArchive($scope,index).then(function(){
-            Library.updateModel($scope);
+            updateView();
         });
     };
 
@@ -429,6 +430,8 @@ function ($scope,$rootScope,$state,
         $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
     }
     function archiveCB(index,buttonIndex,$event,type){
+        if(type=='button')
+            $event.stopPropagation();
         if(!$rootScope.archiveOn())
             $scope.archiveNavItem(index);
         else
@@ -489,6 +492,10 @@ function ($scope,$rootScope,$state,
     });
     $scope.$on('Revu.Me:Archive',function(event){
         Library.updateModel($scope);
+        if($rootScope.archiveOn())
+            $scope.title = 'Slide Library ARCHIVE';
+        else
+            $scope.title = 'Slide Library';
     });
     $scope.$on('SUCCESS', function() {
       alert('ALL LOADED');
