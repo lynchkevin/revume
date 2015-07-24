@@ -39,6 +39,12 @@
                   <p ng-if="device.isAndroid">Android</p>
                   <p ng-if="device.isWindowsPhone">WindowPhone</p>
               </ion-item>
+              <ion-item>
+                  <h2>User From Local Store</h2>
+                  <p>Name: {{ls.user.name}}</p>
+                  <p>Email: {{ls.user.email}}</p>
+                  <p>_id: {{ls.user._id}}</p>
+              </ion-item>
           </ion-list>    
             </div>
         </div>

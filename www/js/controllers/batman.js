@@ -49,5 +49,7 @@ angular.module('starter')
                                 {name:'Log In As..',action:$scope.logInAs}
                               ]
                      };
+    $scope.ls = {};
+    $scope.ls.user = $rootScope.getLocalUser();
                                 
   }]);

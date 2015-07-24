@@ -244,6 +244,16 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
             } else if ($rootScope.user._id){
                 // this is here so we can impersonate other users
                 console.log($rootScope.user.email);
+            } else if($rootScope.isMobile){
+                //check if local store has a user on a mobile device
+                var lsUser = $rootScope.getLocalUser();
+                if(lsUser != undefined){
+                    var User = $.user.byId;
+                    User.get({id:lsUser._id}).$promise.then(function(user){
+                        $rootScope.user={};
+                        $rootScope.userInit(user);
+                    });
+                }
             } else if($cookieStore.get('user') != undefined){
                 var cookieUser = $cookieStore.get('user');
                 var User = $.user.byId;
@@ -258,14 +268,26 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
         } else { // it's a public route
             // check if the user is already a member and push them to welcome
             if(toState.name == 'app.signup'){
-                var cookieUser = $cookieStore.get('user');
-                if(cookieUser != undefined){    
-                    var User = $.user.byId;
-                    User.get({id:cookieUser._id}).$promise.then(function(user){
-                        $rootScope.user={};
-                        $rootScope.userInit(user);
-                        $state.go("app.welcome");
-                    });              
+                if($rootScope.isMobile){
+                    var lsUser = $rootScope.getLocalUser();
+                    if(lsUser != undefined){
+                        var User = $.user.byId;
+                        User.get({id:lsUser._id}).$promise.then(function(user){
+                            $rootScope.user={};
+                            $rootScope.userInit(user);
+                            $state.go("app.welcome");
+                        });     
+                    }
+                } else {
+                    var cookieUser = $cookieStore.get('user');
+                    if(cookieUser != undefined){    
+                        var User = $.user.byId;
+                        User.get({id:cookieUser._id}).$promise.then(function(user){
+                            $rootScope.user={};
+                            $rootScope.userInit(user);
+                            $state.go("app.welcome");
+                        });              
+                    }
                 }
             }
         // else - it's a public route so let it go.

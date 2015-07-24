@@ -102,11 +102,21 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
         //set up the authorization headers
         //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
-        if(!options.stealthMode) 
-            $cookieStore.put('user', $rootScope.user);  
+        if(!options.stealthMode) {
+            if($rootScope.isMobile)
+                $window.localStorage['user'] = JSON.stringify($rootScope.user);
+            else
+                $cookieStore.put('user', $rootScope.user);  
+        }
         $rootScope.$broadcast('Revu.Me:Ready');
     };
-        
+    $rootScope.getLocalUser = function(){
+        var userString = $window.localStorage['user'];
+        var user = undefined;
+        if(userString != undefined)
+            user = JSON.parse(userString);
+        return user;
+    }
     // load up device information
     var device = {};
     
