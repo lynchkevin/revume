@@ -141,7 +141,7 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
             $scope.doRefresh();
         });
     }
-    
+        
     $scope.actions = [{name:'Options',callback:{}},
                       {name:'Edit',callback:$scope.editSession},
                       {name:'Archive',callback:$scope.markArchive}
@@ -216,7 +216,6 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
             $scope.activeMeeting = false;
             $scope.bridgeService.findBridge($scope.session.ufId)
             $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
-            $scope.session.leaveBehind = false;
             if($scope.session.decks.length>0){
                 var sid = $scope.session._id;
                 $scope.deckIdx = 0;
@@ -305,6 +304,9 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     $scope.setLeaveBehind = function(){
         console.log($scope.session.leaveBehind);
         Sess.leaveBehind.update({id:$scope.session._id},$scope.session);
+    };
+    $scope.resendInvites = function(){
+        Sess.invite.update({id:$scope.session._id});
     };
     $scope.$on('$destroy', function() {
         $scope.modal.remove();

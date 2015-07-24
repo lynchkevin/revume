@@ -22,6 +22,11 @@
                         ng-if="activeMeeting">
                     End Meeting
                 </button>
+                <button class="button button-positive"
+                        style="top:55px"
+                        ng-click="resendInvites()">
+                    Resend Invites
+                </button>
             </div>
             <div class="item item-body">
                 {{session.description}}

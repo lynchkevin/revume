@@ -22,6 +22,7 @@ angular.module('starter')
     var target = baseUrl.endpoint+'/api/sessions/:id';
     var lbTarget = baseUrl.endpoint+'/api/sessions/setLB/:id';
     var archiveTarget = baseUrl.endpoint+'/api/sessions/archive/:id';
+    var inviteTarget = baseUrl.endpoint+'/api/sessions/resend/:id'
     return {
         orgSessions: $resource(oTarget,
         {id:'@id',isArchived:'@isArchived'},
@@ -46,6 +47,10 @@ angular.module('starter')
         {   update: {method:'PUT', params:{id:'@id'}}
         }),
         archive: $resource(archiveTarget,
+        {id:'@id'},
+        {   update: {method:'PUT', params:{id:'@id'}}
+        }),
+        invite: $resource(inviteTarget,
         {id:'@id'},
         {   update: {method:'PUT', params:{id:'@id'}}
         })

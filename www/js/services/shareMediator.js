@@ -146,15 +146,17 @@ angular.module('starter')
         var role = undefined;
         var roleIdx = undefined;
         teams.forEach(function(team){
-            var r = team.members[0].role;
-            if(role == undefined){
-                role = r;
-                roleIdx = rightsAuth.roles.indexOf(role);
-            } else {
-                roleIdx = rightsAuth.roles.indexOf(r);
-                if(idx<roleIdx){
+            if(team.members.length > 0){//shares can have teams of which I'm not a member
+                var r = team.members[0].role;
+                if(role == undefined){
                     role = r;
-                    roleIdx = idx;
+                    roleIdx = rightsAuth.roles.indexOf(role);
+                } else {
+                    idx = rightsAuth.roles.indexOf(r);
+                    if(idx<roleIdx){
+                        role = r;
+                        roleIdx = idx;
+                    }
                 }
             }
         })

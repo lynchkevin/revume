@@ -63,7 +63,7 @@ function getSharedItems(userId,model){
         Team.find({'members.user':new ObjectId(userId)})
         .execAsync()
         .then(function(teams){
-            var ids = []
+            var ids = [];
             teams.forEach(function(team){
                 ids.push(team._id)
             })
@@ -133,7 +133,7 @@ share.get('/share',function(req,res){
     var item = req.query.item;
     var user = req.query.user;
     var model = req.query.model;
-    var team = req.query.model;
+    var team = req.query.team;
     if(item != undefined){ //get the share by the item being shared
         console.log('Share query by itemId! ',item);
         Share.find({item:new ObjectId(item)})

@@ -489,6 +489,15 @@ session.put('/sessions/archive/:id',function(req,res){
             }
         });
 });
+//resend invites
+//resend the invites for this session 
+session.put('/sessions/resend/:id',function(req,res){
+    console.log("session resend invites for session_id: ",req.params.id);
+    console.log('success! building invite...');
+    sendInvites(req.params.id,false);
+    console.log('done and sent');
+    res.send('success');
+});
 //DELETE
 //delete a single session by id
 session.delete('/sessions/:id',function(req,res){
