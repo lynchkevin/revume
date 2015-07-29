@@ -36,6 +36,7 @@ function ($scope,$rootScope,$state,
     pnFactory.init();
     var channel = pnFactory.newChannel("library::fileEvents");
     channel.subscribe(uploadComplete);
+  
     
     $scope.init = function(){
         sb.init($scope);
@@ -62,6 +63,8 @@ function ($scope,$rootScope,$state,
         $scope.deck = {name: ''};
         $scope.category={name:''};
         $scope.addingTo = undefined;
+        if(!$rootScope.isMobile)
+            $scope.showAddItem=true;
         shareMediator.init($scope);
         // initialize the evaporate uploader
         $scope.evaData = {
@@ -324,6 +327,8 @@ function ($scope,$rootScope,$state,
         
     }
     function reAspect(){
+      if($rootScope.smallScreen())
+          $state.go('app.mobileLib');
       $scope.width = verge.viewportW();
       if($scope.width <= 1100){
           $timeout(function(){

@@ -529,6 +529,49 @@ div.progress-value {
     top:50%;
     left:75%;
 }
+.tour-button{
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    margin-left:-75px;
+}
+.tour-tip-container{
+    position:absolute;
+    width:320px;
+    -webkit-box-shadow: 7px 7px #3f3f3f;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+    -moz-box-shadow:    7px 7px #3f3f3f;  /* Firefox 3.5 - 3.6 */
+    box-shadow:         7px 7px #3f3f3f; 
+}
+.tour-tip{
+    position:relative;
+    line-height: 300%;
+    font-weight:600;
+    color:white ;
+    min-width:200px;
+    opacity:0.75;
+    text-align:center;
+    margin-bottom:40px;
+}
+.tour-tip p{
+    width:90%;
+    line-height:20px;
+    margin-top:7px;
+}
+.tour-tip-buttons{
+    position:absolute;
+    bottom:0px;
+    width:100%;
+}
+.tour-tip-buttons a, tour-tip-controls a {
+    color:white !important;
+}
+.tour-tip-controls {
+    float:right;
+}
+.tour-tip-container.center{
+    left:50%;
+    margin-left:-162px;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
@@ -599,6 +642,7 @@ div.progress-value {
     .session-item-button{
         top:60px !important;
     }
+
 }
 
 @media screen and (min-width: 600px){

@@ -16,12 +16,16 @@
         <div class="centered-container hero-container positive-bg" elem-height="0.50">
               <h3 class="hero-welcome">Welcome {{user.name}} </h3> 
         <span class="hero" flash-weight="Revu.Me:Ready">Revu.me</span>
+          <button class="button button-stable tour-button" ng-click="tourService.start()">
+              Take a Quick Tour
+          </button>            
         </div>
     </div>
         <div class="col col-10">
         </div>    
     </div>
-    <div class="row row-center">
+    <div class="row row-center"
+         ng-if="user.email=='klynch@volerro.com'">
         <div class="col col-10">
         </div>
         <div class="col col-80">
@@ -45,3 +49,4 @@
     </div>
   </ion-content>
 </ion-view>
+

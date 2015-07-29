@@ -1,0 +1,15 @@
+    <div class="tour-tip-container positive-bg">
+        <div class="tour-tip">
+            <p ng-bind-html="step.text"></p>
+        </div>
+        <div class="tour-tip-buttons dark-bg">
+            <a class="button button-clear button-small"
+               ng-click="tourService.end()">End Tour</a>
+            <div class="tour-tip-controls">
+                <a class="button button-clear button-small"
+                   ng-click="tourService.previous($event)">Previous</a>
+                <a class="button button-clear button-small"
+                   ng-click="tourService.next($event)">Next</a>
+            </div>
+        </div>
+    </div>
