@@ -131,7 +131,7 @@
                                     ng-model="item.action.selected"
                                     ng-options="action.name for action in item.actions"
                                     ng-change="item.action.selected.callBack(itemIndex,item.action.selected.idx,$event,'option')"
-                                    ng-class="{'edit-color':item.beingEdited}" >
+                                    ng-class="{'edit-color':item.beingEdited}">
                                 {{option.callBack}}
                             </select>
                             <div class="buttons">

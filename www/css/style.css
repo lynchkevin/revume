@@ -572,6 +572,10 @@ div.progress-value {
     left:50%;
     margin-left:-162px;
 }
+.slides-loading{
+    font-size:120%;
+    margin-top:15px;   
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {

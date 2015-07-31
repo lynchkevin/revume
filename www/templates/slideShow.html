@@ -1,0 +1,51 @@
+<ion-view view-title="{{presentation.name}}">
+    <ion-header-bar class="bar-calm"> <h1 class="title"> {{presentation.name}}</h1> 
+    <div class="buttons">
+      <button class="button button-clear button-light" 
+              ng-click="slideShow.closeSlideShow()">Close</button>
+    </div>
+    </ion-header-bar> 
+    <ion-content class="has-header presentation-background" scroll="false">
+        <div class="centered-container slide" elem-size controls=true host=false>
+        <div class="row">
+            <div class="col col-5">
+                <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
+                   ng-click="previousClicked()"
+                   ng-disabled="!prevEnabled"></a>
+            </div>
+            <div class="col col-90" >
+                <ion-slide-box ng-repeat="box in slideBoxes"
+                               ng-if="box.idx == slideBoxIdx"
+                               disable-scroll="false"  
+                               delegate-handle="{{box.handle}}"
+                               class="bordered-drop-shadow"
+                               show-pager="false"
+                               active-slide=boxCurrent
+                               ng-cloak>
+                    <ion-slide ng-repeat="slide in box.slides"
+                               ng-init="$last ? slidesDone() : null"
+                               ng-cloak>
+                        <div ng-switch on="slide.type">
+                            <div ng-switch-when="img">
+                                <img ng-src="{{slide.src}}" class="slide-content"
+                                     on-swipe-left="nextClicked()"
+                                     on-swipe-right="previousClicked()">
+                            </div>
+                            <div ng-switch-when="video">                            
+                                <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}
+                                       on-swipe-left="nextClicked()"
+                                       on-swipe-right="previousClicked()"></video>                      
+                             </div>                                     
+                        </div>                    
+                    </ion-slide>
+                </ion-slide-box>
+                </div>
+            <div class="col col-5 ">
+                <a class="button icon-right ion-chevron-right button-clear button-dark slider-button right" 
+                   ng-click="nextClicked()"
+                   ng-disabled="!nextEnabled"></a>
+            </div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

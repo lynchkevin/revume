@@ -15,13 +15,15 @@ angular.module('starter')
                              'baseUrl',
                              '$ionicNavBarDelegate',
                              'tourService',
+                             'Library',
                              function ($scope,
                                         $rootScope,
                                         $timeout,
                                         $http,
                                         baseUrl,
                                         $ionicNavBarDelegate,
-                                        tourService) {
+                                        tourService,
+                                        library) {
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $scope.init = function(){

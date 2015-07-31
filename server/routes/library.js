@@ -740,11 +740,13 @@ function doSave(model,req){
     newDoc.name = newItem.name;
     newDoc.user = newItem.user._id;
     newDoc.isArchived = newItem.isArchived;
+    /* this never would have worked - only need the _id of each slide
     newItem.slides.forEach(function(slide){
         slide.src = signer.stripAccessKeys(slide.src);
         if(slide.poster != undefined)
             slide.poster = signer.stripAccessKeys(slide.poster);
     })
+    */
     newDoc.slides = newItem.slides;
     newDoc.thumb = signer.stripAccessKeys(newItem.thumb);
     console.log(newDoc);

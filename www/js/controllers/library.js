@@ -23,12 +23,12 @@ angular.module('starter')
                              'SessionBuilder',
                              'baseUrl',
                              'shareMediator',
-                             '$ionicModal',
+                             'slideShow',
                              '$q',
 function ($scope,$rootScope,$state,
            $window,$timeout,$resource,Library,
            $ionicScrollDelegate,$listDel,
-           pnFactory,$ionicPopup,sb,baseUrl,shareMediator,$ionicModal,$q) {
+           pnFactory,$ionicPopup,sb,baseUrl,shareMediator,slideShow,$q) {
       
     $scope.w = angular.element($window);
     
@@ -63,7 +63,7 @@ function ($scope,$rootScope,$state,
         $scope.deck = {name: ''};
         $scope.category={name:''};
         $scope.addingTo = undefined;
-        if(!$rootScope.isMobile)
+        if(!$rootScope.isMobile && !$rootScope.smallScreen() && !$rootScope.archiveOn())
             $scope.showAddItem=true;
         shareMediator.init($scope);
         // initialize the evaporate uploader
@@ -126,9 +126,9 @@ function ($scope,$rootScope,$state,
             return "Done";
         return "Edit";
     };
-    $scope.buildSession = function($index){
+    $scope.buildSession = function(navItem){
         sb.init($scope).then(function(){
-            return sb.build($index)
+            return sb.build(navItem);
         }).then(function(){
             $scope.slideBack();
         }).catch(function(err){
@@ -205,6 +205,33 @@ function ($scope,$rootScope,$state,
         add();
    }
 
+   $scope.newDeckFromFile = function(navItem){
+       var defer = $q.defer();
+       $scope.addingTo = new Library.decks;
+       $scope.addingTo.name = navItem.name;
+       $scope.addingTo.user={_id: $rootScope.user._id};
+       $scope.addingTo.slides = [];
+       $scope.addingTo.thumb = '';
+       $scope.addingTo.isArchived = false;
+       // save the shell first
+       Library.newNavItem($scope).then(function(result){
+            navItem.slides.forEach(function(slide){
+                $scope.addingTo.slides.push(slide);
+            });
+            $scope.addingTo.thumb = navItem.thumb;
+            $scope.addingTo.isArchived = false;
+            $scope.addingTo._id = result._id;
+        
+            // update the deck
+            return Library.decks.update({id:$scope.addingTo._id},$scope.addingTo).$promise;
+       }).then(function(){
+           //we have now copied the slides by updating the deck
+           //fix the thumb
+           defer.resolve($scope.addingTo);
+       });
+       return defer.promise;   
+   }
+   
     $scope.addCategory= function(){
         $scope.addingTo = new Library.categories;
         $scope.addingTo.name = $scope.category.name;
@@ -300,7 +327,6 @@ function ($scope,$rootScope,$state,
       $scope.slideOver();
       $scope.selectedNavId = id;
       Library.updateSlides($scope).then(function(){
-        $ionicScrollDelegate.scrollTop();
         $rootScope.hideLoading();
       });
     };
@@ -328,7 +354,8 @@ function ($scope,$rootScope,$state,
     }
     function reAspect(){
       if($rootScope.smallScreen())
-          $state.go('app.mobileLib');
+          if($state.current.name == 'app.library')
+            $state.go('app.mobileLib');
       $scope.width = verge.viewportW();
       if($scope.width <= 1100){
           $timeout(function(){
@@ -387,7 +414,7 @@ function ($scope,$rootScope,$state,
             updateView();
         });
     };
-
+ 
     //handle actions with rights management
     function editCB(index,buttonIndex,$event,type){
         var action = $scope.navItems[index].actions[buttonIndex];
@@ -420,8 +447,16 @@ function ($scope,$rootScope,$state,
     function newMeetingCB(index,buttonIndex,$event,type){
         if(type=='button')
             $event.stopPropagation();
-        $scope.buildSession(index);
-        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];    
+        if($scope.modelName == 'files'){
+            $scope.newDeckFromFile($scope.navItems[index])
+            .then(function(navItem){
+                $scope.buildSession(navItem);
+                $scope.navItems[index].action.selected = $scope.navItems[index].actions[0]; 
+            });
+        } else {
+            $scope.buildSession($scope.navItems[index]);
+            $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];    
+        }
     }
     function shareCB(index,buttonIndex,$event,type){
         if(type=='button')
@@ -443,29 +478,40 @@ function ($scope,$rootScope,$state,
             $scope.unArchiveNavItem(index);
         $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
     }
+    function slideShowCB(index,buttonIndex,$event,type){
+        if(type=='button')
+            $event.stopPropagation();
+        $scope.selectedNavId = index;
+        slideShow.startSlideShow($scope.navItems[index]);
+        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+    }
     function setActions($scope){
         //set the available action actions
         $scope.actions = [{name:'Options'},
                           {name:'Edit',class:'button-positive'},
-                          {name:'New Meeting',class:'button-calm'},
+                          {name:'Meeting',class:'button-calm'},
+                          {name:'Show',class:'button-balanced'},
                           {name:'Share',class:'button-royal'},
                           {name:'Archive',class:'button-energized'}
                          ];
         $scope.actions[1].callBack=editCB
         $scope.actions[2].callBack=newMeetingCB;
-        $scope.actions[3].callBack=shareCB;
-        $scope.actions[4].callBack=archiveCB;
+        $scope.actions[3].callBack=slideShowCB;
+        $scope.actions[4].callBack=shareCB;
+        $scope.actions[5].callBack=archiveCB;
         //when an item is being edited - user these actions
         $scope.editActions = [{name:'Editing...'},
                               {name:'Done',class:'button-assertive'},
-                              {name:'New Meeting',class:'button-calm'},
+                              {name:'Meeting',class:'button-calm'},
+                              {name:'Show',class:'button-balanced'},
                               {name:'Share',class:'button-royal'},
                               {name:'Archive',class:'button-energized'}
                              ];
         $scope.editActions[1].callBack=doneCB
         $scope.editActions[2].callBack=newMeetingCB;
-        $scope.editActions[3].callBack=shareCB;
-        $scope.editActions[4].callBack=archiveCB;
+        $scope.editActions[3].callBack=slideShowCB;
+        $scope.editActions[4].callBack=shareCB;
+        $scope.editActions[5].callBack=archiveCB;
     }
 
     //handle system and window events
@@ -497,10 +543,14 @@ function ($scope,$rootScope,$state,
     });
     $scope.$on('Revu.Me:Archive',function(event){
         Library.updateModel($scope);
-        if($rootScope.archiveOn())
+        if($rootScope.archiveOn()){
             $scope.title = 'Slide Library ARCHIVE';
-        else
+            $scope.showAddItem = false;
+        }else {
+            if(!$rootScope.isMobile && !$rootScope.smallScreen() && !$rootScope.archiveOn())
+                $scope.showAddItem = true;
             $scope.title = 'Slide Library';
+        }
     });
     $scope.$on('SUCCESS', function() {
       alert('ALL LOADED');

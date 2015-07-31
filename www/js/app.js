@@ -12,7 +12,6 @@ angular.module('starter',
     'evaporate',
     'ngCookies',
     'imagesLoaded',
-    'angular-intro',
 ]
 )
 
@@ -33,8 +32,9 @@ angular.module('starter',
       'authService',
       '$ionicLoading',
       '$ionicHistory',
+      'Library',
 function($ionicPlatform,$rootScope,$window,$http,userService,
-          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory) {
+          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory,library) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -109,6 +109,10 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
                 $cookieStore.put('user', $rootScope.user);  
         }
         $rootScope.$broadcast('Revu.Me:Ready');
+        library.cacheImages().then(function(){
+            var str = 'Cached '+library.cachedImages.length+' Images';
+            
+        });
     };
     $rootScope.getLocalUser = function(){
         var userString = $window.localStorage['user'];
@@ -175,10 +179,9 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
          
 }])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
   $stateProvider
-  
-
+    
   .state('app', {
     url: "/app",
     abstract: true,
@@ -229,7 +232,15 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
       }
     }
   })
-
+  .state('app.slideShow', {
+    url: "/library/slideShow",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/slideShow.html",
+        controller: 'slideShowCtrl'
+      }
+    }
+  })
   .state('app.viewer', {
     url: "/viewer/:id?sessionId",
     resolve: {
@@ -501,4 +512,5 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     }) 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
+    
 });

@@ -75,7 +75,7 @@ function ($scope, $rootScope, $stateParams,
     //if the client times out - send them to revu.me
     function execTimeout($scope){
         $scope.cleanUp();
-        $window.location.href = 'http://revu.me';
+        $window.location.href = 'http://www.revu.me';
     };
     //restart a timeout evertime a new page is viewed
     function startTimeout($scope){

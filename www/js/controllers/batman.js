@@ -8,8 +8,9 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state',
-                             function ($scope,$rootScope,$cookieStore,userService,$state) {
+  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library',
+                             function ($scope,$rootScope,$cookieStore,userService,$state,library) {
+    $scope.library = library;
     
     function batmanOn(){
         $rootScope.user.batman = true;

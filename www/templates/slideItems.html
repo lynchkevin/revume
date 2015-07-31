@@ -1,8 +1,10 @@
 
-<ion-scroll elem-height="0.875" >
+<ion-scroll elem-height="0.875" 
+            overflow-scroll="true">
     <div ng-repeat="slide in slides" 
          class="thumbnail" 
-         ng-class="{'thumb-selected':tap.on && tap.index==$index}">
+         ng-class="{'thumb-selected':tap.on && tap.index==$index}"
+         ng-cloak>
         <div ng-switch on="slide.type"  >
             <div ng-switch-when="img" >
                 <div style="position:relative" >
@@ -16,12 +18,10 @@
                        ng-show="statesReady && isEditing && slide.available " 
                        ng-click="addSlide($index)"
                        ng-cloak></i>
-            <div data-images-loaded>
                     <img ng-src="{{slide.src}}"  
                          style="width:100%" 
                          class="rounded-corners shadow white-background"
                          ng-click="tapThumb($index)">
-            </div>
                 </div>
             </div>
             <div ng-switch-when="video" > 

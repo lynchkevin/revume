@@ -73,7 +73,7 @@ function(uFiles,
     //files currently being uploaded
     $.uploading = {files:[]};
 
-    $.actionList = ['Edit','New Meeting','Share','Hide','Archive','Delete','Reorder'];
+    $.actionList = ['Edit','New Meeting','Share','Hide','Archive','Delete','Reorder','SlideShow'];
     
     function establishRights($scope){
         $.fileRights = rightsAuth.register('files',$scope,$.actionList,$.files);
@@ -83,6 +83,7 @@ function(uFiles,
         //$.fileRights.setRight('Admin','New Meeting',false);
         $.fileRights.setRight('Admin','Hide',false);  
         $.fileRights.setRight('Viewer','Share',true);
+        $.fileRights.setRight('Viewer','SlideShow',true);
         $.catRights.setAll('Admin',true); //all are false by default so set admin true
         $.catRights.setRight('Admin','New Meeting',false);
         $.catRights.setRight('Admin','Hide',false);
@@ -90,6 +91,7 @@ function(uFiles,
         $.deckRights.setAll('Admin',true); //all are false by default so set admin true
         $.deckRights.setRight('Admin','Hide',false);
         $.deckRights.setRight('Viewer','Share',true);
+        $.deckRights.setRight('Viewer','SlideShow',true);
     }
 
     $.init = function($scope){
@@ -134,10 +136,43 @@ function(uFiles,
         });
     }    
     
+    $.cacheImages = function($scope){
+        var deferred = $q.defer();
+        $.cachedImages = [];
+        var img = {};
+        uFiles.query({user:$rootScope.user._id,archiveOn:$rootScope.archiveOn()})
+        .$promise.then(function(items){
+            items.forEach(function(item){
+                item.slides.forEach(function(slide){
+                    if(slide.type == 'img'){
+                        img = new Image();
+                        img.src = slide.src = slide.src;
+                        $.cachedImages.push(img);
+                    }
+                });
+            });
+        });
+        shareMediator.getSharedForCache($.files)
+        .then(function(items){
+            items.forEach(function(item){
+                item.slides.forEach(function(slide){
+                    if(slide.type == 'img'){
+                        img = new Image();
+                        img.src = slide.src = slide.src;
+                        $.cachedImages.push(img);
+                    }
+                });
+            });
+            deferred.resolve();
+            console.log('Total Cached Images = ',$.cachedImages.length);
+        });
+        return deferred.promise;
+    };
+    
     $.updateModel = function($scope){
         var deferred = $q.defer();
         if($.model != $scope.model) console.log("model error in Library service");
-        shareMediator.getItems($scope).then(function(items){
+        shareMediator.getItems($scope.model).then(function(items){
         $scope.selectedNavId = 0;
         // user and slides are poplulated
           if(items.length>0){
@@ -454,5 +489,5 @@ function(uFiles,
         });
         return defer.promise;
     }
-            
+    
 }]);

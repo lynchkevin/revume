@@ -178,9 +178,9 @@ angular.module('starter')
             }
         })
     }
-    $.getItems = function($scope){
+    $.getItems = function(inputModel){
         var deferred = $q.defer();
-        var model = $scope.model;  
+        var model = inputModel;  
         var modelName = rightsAuth.findKey(model).getName();
         var allItems = [];
         var sharedItems = [];
@@ -208,6 +208,15 @@ angular.module('starter')
             deferred.resolve(allItems);
         })
         return deferred.promise;
+    };
+     // only used to cache images   
+    $.getSharedForCache = function(){
+        var deferred = $q.defer();
+        Share.query({model:'files',user:$rootScope.user._id})
+        .$promise.then(function(shares){
+            deferred.resolve(shares);
+        });
+        return deferred.promise;
     }
-    
+        
   }]);

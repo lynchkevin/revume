@@ -193,9 +193,9 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         return defer.promise;   
     };
     //build a new session from a deck  
-    $.build=function($index){
+    $.build=function(navItem){
         var defer = $q.defer();
-        $.session.decks[0] = $.scope.navItems[$index];
+        $.session.decks[0] = navItem;
         $.show($.builderModal).then(function(){
             return $.saveSession();
         }).then(function(){
