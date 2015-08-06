@@ -142,27 +142,31 @@ function(uFiles,
         var img = {};
         uFiles.query({user:$rootScope.user._id,archiveOn:$rootScope.archiveOn()})
         .$promise.then(function(items){
-            items.forEach(function(item){
-                item.slides.forEach(function(slide){
-                    if(slide.type == 'img'){
-                        img = new Image();
-                        img.src = slide.src = slide.src;
-                        $.cachedImages.push(img);
-                    }
+            if(items != undefined){
+                items.forEach(function(item){
+                    item.slides.forEach(function(slide){
+                        if(slide.type == 'img'){
+                            img = new Image();
+                            img.src = slide.src = slide.src;
+                            $.cachedImages.push(img);
+                        }
+                    });
                 });
-            });
+            }
         });
         shareMediator.getSharedForCache($.files)
         .then(function(items){
-            items.forEach(function(item){
-                item.slides.forEach(function(slide){
-                    if(slide.type == 'img'){
-                        img = new Image();
-                        img.src = slide.src = slide.src;
-                        $.cachedImages.push(img);
-                    }
+            if(items != undefined){
+                items.forEach(function(item){
+                    item.slides.forEach(function(slide){
+                        if(slide.type == 'img'){
+                            img = new Image();
+                            img.src = slide.src = slide.src;
+                            $.cachedImages.push(img);
+                        }
+                    });
                 });
-            });
+            }
             deferred.resolve();
             console.log('Total Cached Images = ',$.cachedImages.length);
         });

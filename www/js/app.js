@@ -19,6 +19,7 @@ angular.module('starter',
 //                     "volerro": "https://rb.volerro.com"})
 //.constant("baseUrl",{"endpoint": "https://m.volerro.com",
 //                    "volerro": "https://rb.volerro.com"})
+
 .run(["$ionicPlatform",
       "$rootScope",
       "$window",
@@ -52,6 +53,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     $rootScope.user = {};
     $rootScope.archive = {};
     $rootScope.archive.menu = false;
+    $rootScope.spinnerShowing = false;
     $rootScope.toggleArchive = function(){
         $rootScope.archive.menu = !$rootScope.archive.menu;
         $rootScope.$broadcast('Revu.Me:Archive');
@@ -62,14 +64,18 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     };
     
     $rootScope.showLoading = function(){
-        $ionicLoading.show({
-            template:'<ion-spinner></ion-spinner>',
-            noBackdrop:true
-         // template: 'Loading...'
-        });
+        if(!$rootScope.spinnerShowing){
+            $rootScope.spinnerShowing = true;
+            $ionicLoading.show({
+                template: '<ion-spinner icon="ripple"></ion-spinner>'
+            });
+        }
     };   
     $rootScope.hideLoading = function(){
-        $ionicLoading.hide();
+        if($rootScope.spinnerShowing){
+            $rootScope.spinnerShowing = false;
+            $ionicLoading.hide();
+        }
     };
     //Give Access to History
     $rootScope.history = $ionicHistory;

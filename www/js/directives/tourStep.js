@@ -4,10 +4,11 @@
 * v-lead directive to lead a video for followers   
 */
 angular.module('starter')
-    .directive('tourStep',['$state','tourService',function ($state,tourService) {
+    .directive('tourStep',['$state','tourService','$parse',function ($state,tourService,$parse) {
       return {
         restrict : 'AE',
         templateUrl : 'templates/tour-template.html',
+        scope : { ext : '&' },
         link: function(scope, element, attrs) 
         {
             
@@ -36,6 +37,8 @@ angular.module('starter')
             if(scope.step.defer != undefined){
                 scope.step.defer.resolve();
             }
+            if(scope.ext != undefined)
+                scope.step.ext = scope.ext;
             /*
             if(attrs.autoPlay != undefined){
                 var model = $parse(attrs.autoPlay);

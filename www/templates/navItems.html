@@ -27,19 +27,7 @@
             <div ng-show="showAddItem" >
                 <div ng-switch on="modelName">
                     <div ng-switch-when='files'>
-                        <!--
-                        <div ng-if="!smallScreen()"
-                             class="flow-drop-zone centered-container" 
-                             drag-enter="class='flow-drag-enter'" 
-                             drag-leave="class='flow-drag-leave'" 
-                             drag-drop 
-                             ng-class="class">
-                            <p ng-show="!spinner">Drop your file here</p>
-                            <ion-spinner class="flow-drop-content" ng-show="spinner"></ion-spinner>
-                            <div class="progress-bar" elem-height="0.01" ng-style="{'width':progress}">
-                            </div>
-                        </div>
-                        -->
+
 <!------evaporate testing------------->
                         <div ng-hide="evaData.ready">upload is not available</div>
                         <div ng-show="evaData.ready">
@@ -50,10 +38,11 @@
                                  ng-class="class">
                                 <p>Drop your file(s) here</p>     
                             </div>
-                            <ion-list>
+                                    <!--ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner--> 
+                            <ion-list ng-if="library.uploading.files.length > 0">
                                 <ion-item ng-repeat="file in library.uploading.files"
-                                          class="upload-content" >
-                                    <ion-spinner class="upload-spinner" ng-show="file.spinner"></ion-spinner>
+                                          class="upload-content" ng-cloak>
+                                    <ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner> 
                                     <h2>{{file.name}}</h2>
                                     <p ng-show="file.timeLeft != 0">{{file.timeLeft}} seconds remaining...</p>
                                     <p ng-show="file.message != ''">{{file.message}}</p>
@@ -102,7 +91,8 @@
             <ion-scroll elem-height="0.70" >
               <ion-refresher
                 pulling-text="Pull to refresh..."
-                on-refresh="doRefresh()">
+                on-refresh="doRefresh()"
+                spinner="ripple">
               </ion-refresher>
             <ion-list show-delete="shouldShowDelete">
                 <ion-item 

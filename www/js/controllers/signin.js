@@ -34,8 +34,8 @@ angular.module('starter')
        };
            
   }])
-  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm','DoConfirm',
-   function ($scope,$rootScope,$state,authService,$ionicPopup,sendConfirm,doConfirm) {
+  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm','DoConfirm','introContent',
+   function ($scope,$rootScope,$state,authService,$ionicPopup,sendConfirm,doConfirm,introContent) {
        $scope.doSignUp = function(){
            authService.checkExists($scope.forms.signup.email).then(function(user){
                if(user._id){ //this user is in the system
@@ -49,14 +49,17 @@ angular.module('starter')
                         });
                     } else { // otherwise it's an attendee becoming a new member - set their password
                         //let's confirm their email since they attended a meeting
-                        doConfirm.confirm(user._id);
+                        doConfirm.confirm({id:user._id});
                         var credentials = {};
                         credentials.oldPassword = '';
                         credentials.email = $scope.forms.signup.email;
                         credentials.password = $scope.forms.signup.password;
                         authService.resetPassword(credentials).then(function(result){
                            if(result.success){
-                               $state.go('app.welcome');
+                               //add the intro content
+                               introContent.addIntroContent(user._id).then(function(){
+                                    $state.go('app.welcome');   
+                               });
                            }else{
                                 var alert = $ionicPopup.alert({
                                     title:'Error Setting PW!',
@@ -76,6 +79,9 @@ angular.module('starter')
                    authService.signUp(newUser).then(function(user){
                        //validate email since they're new
                         sendConfirm.send(user);
+                        // add introductory content
+                        return introContent.addIntroContent(user._id);
+                   }).then(function(){
                         $state.go('app.welcome');
                    });
                 }

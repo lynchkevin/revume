@@ -464,8 +464,12 @@ function getByUser(Model,req,res){
     if(req.query.archiveOn!=undefined){
         var archiveOn = req.query.archiveOn;
         query = {user:new ObjectId(userId),isArchived:archiveOn};
-        console.log(Model.modelName,' query! with userID populate - id: archiveOn:',userId,archiveOn);
-    }else{
+        console.log(Model.modelName,' query! with userID populate - id: ',userId,' archiveOn: ',archiveOn);
+    }else if(req.query.name != undefined){
+        var name = req.query.name;
+        query = {user:new ObjectId(userId), name:name};
+        console.log(Model.modelName,' query! with userID - id: ',userId,' name: ',name);
+    } else {
         query = {user:new ObjectId(userId)};
         console.log(Model.modelName,' query! with userID populate - id: ',userId);
     }
@@ -802,7 +806,17 @@ function doUpdate(model,req){
     });
 };
 
-
+//save a file
+library.post('/library/uploadedFiles',function(req,res){
+    console.log("UploadedFiles: got save!");
+    doSave(UploadedFile,req).spread(function(item){
+        console.log(item);
+        res.send(item);
+    }).catch(function(err){
+        console.log('Error:',err);
+        res.send(err);
+    });
+});
 //update an uploaded file
 library.put('/library/uploadedFiles/:id',function(req,res){
     console.log("Files: got update!");

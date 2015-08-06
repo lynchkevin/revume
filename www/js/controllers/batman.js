@@ -8,8 +8,8 @@
  * Controller of the barebonesApp
  */
 angular.module('starter')
-  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library',
-                             function ($scope,$rootScope,$cookieStore,userService,$state,library) {
+  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library','introContent',
+function ($scope,$rootScope,$cookieStore,userService,$state,library,introContent) {
     $scope.library = library;
     
     function batmanOn(){
@@ -45,9 +45,26 @@ angular.module('starter')
         batmanOff();
     }
     
+    $scope.setIntroContent = function(){
+        $rootScope.user = {};
+        $rootScope.user.email = 'klynch@volerro.com';
+        userService.getUser($rootScope).then(function(user) {
+            introContent.addIntroContent(user._id).then(function(){
+                //then log in to check out the content
+                $rootScope.userInit(user,{stealthMode:true});
+                batmanOn();
+                $state.go('app.welcome');
+            });
+        },function(err){//user not found try to register
+            console.log(err);
+        });          
+    }
+        
+        
     $scope.utility = {actions:[
                                 {name:'Clear User Cookie',action:$scope.clearUserCookie},
-                                {name:'Log In As..',action:$scope.logInAs}
+                                {name:'Log In As..',action:$scope.logInAs},
+                                {name:'Set Intro Content',action:$scope.setIntroContent}
                               ]
                      };
     $scope.ls = {};

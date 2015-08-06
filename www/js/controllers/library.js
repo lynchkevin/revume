@@ -555,4 +555,17 @@ function ($scope,$rootScope,$state,
     $scope.$on('SUCCESS', function() {
       alert('ALL LOADED');
     });
+    
+    //this is only here for the tour - it finds the gettting started guide and starts a slideshow
+    $scope.tourShow = function(){
+        var idx = 0;
+        var foundIdx = -1;
+        $scope.navItems.forEach(function(item){
+            if(item.name == 'Getting Started.pptx')
+                foundIdx = idx;
+            idx++;
+        });
+        if(foundIdx>=0)
+            slideShow.startSlideShow($scope.navItems[foundIdx]);        
+    }
 }]);

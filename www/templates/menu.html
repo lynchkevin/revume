@@ -46,6 +46,9 @@
         <ion-item ng-if="!archive.menu" nav-clear menu-close ng-click="toggleArchive()">
            <i class='ion-filing menu-icon energized'></i>Archive
         </ion-item>
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/welcome">
+           <i class='ion-compass menu-icon dark'></i>Restart Tour
+        </ion-item>
         <!-- Archive Menu Items -->
         <ion-item ng-if="archive.menu" nav-clear menu-close ng-click="toggleArchive()">
         <i class='ion-arrow-left-b menu-icon dark'></i>Main Menu

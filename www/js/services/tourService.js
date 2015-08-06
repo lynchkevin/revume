@@ -13,7 +13,8 @@ angular.module('starter')
                            '$ionicSideMenuDelegate',
                            '$q',
                            '$sce',
-function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
+                           '$controller',
+function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
     
     var $ = this;
     $.steps = [];
@@ -25,15 +26,25 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
             state = 'app.welcome';
         else
             state = step.state;
-        
-        $state.go(state).then(function(){
-            return step.connect();
-        }).then(function(){
-            step.before();
-            step.show();
-        });
+        //don't go to the same state....
+        if($state.current.name != state){
+            //force a new connect as we transition state and dom may be reconstructed
+            $state.go(state).then(function(){
+                return step.connect();
+            }).then(function(){
+                step.before();
+                step.show();
+            });
+        } else {
+            step.connect().then(function(){
+                step.before();
+                step.show();
+            });
+        }
     }
+    
     $.start = function(){
+        $.currentStep = 0;
         if($.steps.length>0)
             var step = $.steps[0];
             transitionTo(step);
@@ -41,7 +52,10 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
     
     $.next = function(){
         $.steps[$.currentStep].hide();
-        $.steps[$.currentStep].after();
+        if($.steps[$.currentStep].after == 'ext')
+            $.steps[$.currentStep].ext();
+        else
+            $.steps[$.currentStep].after();
         if($.currentStep < $.steps.length-1){
             $.currentStep++;
             var step = $.steps[$.currentStep];
@@ -88,7 +102,15 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
                             step.defer = $q.defer(); 
                             if(step.show == undefined)
                                 return step.defer.promise;
-                            else {
+                            else if(step.scope != undefined){
+                                if(step.scope.$$destroyed == true)
+                                    return step.defer.promise;
+                                else {
+                                    step.defer.resolve();
+                                    step.scope.step = step;
+                                    return step.defer.promise;
+                                }
+                            } else {
                                 step.defer.resolve();
                                 step.scope.step = step;
                                 return step.defer.promise;
@@ -109,6 +131,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
                             step.defer = $q.defer();
                             step.show = step.parent.show;
                             step.hide = step.parent.hide;
+                            step.ext = step.parent.ext;
                             parent.scope.step = step;
                             step.defer.resolve();
                             return step.defer.promise;
@@ -155,15 +178,15 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
                      );  
         position = newPosition('278px','220px','275px');
         $.steps.push($.subStep(rootStep,
-                              'These are all the meetings you organized',
+                              'These are all the meetings you\'ve organized',
                                position)
                      );  
-        position = newPosition('330px','278px','275px');
+        position = newPosition('330px','280px','275px');
         $.steps.push($.subStep(rootStep,
                               'Here are Invitations to Meetings you can Attend',
                                position)
                      );  
-        position = newPosition('390px','330px','275px');
+        position = newPosition('390px','340px','275px');
         $.steps.push($.subStep(rootStep,
                               'The Archive Holds All your Old Pitches and Meetings',
                                position,
@@ -184,18 +207,26 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce) {
         $.steps.push(libStep);
         position = newPosition('16%','16%px','120px');
         $.steps.push($.subStep(libStep,
-                              'You can categorize your slides for quick re-use. For example: file type, subject, industry etc.',
+                              'You can categorize your slides for quick re-use. For example: file type, subject, industry, funnel-stage etc.',
                                position)
                      );  
         position = newPosition('20%','20%px','50px');
         $.steps.push($.subStep(libStep,
-                              'Combine your slides into pitch \'decks\' using \'Pitch Perfect\'. Just add a new deck, name it, and start adding the slides you need. Click on the slide to re-order and then click again where you want the slide to go.',
+                              'Combine your slides into pitch \'decks\' using \'Pitch Perfect\'. Just add a new deck, name it, and start adding the slides you need. Click (or Tap) on the slide to re-order and then Tap again on another slide. The slide will be placed in front of the slide you tap (or click).',
                                position)
                      );  
         position = newPosition('305px','110px','275px');
         $.steps.push($.subStep(libStep,
-                              'On Mobile, slide the item left to reveal options, For Desktops, just click the options drop down. Here you can edit an item, share it with your team or create a new meeting.',
+                              'On a Mobile device, slide the item left to reveal options. For Desktops, just click the options drop down. Here you can edit an item, share it with your team or create a new meeting.',
                                position)
+                     );  
+        position = newPosition('0px','300px','400px');
+        $.steps.push($.subStep(libStep,
+                              'Our \'Getting Started Guide\' is a great way to get up to speed.',
+                               position,
+                               null,
+                               'ext'
+                               )
                      );  
      }; 
       
