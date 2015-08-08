@@ -12,6 +12,7 @@ angular.module('starter',
     'evaporate',
     'ngCookies',
     'imagesLoaded',
+    'FBAngular',
 ]
 )
 

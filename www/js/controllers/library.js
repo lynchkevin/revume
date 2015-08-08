@@ -33,7 +33,7 @@ function ($scope,$rootScope,$state,
     $scope.w = angular.element($window);
     
     //connect to server callbacks
-    pnFactory.init();
+    //pnFactory.init(); - now done once in rootScope
     var channel = pnFactory.newChannel("library::fileEvents");
     channel.subscribe(uploadComplete);
   
@@ -47,7 +47,7 @@ function ($scope,$rootScope,$state,
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
         $scope.navPartial = baseUrl.endpoint+"/templates/navItems.html"
         $scope.sb=sb;
-        pnFactory.init(); 
+        //pnFactory.init(); this is now done once in rootScope
         reAspect();
         $scope.user={};
         $scope.progress = "0%"

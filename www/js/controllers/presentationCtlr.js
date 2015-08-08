@@ -17,9 +17,10 @@ angular.module('starter')
                                  'recorder',
                                  'presAnalyzer',
                                  'BridgeService',
+                                 '$ionicScrollDelegate',
  function ($scope, $rootScope, $stateParams, 
            $timeout,pnFactory,sbDelegate,session, 
-           monitor,recorder,analyzer,BridgeService) {
+           monitor,recorder,analyzer,BridgeService,$ionicScrollDelegate) {
     
 
     //session and decks are now resolved during the state change so we can use them directly
@@ -50,7 +51,7 @@ angular.module('starter')
         var everyone = $scope.session.attendees;
         everyone.push($scope.session.organizer);
         monitor.init(everyone);
-        $scope.everyone=[];
+        $scope.everyone=everyone;
         $scope.present = [];
         $scope.mapShowing = false;
         $scope.buttonText = "Show All"
@@ -204,5 +205,13 @@ angular.module('starter')
      else
          $scope.init();
 
+    $scope.updateSlideStatus = function(slide) {
+      var zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
+      if (zoomFactor == 1.0) {
+        sbDelegate.enableSlide(true);
+      } else {
+        sbDelegate.enableSlide(false);
+      }
+    };
 }]);
     

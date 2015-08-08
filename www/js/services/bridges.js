@@ -58,10 +58,10 @@ function (Bridges,$q,$ionicPopup,$rootScope) {
          var num = '('+phone.slice(2,5)+')'+' '+phone.slice(5,8)+'-'+phone.slice(8,12);
          var dialIt = num+',,,'+confId+'#';
          var template = '<p><strong>Number:</strong></p>';
-         if($rootScope.isMobile)
+         //if($rootScope.isMobile)
              template += '<a href=\"tel:'+dialIt+'\">'+num+'</a>';
-         else 
-             template += '<p>'+num+'</p>'
+         //else 
+          //   template += '<p>'+num+'</p>'
          template += '<br><p><strong>ConfID:</strong></p><p>'+confId+'</p><br><p><strong>Voip:</strong></p><p>'+voip+'</p><br>'
          return template;
      };

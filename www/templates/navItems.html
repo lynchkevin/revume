@@ -29,13 +29,13 @@
                     <div ng-switch-when='files'>
 
 <!------evaporate testing------------->
-                        <div ng-hide="evaData.ready">upload is not available</div>
                         <div ng-show="evaData.ready">
                             <div class="flow-drop-zone centered-container" 
                                  drag-enter="class='flow-drag-enter'" 
                                  drag-leave="class='flow-drag-leave'" 
                                  evaporate eva-model="evaData"
-                                 ng-class="class">
+                                 ng-class="class"
+                                 ng-if="!device.IOS() && !device.isIPad() && !device.isAndroid() && !device.isWindowsPhone()">
                                 <p>Drop your file(s) here</p>     
                             </div>
                                     <!--ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner--> 

@@ -1,11 +1,5 @@
 <ion-view view-title="{{presentation.name}}">
-    <ion-header-bar class="bar-calm"> <h1 class="title"> {{presentation.name}}</h1> 
-    <div class="buttons">
-      <button class="button button-clear button-light" 
-              ng-click="slideShow.closeSlideShow()">Close</button>
-    </div>
-    </ion-header-bar> 
-    <ion-content class="has-header presentation-background" scroll="false">
+    <ion-content class="has-header presentation-background" scroll="false" id="slideshow" fullscreen>
         <div class="centered-container slide" elem-size controls=true host=false>
         <div class="row">
             <div class="col col-5">
@@ -17,19 +11,29 @@
                 <ion-slide-box ng-repeat="box in slideBoxes"
                                ng-if="box.idx == slideBoxIdx"
                                disable-scroll="false"  
-                               delegate-handle="{{box.handle}}"
                                class="bordered-drop-shadow"
                                show-pager="false"
                                active-slide=boxCurrent
+                               delegate-handle="{{box.handle}}"
                                ng-cloak>
                     <ion-slide ng-repeat="slide in box.slides"
                                ng-init="$last ? slidesDone() : null"
                                ng-cloak>
                         <div ng-switch on="slide.type">
                             <div ng-switch-when="img">
+                                <ion-scroll direction="xy" 
+                                                    scrollbar-x="false" 
+                                                    scrollbar-y="false"
+                                                    zooming="true" 
+                                                    min-zoom="1.0" 
+                                                    style="width: 100%; height: 100%"
+                                                    delegate-handle="scrollHandle{{$index}}" 
+                                                    on-scroll="updateSlideStatus(boxCurrent)" 
+                                                    on-release="updateSlideStatus(boxCurrent)">
                                 <img ng-src="{{slide.src}}" class="slide-content"
                                      on-swipe-left="nextClicked()"
                                      on-swipe-right="previousClicked()">
+                                </ion-scroll>
                             </div>
                             <div ng-switch-when="video">                            
                                 <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}

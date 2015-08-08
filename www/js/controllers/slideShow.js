@@ -12,9 +12,11 @@ angular.module('starter')
                             '$rootScope',
                             '$state',
                             '$ionicSlideBoxDelegate',
+                            '$ionicScrollDelegate',
                             '$timeout',
                             'slideShow',
-function ($scope,$rootScope,$state,sbDelegate,$timeout,slideShow) {
+                            'Fullscreen',
+function ($scope,$rootScope,$state,sbDelegate,$ionicScrollDelegate,$timeout,slideShow,Fullscreen) {
         var previous = 0;
         var current = 1;
         var next = 2;
@@ -30,6 +32,8 @@ function ($scope,$rootScope,$state,sbDelegate,$timeout,slideShow) {
         $scope.slideBoxes = [];
         $scope.slideBoxIdx = 0;
         $scope.loadingMessage = '';
+        $scope.zoomFactor = 1.0;
+        $scope.fullScreen = true;
         function makeHandle(idx){
             return 'slide-box-'+idx;
         }
@@ -111,26 +115,30 @@ function ($scope,$rootScope,$state,sbDelegate,$timeout,slideShow) {
         loadSlideBoxes();
         
         $scope.nextClicked = function(){
-            if($scope.current < $scope.presentation.slides.length - 1){
-                if(!$scope.loadNext()){
-                    $scope.current++;
-                    $scope.boxCurrent++;
-                    $scope.expectEcho=true;
-                    $scope.slideBoxes[$scope.slideBoxIdx].delegate.slide($scope.boxCurrent);
+            if($scope.zoomFactor == 1.0){
+                if($scope.current < $scope.presentation.slides.length - 1){
+                    if(!$scope.loadNext()){
+                        $scope.current++;
+                        $scope.boxCurrent++;
+                        $scope.expectEcho=true;
+                        $scope.slideBoxes[$scope.slideBoxIdx].delegate.slide($scope.boxCurrent);
+                    }
+                    enableNextPrevious();
                 }
-                enableNextPrevious();
             }
         };
     
         $scope.previousClicked = function(){
-            if($scope.current > 0){
-                if(!$scope.loadPrevious()){
-                    $scope.current--;
-                    $scope.boxCurrent--
-                    $scope.expectEcho = true;
-                    $scope.slideBoxes[$scope.slideBoxIdx].delegate.slide($scope.boxCurrent);
+            if($scope.zoomFactor == 1.0){
+                if($scope.current > 0){
+                    if(!$scope.loadPrevious()){
+                        $scope.current--;
+                        $scope.boxCurrent--
+                        $scope.expectEcho = true;
+                        $scope.slideBoxes[$scope.slideBoxIdx].delegate.slide($scope.boxCurrent);
+                    }
+                    enableNextPrevious();
                 }
-                enableNextPrevious();
             }
         };
     
@@ -152,5 +160,19 @@ function ($scope,$rootScope,$state,sbDelegate,$timeout,slideShow) {
                 enableNextPrevious();
             }
         };
-                   
+    
+        $scope.updateSlideStatus = function(slide) {
+          $scope.zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
+          if ($scope.zoomFactor == 1.0) {
+            sbDelegate.enableSlide(true);
+            console.log('slide enabled');
+          } else {
+             sbDelegate.enableSlide(false);
+            console.log('slide disabled');
+          }
+        };
+                 
+
+
+
   }]);

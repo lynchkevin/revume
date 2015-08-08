@@ -160,33 +160,33 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                                position,
                               function(){$ionicSideMenuDelegate.toggleLeft(true)});
         $.steps.push(rootStep);
-        position = newPosition('15%','7%','275px');
+        position = newPosition('110px','7%','275px');
         $.steps.push($.subStep(rootStep,
                               'Settings let you change your password and log out.',
                                position)
                      );
-        position = newPosition('160px','102px','275px');
+        position = newPosition('170px','102px','275px');
         $.steps.push($.subStep(rootStep,
                               'The Library Stores all your Pitch Decks.',
                                position)
                      );       
     
-        position = newPosition('220px','160px','275px');
+        position = newPosition('230px','160px','275px');
         $.steps.push($.subStep(rootStep,
                               'Teams Let You Share Pitch Decks and other items',
                                position)
                      );  
-        position = newPosition('278px','220px','275px');
+        position = newPosition('290px','220px','275px');
         $.steps.push($.subStep(rootStep,
                               'These are all the meetings you\'ve organized',
                                position)
                      );  
-        position = newPosition('330px','280px','275px');
+        position = newPosition('350px','280px','275px');
         $.steps.push($.subStep(rootStep,
                               'Here are Invitations to Meetings you can Attend',
                                position)
                      );  
-        position = newPosition('390px','340px','275px');
+        position = newPosition('410px','340px','275px');
         $.steps.push($.subStep(rootStep,
                               'The Archive Holds All your Old Pitches and Meetings',
                                position,
@@ -220,7 +220,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                               'On a Mobile device, slide the item left to reveal options. For Desktops, just click the options drop down. Here you can edit an item, share it with your team or create a new meeting.',
                                position)
                      );  
-        position = newPosition('0px','300px','400px');
+        position = newPosition('40%','300px','400px');
         $.steps.push($.subStep(libStep,
                               'Our \'Getting Started Guide\' is a great way to get up to speed.',
                                position,

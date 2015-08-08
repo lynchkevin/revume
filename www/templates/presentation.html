@@ -9,7 +9,7 @@
           </div>
       </button>
     </ion-nav-buttons>
-    <ion-content class="has-header presentation-background" scroll="false">
+    <ion-content class="has-header presentation-background" scroll="false" id="presentation" fullscreen>
         <div class="centered-container slide" elem-size controls=true host=true>    
             <div class="row">
             <div class="col col-5">
@@ -21,7 +21,17 @@
                 <ion-slide ng-repeat="slide in presentation.slides">
                     <div ng-switch on="slide.type">
                         <div ng-switch-when="img">
+                            <ion-scroll direction="xy" 
+                                scrollbar-x="false" 
+                                scrollbar-y="false"
+                                zooming="true" 
+                                min-zoom="1.0" 
+                                style="width: 100%; height: 100%"
+                                delegate-handle="scrollHandle{{$index}}" 
+                                on-scroll="updateSlideStatus(current)" 
+                                on-release="updateSlideStatus(current)">
                             <img ng-src="{{slide.src}}" class="slide-content" >
+                            </ion-scroll>
                         </div>
                         <div ng-switch-when="video">                            
                             <video id="vid-slide" class="slide-content" v-source={{slide.src}} controls v-lead={{$index}} > </video>  

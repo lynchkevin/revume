@@ -2,7 +2,7 @@
     <ion-nav-buttons side="right">
         <button class="button icon ion-ios-telephone" ng-click="bridgeService.showBridgeInfo()"></button>
     </ion-nav-buttons>
-    <ion-content class="has-header presentation-background" scroll="false">
+    <ion-content class="has-header presentation-background" scroll="false" id="viewer" fullscreen>
         <div class="centered-container slide" elem-size controls=false>
 <!--            <div class="row">
                 <div class="col col-10">
@@ -15,7 +15,14 @@
 
                                 <div ng-switch on="slide.type">
                                     <div ng-switch-when="img">
+                                        <ion-scroll direction="xy" 
+                                                    scrollbar-x="false" 
+                                                    scrollbar-y="false"
+                                                    zooming="true" 
+                                                    min-zoom="1.0" 
+                                                    style="width: 100%; height: 100%">
                                         <img ng-src="{{slide.src}}" class="slide-content" >
+                                        </ion-scroll>
                                     </div>
                                     <div ng-switch-when="video">                            
                                         <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}></video>                      

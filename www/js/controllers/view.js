@@ -24,9 +24,11 @@ angular.module('starter')
                            'authService',
                            '$state',
                            '$ionicPopup',
+                           '$ionicScrollDelegate',
 function ($scope, $rootScope, $stateParams, 
            $timeout, $window, pnFactory, monitor, 
-           session,Decks,sbDelegate,BridgeService,$q,$ionicModal,authService,$state,$ionicPopup) {
+           session,Decks,sbDelegate,BridgeService,$q,$ionicModal,
+           authService,$state,$ionicPopup,$ionicScrollDelegate) {
   
 
     var filename = "";
@@ -199,8 +201,19 @@ function ($scope, $rootScope, $stateParams,
                       };
     
     
+    $scope.goFullScreen = function(){
+        function launchFullScreen(element) {
+        if (element.requestFullscreen)
+        { element.requestFullscreen(); }
+        else if (element.mozRequestFullScreen)
+        { element.mozRequestFullScreen(); }
+        else if (element.webkitRequestFullscreen)
+        { element.webkitRequestFullscreen(); }
+        else if (element.msRequestFullscreen)
+        { element.msRequestFullscreen(); }
+        }
+    }
     
-      
     $scope.$on('$destroy', function(){
         $scope.cleanUp();
     });
