@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the barebonesApp
  */
-angular.module('starter')
+angular.module('RevuMe')
   .controller('signinCtrl', ['$scope', '$rootScope', 'authService','$ionicPopup','$state',
    function ($scope,$rootScope,authService,$ionicPopup,$state) {
 

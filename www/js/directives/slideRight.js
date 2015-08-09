@@ -4,7 +4,7 @@
 * date-picker directive to interface with Jquery Plugin   
 */
 
-angular.module('starter')
+angular.module('RevuMe')
     .directive('slideRight', ['$window','$timeout',function ($window, $timeout) {
       return {
           restrict : 'A',

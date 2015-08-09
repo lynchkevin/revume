@@ -3,7 +3,7 @@
 /**
 * v-lead directive to lead a video for followers   
 */
-angular.module('starter')
+angular.module('RevuMe')
     .directive('vLead',['pnFactory','$stateParams','$ionicSlideBoxDelegate', function (pnFactory,$stateParams,sbDelegate) {
       return {
         restrict : 'A',

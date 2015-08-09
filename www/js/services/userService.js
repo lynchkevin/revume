@@ -3,7 +3,7 @@
 /**
 * a service to manage users  
 */
-angular.module('starter')
+angular.module('RevuMe')
 //user resources - by email and by id
 .factory('Users', ['$resource','baseUrl',function ($resource, baseUrl) {
     var _idTarget = baseUrl.endpoint+'/api/users/:id';

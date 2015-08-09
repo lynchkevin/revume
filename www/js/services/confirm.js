@@ -3,7 +3,7 @@
 /**
 * a service to send email when attendees revu 
 */
-angular.module('starter')
+angular.module('RevuMe')
 .factory('SendConfirm', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/confirm/email/:user';
     return $resource(target,{user:'@user'},{send: {method:'POST', params:{user:'@user'}}});

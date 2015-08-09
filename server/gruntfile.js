@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     
-    grunt.option('ip','http://172.20.10.3:5000');
+    grunt.option('ip','http://192.168.1.100:5000');
     grunt.initConfig({
     ngconstant: {
       // Options for all targets
@@ -70,16 +70,39 @@ module.exports = function(grunt) {
         production : {
             options : {
                 replace : {
-                    BASE_URL : 'm.volerro.com',
+                    BASE_URL : 'm.revu.me',
+                }
+            }
+        }
+    },
+    ngtemplates: {
+        RevuMe: {
+            cwd : '../www/',
+            src : 'templates/**.html',
+            dest: '../www/js/revume.templates.js',
+            options : {
+                /*bootstrap: function(module,script) {
+                    return 'angular.module(\'RevuMe\').run([\'$templateCache\',function($templateCache){\n\r'+script+'}]);';
+                },*/
+                htmlmin: {
+                    collapseBooleanAttributes:      false,
+                    collapseWhitespace:             true,
+                    removeAttributeQuotes:          false,
+                    removeComments:                 false, // Only if you don't use comment directives! 
+                    removeEmptyAttributes:          false,
+                    removeRedundantAttributes:      false,
+                    removeScriptTypeAttributes:     false,
+                    removeStyleLinkTypeAttributes:  false
                 }
             }
         }
     }
-    });
+});
     grunt.loadNpmTasks('grunt-ng-constant');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-run');
     grunt.loadNpmTasks('grunt-env');    
+    grunt.loadNpmTasks('grunt-angular-templates');    
     
     grunt.registerTask('dev', function () {
         grunt.log.writeln("ip is: " + grunt.option("ip"));
@@ -88,6 +111,9 @@ module.exports = function(grunt) {
       ]);
       grunt.task.run([
         'ngconstant:development'
+      ]);
+      grunt.task.run([
+          'ngtemplates:RevuMe'
       ]);
       grunt.task.run([
         'run'
@@ -100,6 +126,9 @@ module.exports = function(grunt) {
       ]);   
       grunt.task.run([
         'ngconstant:production'
+      ]);
+      grunt.task.run([
+          'ngtemplates:RevuMe'
       ]);
       grunt.task.run([
           'compress'

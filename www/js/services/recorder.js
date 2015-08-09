@@ -7,7 +7,7 @@
  * # presenceService
  * service to handle presence for the app
  */
-angular.module('starter')
+angular.module('RevuMe')
   .service('recorder', [function () {
     
     if (!Date.now) {

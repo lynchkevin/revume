@@ -1,10 +1,10 @@
- // Ionic Starter App
+ // Ionic RevuMe App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+// 'RevuMe' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-// 'starter.controllers' is found in controllers.js
-angular.module('starter', 
+// 'RevuMe.controllers' is found in controllers.js
+angular.module('RevuMe', 
 [   'config',
     'ionic',
     'ngResource',
@@ -187,8 +187,8 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
 }])
 
 .config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
+  $ionicConfigProvider.views.maxCache(30);
   $stateProvider
-    
   .state('app', {
     url: "/app",
     abstract: true,

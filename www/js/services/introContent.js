@@ -7,7 +7,7 @@
  * # reviewCtl
  * Controller for Revu.me - leave behind viewer
  */
-angular.module('starter')
+angular.module('RevuMe')
   .service('introContent',['$rootScope','Session','Users','UploadedFiles','Decks','Teams','baseUrl','$q',
 function ($rootScope, Session, Users, Ufiles, Decks, Teams,baseUrl,$q) {
     var $ = this;

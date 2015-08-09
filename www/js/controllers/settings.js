@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the barebonesApp
  */
-angular.module('starter')
+angular.module('RevuMe')
   .controller('settingsCtrl', ['$scope', '$rootScope','$state', '$cookieStore',
                              function ($scope,$rootScope,$state,$cookieStore) {
 

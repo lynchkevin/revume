@@ -3,7 +3,7 @@
 /**
 * a service to manage user authentication  
 */
-angular.module('starter')
+angular.module('RevuMe')
 //authentication path on the user route
 .factory('Auth', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/users/auth/:email';

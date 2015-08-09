@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the barebonesApp
  */
-angular.module('starter')
+angular.module('RevuMe')
   .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library','introContent',
 function ($scope,$rootScope,$cookieStore,userService,$state,library,introContent) {
     $scope.library = library;

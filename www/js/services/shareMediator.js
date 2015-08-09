@@ -3,7 +3,7 @@
 /**
 * shareMediator.js - service to provide roles for the library based on teams
  */
-angular.module('starter')
+angular.module('RevuMe')
     .factory('Share', ['$resource','baseUrl',function ($resource,baseUrl) {
         var target = baseUrl.endpoint+'/api/share/:id';  
         return $resource(target,

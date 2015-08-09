@@ -7,7 +7,7 @@
  * # reviewCtl
  * Controller for Revu.me - leave behind viewer
  */
-angular.module('starter')
+angular.module('RevuMe')
   .service('slideShow',['$rootScope',
                         '$ionicSlideBoxDelegate','$state',
 function ($rootScope, sbDelegate,$state) {

@@ -2,6 +2,6 @@
 
  angular.module('config', [])
 
-.constant('baseUrl', {name:'development',endpoint:'http://172.20.10.3:5000',volerro:'https://rb.volerro.com'})
+.constant('baseUrl', {name:'development',endpoint:'http://192.168.1.100:5000',volerro:'https://rb.volerro.com'})
 
 ;

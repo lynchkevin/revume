@@ -3,7 +3,7 @@
 /**
 * v-lead directive to lead a video for followers   
 */
-angular.module('starter')
+angular.module('RevuMe')
     .directive('tourStep',['$state','tourService','$parse',function ($state,tourService,$parse) {
       return {
         restrict : 'AE',

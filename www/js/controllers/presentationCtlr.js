@@ -4,7 +4,7 @@
 * A Presentation Controller 
 */
 
-angular.module('starter')
+angular.module('RevuMe')
 
 .controller('presentationCtrl', ['$scope', 
                                  '$rootScope', 

@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the barebonesApp
  */
-angular.module('starter')
+angular.module('RevuMe')
 .factory('Session', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/sessions/:id';
     return $resource(target,

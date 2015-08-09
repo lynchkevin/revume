@@ -7,7 +7,7 @@
  * # presenceService
  * service to handle presence for the app
  */
-angular.module('starter')
+angular.module('RevuMe')
 .factory('EngagementMetrics', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/metrics/:sid/:did';
     return $resource(target);

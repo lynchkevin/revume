@@ -3,7 +3,7 @@
 /**
 * v-follow directive to follow video from a leader 
 */
-angular.module('starter')
+angular.module('RevuMe')
     .directive('vFollow',['pnFactory','$stateParams', function (pnFactory,$stateParams) {
       return {
         restrict : 'A',

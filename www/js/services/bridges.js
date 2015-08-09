@@ -3,7 +3,7 @@
 /**
 * a service to manage users  
 */
-angular.module('starter')
+angular.module('RevuMe')
 
 .factory('Bridges', ['$resource','baseUrl',function ($resource,baseUrl) {
     var target = baseUrl.endpoint+'/api/bridges/:id';  

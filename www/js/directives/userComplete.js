@@ -3,7 +3,7 @@
 /**
 * autocomplete username and email   
 */
-angular.module('starter')
+angular.module('RevuMe')
     .directive('userComplete',['$rootScope','userService','$parse','$state',
     function ($rootScope,userService,$parse,$state) {
       return {

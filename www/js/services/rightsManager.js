@@ -1,4 +1,4 @@
-angular.module('starter')
+angular.module('RevuMe')
 //service to manage the behavior of each model - like a strategy pattern
 .service('rightsManager',['$rootScope',function($rootScope){
     var $ = this;

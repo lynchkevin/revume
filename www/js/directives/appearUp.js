@@ -4,7 +4,7 @@
 * date-picker directive to interface with Jquery Plugin   
 */
 
-angular.module('starter')
+angular.module('RevuMe')
 .directive('appearUp', ['$animate','$timeout', function($animate,$timeout) {
     return {
         restrict : 'A',

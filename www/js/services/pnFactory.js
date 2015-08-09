@@ -3,7 +3,7 @@
 /**
 * A factory to wrap pubnub   
 */
-angular.module('starter')
+angular.module('RevuMe')
     .factory('pnFactory', ['Users','$q', function (Users,$q) {
         var pnFactory = {};
     

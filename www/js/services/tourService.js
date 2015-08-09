@@ -7,7 +7,7 @@
  * # presenceService
  * service to handle presence for the app
  */
-angular.module('starter')
+angular.module('RevuMe')
   .service('tourService', ['$rootScope',
                            '$state',
                            '$ionicSideMenuDelegate',

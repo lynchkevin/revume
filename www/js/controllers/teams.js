@@ -2,7 +2,7 @@
 
 /**
  */
-angular.module('starter')
+angular.module('RevuMe')
 //show all sessions - split into those I organized and those I'm an attendee
 .controller('teamsCtrl',['$scope',
                             '$rootScope',

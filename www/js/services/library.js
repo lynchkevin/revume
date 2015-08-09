@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('starter')
+angular.module('RevuMe')
 //database objects
 .factory('Slides', ['$resource','baseUrl',function ($resource, baseUrl) {
     var target = baseUrl.endpoint+'/api/library/slides/:slideId';

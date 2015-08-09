@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the barebonesApp
  */
-angular.module('starter')
+angular.module('RevuMe')
 
 .controller('libraryCtrl', ['$scope',
                              '$rootScope',

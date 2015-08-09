@@ -3,7 +3,7 @@
 /**
 * a service to manage teams  
 */
-angular.module('starter')
+angular.module('RevuMe')
 
 .factory('Teams', ['$resource','baseUrl',function ($resource,baseUrl) {
     var target = baseUrl.endpoint+'/api/teams/:id';  

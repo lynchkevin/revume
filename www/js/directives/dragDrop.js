@@ -4,7 +4,7 @@
 * date-picker directive to interface with Jquery Plugin   
 */
 
-angular.module('starter')
+angular.module('RevuMe')
 /**
  * @name dragEnter
  * executes `dragEnter` and `dragLeave` events

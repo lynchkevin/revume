@@ -3,7 +3,7 @@
 /**
 * v-lead directive to lead a video for followers   
 */
-angular.module('starter')
+angular.module('RevuMe')
     .directive('addTemplate',[function () {
       return {
         restrict : 'AE',
