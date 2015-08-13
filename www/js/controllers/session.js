@@ -13,7 +13,7 @@ angular.module('RevuMe')
                             'SessionBuilder',
                             '$state',
                             
-function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
+function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBuilder,$state) {
 
     $scope.titles = {};
        
@@ -28,7 +28,7 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
                 return Sess.attSessions.get({id:_id,isArchived:$rootScope.archiveOn()}).$promise;
             }).then(function(as){
                 $scope.attSessions = as;
-                $scope.sb = sb;
+                $scope.sb = SessionBuilder;
                 $scope.sb.init($scope);
                 $scope.bridge = {};
             }).catch(function(err){
@@ -57,10 +57,10 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
     }
     
     $scope.toggleListDelete = function(which){
-      if($listDel.$getByHandle(which).showDelete())
-        $listDel.$getByHandle(which).showDelete(false);
+      if($ionicListDelegate.$getByHandle(which).showDelete())
+        $ionicListDelegate.$getByHandle(which).showDelete(false);
       else
-        $listDel.$getByHandle(which).showDelete(true);
+        $ionicListDelegate.$getByHandle(which).showDelete(true);
     };
         
     // A confirm delete dialog
@@ -177,11 +177,11 @@ function($scope, $rootScope, Sess,Decks,$listDel,$ionicPopup,sb,$state) {
         
     $scope.$on('Revu.Me:Archive',function(event){
         //close the delete button
-        if($listDel.$getByHandle('att').showDelete())
-            $listDel.$getByHandle('att').showDelete(false);
+        if($ionicListDelegate.$getByHandle('att').showDelete())
+            $ionicListDelegate.$getByHandle('att').showDelete(false);
                 //close the delete button
-        if($listDel.$getByHandle('org').showDelete())
-            $listDel.$getByHandle('org').showDelete(false);
+        if($ionicListDelegate.$getByHandle('org').showDelete())
+            $ionicListDelegate.$getByHandle('org').showDelete(false);
         $scope.checkArchive();
         $scope.init();
     });

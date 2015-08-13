@@ -20,7 +20,7 @@ angular.module('RevuMe')
                            'Revu',
                            '$q',
 function ($scope, $rootScope, $stateParams, 
-           $timeout, $window,session,sbDelegate,$ionicModal,eMetrics,Revu,$q) {
+           $timeout, $window,session,$ionicSlideBoxDelegate,$ionicModal,EngagementMetrics,Revu,$q) {
   
 
     var filename = "";
@@ -167,7 +167,7 @@ function ($scope, $rootScope, $stateParams,
         var defer = $q.defer();
         var promises = [];
         interactions.forEach(function(si){
-            var metrics = new eMetrics;
+            var metrics = new EngagementMetrics;
             angular.extend(metrics,si);
             promises.push(metrics.$save());
         });
@@ -233,7 +233,7 @@ function ($scope, $rootScope, $stateParams,
             $scope.prevEnabled = true;
         }
         $scope.viewingSlide = $scope.presentation.slides[current+$scope.offset];
-        sbDelegate.slide(current+$scope.offset);
+        $ionicSlideBoxDelegate.slide(current+$scope.offset);
     };
     //handle focus events
     

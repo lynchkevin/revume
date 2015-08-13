@@ -19,8 +19,8 @@ angular.module('RevuMe')
                                  'BridgeService',
                                  '$ionicScrollDelegate',
  function ($scope, $rootScope, $stateParams, 
-           $timeout,pnFactory,sbDelegate,session, 
-           monitor,recorder,analyzer,BridgeService,$ionicScrollDelegate) {
+           $timeout,pnFactory,$ionicSlideBoxDelegate,session, 
+           userMonitor,recorder,presAnalyzer,BridgeService,$ionicScrollDelegate) {
     
 
     //session and decks are now resolved during the state change so we can use them directly
@@ -50,7 +50,7 @@ angular.module('RevuMe')
         $scope.showUsers = true;
         var everyone = $scope.session.attendees;
         everyone.push($scope.session.organizer);
-        monitor.init(everyone);
+        userMonitor.init(everyone);
         $scope.everyone=everyone;
         $scope.present = [];
         $scope.mapShowing = false;
@@ -63,7 +63,7 @@ angular.module('RevuMe')
         $scope.channel.subscribe(handleMessage,handlePresence);
         newPresentation($scope.presentation._id);
         $scope.setSlide($scope.current);
-        sbDelegate.update();
+        $ionicSlideBoxDelegate.update();
         if($scope.session.bridge && !$scope.bridgeService.activeBridge())
             $scope.bridgeService.startBridge($scope.session.ufId);
     }
@@ -80,11 +80,11 @@ angular.module('RevuMe')
      $scope.endPresentation = function(){
         sendEnd();
         
-        var results = analyzer.analyze(recorder.export());
+        var results = presAnalyzer.analyze(recorder.export());
         var record = {session:$stateParams.id,
                       presentation:$scope.presentation._id,
                       results:results};
-        analyzer.save(record).then(function(_id){
+        presAnalyzer.save(record).then(function(_id){
             console.log(_id);
         });
      }
@@ -112,7 +112,7 @@ angular.module('RevuMe')
 
     function handlePresence(m){
         m.caller="handlePresence";
-            monitor.rollCall(m);
+            userMonitor.rollCall(m);
         if(m.userName != undefined){
             recorder.record(m);
             var statusMessage = m.userName +" has ";
@@ -126,8 +126,8 @@ angular.module('RevuMe')
                     break;
             }
             $timeout(function(){
-                $scope.everyone = monitor.everyone;
-                $scope.present = monitor.present;
+                $scope.everyone = userMonitor.everyone;
+                $scope.present = userMonitor.present;
                 $scope.$broadcast("show_message", statusMessage);
             },0);
             console.log($scope.everyone);
@@ -141,9 +141,9 @@ angular.module('RevuMe')
                 console.log(str);
                 msg.caller="handleMessage";
                 recorder.record(msg);
-                monitor.noteEngagement(msg.id,msg.status);
+                userMonitor.noteEngagement(msg.id,msg.status);
                 $timeout(function(){
-                    $scope.everyone = monitor.everyone;
+                    $scope.everyone = userMonitor.everyone;
                 },0);
                 break;
         }
@@ -157,14 +157,14 @@ angular.module('RevuMe')
     
     $scope.nextSlide = function() {
         $scope.setSlide(++$scope.current);
-        sbDelegate.slide($scope.current);
-        sbDelegate.update();
+        $ionicSlideBoxDelegate.slide($scope.current);
+        $ionicSlideBoxDelegate.update();
     };
     
     $scope.prevSlide = function() {
         $scope.setSlide(--$scope.current);
-        sbDelegate.slide($scope.current);
-        sbDelegate.update();
+        $ionicSlideBoxDelegate.slide($scope.current);
+        $ionicSlideBoxDelegate.update();
     };
       
     $scope.setSlide = function(slideNumber) {
@@ -208,9 +208,9 @@ angular.module('RevuMe')
     $scope.updateSlideStatus = function(slide) {
       var zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
       if (zoomFactor == 1.0) {
-        sbDelegate.enableSlide(true);
+        $ionicSlideBoxDelegate.enableSlide(true);
       } else {
-        sbDelegate.enableSlide(false);
+        $ionicSlideBoxDelegate.enableSlide(false);
       }
     };
 }]);

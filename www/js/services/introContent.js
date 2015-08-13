@@ -9,7 +9,7 @@
  */
 angular.module('RevuMe')
   .service('introContent',['$rootScope','Session','Users','UploadedFiles','Decks','Teams','baseUrl','$q',
-function ($rootScope, Session, Users, Ufiles, Decks, Teams,baseUrl,$q) {
+function ($rootScope, Session, Users, UploadedFiles, Decks, Teams, baseUrl, $q) {
     var $ = this;
     
     function fixTime(session){
@@ -23,11 +23,11 @@ function ($rootScope, Session, Users, Ufiles, Decks, Teams,baseUrl,$q) {
     
     $.addFile = function(userId,superUser){
         var defer = $q.defer();
-        var newFile = new Ufiles;
+        var newFile = new UploadedFiles;
         var introFile = {};
         //get example File - Make Copy Set User and Save
-        Ufiles.query({user:superUser._id, name:'Getting Started.pptx'}).$promise.then(function(items){
-        //Ufiles.get({id:'55b14fa197445708d20edb6f'}).$promise.then(function(refFile){
+        UploadedFiles.query({user:superUser._id, name:'Getting Started.pptx'}).$promise.then(function(items){
+        //UploadedFiles.get({id:'55b14fa197445708d20edb6f'}).$promise.then(function(refFile){
             var refFile = items[0];
             introFile = refFile;
             newFile.name = refFile.name;
@@ -41,7 +41,7 @@ function ($rootScope, Session, Users, Ufiles, Decks, Teams,baseUrl,$q) {
             introFile.slides.forEach(function(slide){
                 newFile.slides.push(slide);
             });
-            return Ufiles.update({id:newFile._id},newFile).$promise;
+            return UploadedFiles.update({id:newFile._id},newFile).$promise;
         }).then(function(updated){
             defer.resolve(updated);
         });
@@ -54,8 +54,8 @@ function ($rootScope, Session, Users, Ufiles, Decks, Teams,baseUrl,$q) {
         var introDeck = {};
         //get example File - Make Copy Set User and Save
         //get example File - Make Copy Set User and Save
-        Ufiles.query({user:superUser._id, name:'Getting Started.pptx'}).$promise.then(function(items){
-        //Ufiles.get({id:'55b14fa197445708d20edb6f'}).$promise.then(function(file){
+        UploadedFiles.query({user:superUser._id, name:'Getting Started.pptx'}).$promise.then(function(items){
+        //UploadedFiles.get({id:'55b14fa197445708d20edb6f'}).$promise.then(function(file){
         var file = items[0];
         introDeck = file;
         newDeck.name = introDeck.name;

@@ -26,8 +26,8 @@ angular.module('RevuMe')
                            '$ionicPopup',
                            '$ionicScrollDelegate',
 function ($scope, $rootScope, $stateParams, 
-           $timeout, $window, pnFactory, monitor, 
-           session,Decks,sbDelegate,BridgeService,$q,$ionicModal,
+           $timeout, $window, pnFactory, userMonitor, 
+           session,Decks,$ionicSlideBoxDelegate,BridgeService,$q,$ionicModal,
            authService,$state,$ionicPopup,$ionicScrollDelegate) {
   
 
@@ -50,7 +50,7 @@ function ($scope, $rootScope, $stateParams,
             $scope.channel = pnFactory.newChannel(channelName);
             var everyone = $scope.session.attendees;
             everyone.push($scope.session.organizer);
-            monitor.init(everyone);
+            userMonitor.init(everyone);
             // subscribe and wait for presentation and slide number...
             $scope.channel.subscribe(handleMessage,handlePresence);
         });
@@ -106,7 +106,7 @@ function ($scope, $rootScope, $stateParams,
             $scope.presentation =decks;
             current = 0;
             $scope.setSlide(current);
-            sbDelegate.update();
+            $ionicSlideBoxDelegate.update();
             defer.resolve();
         });
         return defer.promise;
@@ -146,7 +146,7 @@ function ($scope, $rootScope, $stateParams,
                                
     
     function handlePresence(m){
-        monitor.rollCall(m);
+        userMonitor.rollCall(m);
         if(m.userName != undefined){
             var statusMessage = m.userName+" has ";
             switch(m.action){
@@ -173,7 +173,7 @@ function ($scope, $rootScope, $stateParams,
     $scope.setSlide = function(slideNumber) {
         current = slideNumber;
         $scope.viewingSlide = $scope.presentation.slides[current];
-        sbDelegate.slide(current);
+        $ionicSlideBoxDelegate.slide(current);
     };
     
 

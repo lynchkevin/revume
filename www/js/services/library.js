@@ -51,24 +51,24 @@ angular.module('RevuMe')
                     'rightsManager',
                     'shareMediator',
                     'Archiver',
-function(uFiles,
-          decks,
-          categories,
+function(UploadedFiles,
+          Decks,
+          Categories,
           $q,$timeout,
           baseUrl,
           $resource,
           $rootScope,
           $ionicPopup,
-          rightsAuth,
+          rightsManager,
           shareMediator,
-          archiver){
+          Archiver){
     
     var $ = this;
     var collection={};
     //database objects
-    $.files = uFiles;
-    $.decks = decks;
-    $.categories = categories;
+    $.files = UploadedFiles;
+    $.decks = Decks;
+    $.categories = Categories;
     
     //files currently being uploaded
     $.uploading = {files:[]};
@@ -76,9 +76,9 @@ function(uFiles,
     $.actionList = ['Edit','New Meeting','Share','Hide','Archive','Delete','Reorder','SlideShow'];
     
     function establishRights($scope){
-        $.fileRights = rightsAuth.register('files',$scope,$.actionList,$.files);
-        $.deckRights = rightsAuth.register('decks',$scope,$.actionList,$.decks);
-        $.catRights = rightsAuth.register('categories',$scope,$.actionList,$.categories);
+        $.fileRights = rightsManager.register('files',$scope,$.actionList,$.files);
+        $.deckRights = rightsManager.register('decks',$scope,$.actionList,$.decks);
+        $.catRights = rightsManager.register('categories',$scope,$.actionList,$.categories);
         $.fileRights.setAll('Admin',true); //all are false by default so set admin true
         //$.fileRights.setRight('Admin','New Meeting',false);
         $.fileRights.setRight('Admin','Hide',false);  
@@ -114,7 +114,7 @@ function(uFiles,
     function addActions($scope){
         var model = $scope.model;
         var items = $scope.navItems;
-        var rights = rightsAuth.findKey(model); //get the rights for the appropriate model;
+        var rights = rightsManager.findKey(model); //get the rights for the appropriate model;
         items.forEach(function(item){
             var refActions = (item.beingEdited) ? $scope.editActions: $scope.actions ;
             item.actions =[];
@@ -140,7 +140,7 @@ function(uFiles,
         var deferred = $q.defer();
         $.cachedImages = [];
         var img = {};
-        uFiles.query({user:$rootScope.user._id,archiveOn:$rootScope.archiveOn()})
+        UploadedFiles.query({user:$rootScope.user._id,archiveOn:$rootScope.archiveOn()})
         .$promise.then(function(items){
             if(items != undefined){
                 items.forEach(function(item){
@@ -487,7 +487,7 @@ function(uFiles,
         console.log($scope.navItems[index]);
         var navItem = $scope.navItems[index];
         var modelName = $scope.modelName;
-        archiver.update({modelName:modelName,id:navItem._id,isArchived:navItem.isArchived})
+        Archiver.update({modelName:modelName,id:navItem._id,isArchived:navItem.isArchived})
         .$promise.then(function(){
             defer.resolve();
         });

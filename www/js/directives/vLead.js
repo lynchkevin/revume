@@ -4,7 +4,7 @@
 * v-lead directive to lead a video for followers   
 */
 angular.module('RevuMe')
-    .directive('vLead',['pnFactory','$stateParams','$ionicSlideBoxDelegate', function (pnFactory,$stateParams,sbDelegate) {
+    .directive('vLead',['pnFactory','$stateParams', function (pnFactory,$stateParams) {
       return {
         restrict : 'A',
         link: function(scope, element, attrs) 

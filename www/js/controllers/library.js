@@ -27,26 +27,27 @@ angular.module('RevuMe')
                              '$q',
 function ($scope,$rootScope,$state,
            $window,$timeout,$resource,Library,
-           $ionicScrollDelegate,$listDel,
-           pnFactory,$ionicPopup,sb,baseUrl,shareMediator,slideShow,$q) {
+           $ionicScrollDelegate,$ionicListDelegate,
+           pnFactory,$ionicPopup,SessionBuilder,baseUrl,shareMediator,slideShow,$q) {
       
     $scope.w = angular.element($window);
     
     //connect to server callbacks
     //pnFactory.init(); - now done once in rootScope
     var channel = pnFactory.newChannel("library::fileEvents");
-    channel.subscribe(uploadComplete);
+
   
     
     $scope.init = function(){
-        sb.init($scope);
+        channel.subscribe(uploadComplete);
+        SessionBuilder.init($scope);
         $scope.title = "Slide Library";
         $scope.library = Library;
         Library.init($scope);
         $scope.baseUrl = baseUrl.endpoint;
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
         $scope.navPartial = baseUrl.endpoint+"/templates/navItems.html"
-        $scope.sb=sb;
+        $scope.sb=SessionBuilder;
         //pnFactory.init(); this is now done once in rootScope
         reAspect();
         $scope.user={};
@@ -59,7 +60,7 @@ function ($scope,$rootScope,$state,
         $scope.listName = "Uploaded Files";
         $scope.setModel('files');
         $scope.tap={on:false,index:0};
-        $listDel.showDelete(false);
+        $ionicListDelegate.showDelete(false);
         $scope.deck = {name: ''};
         $scope.category={name:''};
         $scope.addingTo = undefined;
@@ -127,8 +128,8 @@ function ($scope,$rootScope,$state,
         return "Edit";
     };
     $scope.buildSession = function(navItem){
-        sb.init($scope).then(function(){
-            return sb.build(navItem);
+        $scope.sb.init($scope).then(function(){
+            return $scope.sb.build(navItem);
         }).then(function(){
             $scope.slideBack();
         }).catch(function(err){
@@ -285,7 +286,7 @@ function ($scope,$rootScope,$state,
     };
     $scope.endNavAdd = function(){
         $scope.showAddItem = false;
-        $listDel.showDelete(false);
+        $ionicListDelegate.showDelete(false);
     }
     // A confirm delete dialog
     function showConfirm(filename) {
@@ -307,10 +308,10 @@ function ($scope,$rootScope,$state,
       });
     };
     $scope.toggleListDelete = function(){
-      if($listDel.showDelete())
-        $listDel.showDelete(false);
+      if($ionicListDelegate.showDelete())
+        $ionicListDelegate.showDelete(false);
       else
-        $listDel.showDelete(true);
+        $ionicListDelegate.showDelete(true);
     };
 
     function doFileEvents(job){

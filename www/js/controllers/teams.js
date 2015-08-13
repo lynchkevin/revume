@@ -12,7 +12,7 @@ angular.module('RevuMe')
                             '$ionicPopup',
                             '$ionicModal',
                             '$state',
-function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionicModal,$state) {
+function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPopup,$ionicModal,$state) {
     
     //set edit team name if passed in
     switch($state.current.name){
@@ -107,10 +107,10 @@ function($scope, $rootScope, teamService,userService,$listDel,$ionicPopup,$ionic
     };    
     //show the delete icons
     $scope.toggleListDelete = function(which){
-      if($listDel.$getByHandle(which).showDelete())
-        $listDel.$getByHandle(which).showDelete(false);
+      if($ionicListDelegate.$getByHandle(which).showDelete())
+        $ionicListDelegate.$getByHandle(which).showDelete(false);
       else
-        $listDel.$getByHandle(which).showDelete(true);
+        $ionicListDelegate.$getByHandle(which).showDelete(true);
     } 
     // A confirm delete dialog
     function showConfirm(teamName) {

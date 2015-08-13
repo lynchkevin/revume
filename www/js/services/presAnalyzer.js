@@ -12,7 +12,7 @@ angular.module('RevuMe')
     var target = baseUrl.endpoint+'/api/metrics/:sid/:did';
     return $resource(target);
 }])
-.service('presAnalyzer',['EngagementMetrics','$q',function (eMetrics,$q) {
+.service('presAnalyzer',['EngagementMetrics','$q',function (EngagementMetrics,$q) {
     
       
     //look back and set the endtime of the last element in the list  
@@ -204,7 +204,7 @@ angular.module('RevuMe')
       
     this.save = function(record){
         var defer = $q.defer();
-        var metrx = new eMetrics;
+        var metrx = new EngagementMetrics;
         var results = record.results;
         var pres = results.presentation;
         var slides = results.slides;
@@ -234,7 +234,7 @@ angular.module('RevuMe')
     };
     
     this.get = function(sid,did){
-        return eMetrics.query({sid:sid,did:did}).$promise;
+        return EngagementMetrics.query({sid:sid,did:did}).$promise;
     }
             
             

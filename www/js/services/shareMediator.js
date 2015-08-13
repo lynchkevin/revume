@@ -20,7 +20,7 @@ angular.module('RevuMe')
                                '$rootScope',
                                '$ionicModal',
                                '$q',
-    function ( Share,rightsAuth,teamService,$rootScope, $ionicModal,$q ) {
+    function ( Share,rightsManager,TeamService,$rootScope, $ionicModal,$q ) {
               
     var $ = this;
     
@@ -31,7 +31,7 @@ angular.module('RevuMe')
         // attach functions to childscope for template
         $.childScope.cancelShare = $.cancelShare;
         $.childScope.updateSharing = $.updateSharing;
-        teamService.getAll($rootScope.user._id).then(function(teams){
+        TeamService.getAll($rootScope.user._id).then(function(teams){
             $.childScope.teams = teams;
         })
         $ionicModal.fromTemplateUrl('templates/shareTemplate.html',{
@@ -60,7 +60,7 @@ angular.module('RevuMe')
     //share an item
     $.shareItem = function($index){
         var item = $.scope.navItems[$.scope.selectedNavId];
-        teamService.getAll($rootScope.user._id).then(function(teams){
+        TeamService.getAll($rootScope.user._id).then(function(teams){
             $.childScope.teams = teams;
             return Share.query({item:item._id,user:$rootScope.user._id}).$promise;
         }).then(function(shares){
@@ -109,7 +109,7 @@ angular.module('RevuMe')
     $.saveShare = function(model,item,teams){
         var deferred = $q.defer();
         var share = new Share;
-        var modelName = rightsAuth.findKey(model).getName();
+        var modelName = rightsManager.findKey(model).getName();
         var existing = $.childScope.share;
         share.model = modelName;
         share.user = $rootScope.user._id;
@@ -150,9 +150,9 @@ angular.module('RevuMe')
                 var r = team.members[0].role;
                 if(role == undefined){
                     role = r;
-                    roleIdx = rightsAuth.roles.indexOf(role);
+                    roleIdx = rightsManager.roles.indexOf(role);
                 } else {
-                    idx = rightsAuth.roles.indexOf(r);
+                    idx = rightsManager.roles.indexOf(r);
                     if(idx<roleIdx){
                         role = r;
                         roleIdx = idx;
@@ -181,7 +181,7 @@ angular.module('RevuMe')
     $.getItems = function(inputModel){
         var deferred = $q.defer();
         var model = inputModel;  
-        var modelName = rightsAuth.findKey(model).getName();
+        var modelName = rightsManager.findKey(model).getName();
         var allItems = [];
         var sharedItems = [];
         var promises = [];

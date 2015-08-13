@@ -14,7 +14,7 @@
             <div class="row">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
-                   ng-click="prevSlide()"></a>
+                   ng-click="prevSlide();$event.preventDefault(); $event.stopPropagation();"></a>
             </div>
             <div class="col col-90" >
             <ion-slide-box class="bordered-drop-shadow" on-slide-changed="setSlide(index)" show-pager="false">
@@ -43,7 +43,7 @@
             </div>
             <div class="col col-5">
                 <a class="button icon-right ion-chevron-right button-clear button-dark slider-button right" 
-                   ng-click="nextSlide()"></a>
+                   ng-click="nextSlide();$event.preventDefault(); $event.stopPropagation();"></a>
             </div>
 
             </div>

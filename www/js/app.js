@@ -36,7 +36,7 @@ angular.module('RevuMe',
       '$ionicHistory',
       'Library',
 function($ionicPlatform,$rootScope,$window,$http,userService,
-          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory,library) {
+          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory,Library) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -116,8 +116,8 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
                 $cookieStore.put('user', $rootScope.user);  
         }
         $rootScope.$broadcast('Revu.Me:Ready');
-        library.cacheImages().then(function(){
-            var str = 'Cached '+library.cachedImages.length+' Images';
+        Library.cacheImages().then(function(){
+            var str = 'Cached '+Library.cachedImages.length+' Images';
             
         });
     };
@@ -186,7 +186,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
          
 }])
 
-.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
+.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
   $ionicConfigProvider.views.maxCache(30);
   $stateProvider
   .state('app', {
@@ -495,9 +495,9 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
     url: "/confirmEmail/:id?",
       resolve: {
           user : ['Users','DoConfirm','$stateParams','$q',
-                function(User,DoConfirm,$stateParams,$q){ 
+                function(Users,DoConfirm,$stateParams,$q){ 
                                var defer = new $q.defer();
-                               var byId = User.byId;
+                               var byId = Users.byId;
                                DoConfirm.confirm({id:$stateParams.id}).$promise.then(function(result){
                                    if(result.success){
                                        byId.get({id:$stateParams.id}).$promise.then(function(user){
@@ -520,4 +520,4 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
     
-});
+}]);

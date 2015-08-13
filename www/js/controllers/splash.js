@@ -15,15 +15,13 @@ angular.module('RevuMe')
                              'baseUrl',
                              '$ionicNavBarDelegate',
                              'tourService',
-                             'Library',
                              function ($scope,
                                         $rootScope,
                                         $timeout,
                                         $http,
                                         baseUrl,
                                         $ionicNavBarDelegate,
-                                        tourService,
-                                        library) {
+                                        tourService){
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $scope.init = function(){

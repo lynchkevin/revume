@@ -8,10 +8,11 @@
  * Controller of the barebonesApp
  */
 angular.module('RevuMe')
-  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library','introContent',
-function ($scope,$rootScope,$cookieStore,userService,$state,library,introContent) {
-    $scope.library = library;
-    
+  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library','introContent','buildDate',
+function ($scope,$rootScope,$cookieStore,userService,$state,Library,introContent,buildDate) {
+
+    $scope.build = {date:buildDate};
+    $scope.Library = Library;
     function batmanOn(){
         $rootScope.user.batman = true;
         $scope.utility.actions[1].name = 'Stop Snooping...';

@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
-    
+
     grunt.option('ip','http://192.168.1.100:5000');
+    grunt.option('buildDate',new Date().toString('mmm d, yyyy h:M'));
+    
     grunt.initConfig({
     ngconstant: {
       // Options for all targets
@@ -19,7 +21,8 @@ module.exports = function(grunt) {
             name: 'development',
             endpoint: grunt.option('ip'),
             volerro: 'https://rb.volerro.com'
-          }
+          },
+          buildDate : grunt.option('buildDate')
         }
       },
       production: {
@@ -31,7 +34,8 @@ module.exports = function(grunt) {
             name: 'production',
             endpoint: 'http://m.revu.me',
             volerro: 'https://rb.volerro.com'
-          }
+          },
+          buildDate : grunt.option('buildDate')
         }
       }
     },
@@ -96,32 +100,83 @@ module.exports = function(grunt) {
                 }
             }
         }
+    },
+    watch: {
+        html: {
+            files: ['../www/templates/*.html'],
+            tasks: ['ngtemplates:RevuMe']
+        }
+    },
+    shell: {
+        watch: {
+            command: 'grunt watch',
+            options: {
+                async: true
+            }
+        }
+    },
+    uglify:{
+        options: {
+            banner: '/* RevuMe - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */'
+        },
+        javascript: {
+            files: [{src:'../www/js/**/*.js', dest:'../www/revume.min.js'}]
+        }
+    },
+    dev_prod_switch: {
+            options: {
+                environment: 'dev',
+                env_char: '#',
+                env_block_dev: 'env:dev',
+                env_block_prod: 'env:prod'
+            },
+            all: {
+                files: {
+                '../www/index.html' : '../www/index.html'
+                }
+            }
     }
 });
     grunt.loadNpmTasks('grunt-ng-constant');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-run');
     grunt.loadNpmTasks('grunt-env');    
-    grunt.loadNpmTasks('grunt-angular-templates');    
+    grunt.loadNpmTasks('grunt-angular-templates'); 
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-shell-spawn');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-dev-prod-switch');
     
     grunt.registerTask('dev', function () {
         grunt.log.writeln("ip is: " + grunt.option("ip"));
-      grunt.task.run([
+        grunt.log.writeln("buildDate: " + grunt.option('buildDate'));
+
+        grunt.config.data.dev_prod_switch.options.environment = 'dev';
+
+        grunt.task.run([
+        'shell:watch'
+        ]);
+        grunt.task.run([
         'env:development'
-      ]);
-      grunt.task.run([
+        ]);
+        grunt.task.run([
         'ngconstant:development'
-      ]);
-      grunt.task.run([
+        ]);
+        grunt.task.run([
           'ngtemplates:RevuMe'
-      ]);
-      grunt.task.run([
+        ]);
+        grunt.task.run([
+          'dev_prod_switch'
+        ]);        
+        grunt.task.run([
         'run'
-      ]);
+        ]);
     });
     
     grunt.registerTask('prod', function () {
-       grunt.task.run([
+      grunt.config.data.dev_prod_switch.options.environment = 'prod';
+      
+      grunt.task.run([
         'env:production'
       ]);   
       grunt.task.run([
@@ -130,6 +185,12 @@ module.exports = function(grunt) {
       grunt.task.run([
           'ngtemplates:RevuMe'
       ]);
+      grunt.task.run([
+          'uglify:javascript'
+      ]);
+      grunt.task.run([
+          'dev_prod_switch'
+      ]);  
       grunt.task.run([
           'compress'
       ]);

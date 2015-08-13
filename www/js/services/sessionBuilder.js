@@ -74,7 +74,7 @@ angular.module('RevuMe')
                               '$timeout',
                               'baseUrl',
                               'TeamService',
-function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl,teamService) {
+function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl,TeamService) {
     var $ = this;
     var $user = userService.user;
     var lengthOptions = [30,60,90,120];
@@ -100,7 +100,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.session.baseUrl = baseUrl.endpoint;
         $.session.offset = new Date().getTimezoneOffset();
         $.session.showTeams = false;
-        teamService.getAll().then(function(teams){
+        TeamService.getAll().then(function(teams){
             $.session.teamList = teams;
             if($.session.teamList.length >0)
                 $.session.team = $.session.teamList[0];
@@ -127,14 +127,12 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         }).then(function(modal){
             $.deckModal = modal;
         //Modal for editing the session
-            $ionicModal.fromTemplateUrl('templates/buildSession.html', {
-            scope: $.scope,
-            animation: 'slide-in-up'
+            return $ionicModal.fromTemplateUrl('templates/buildSession.html', 
+                                               {scope: $.scope, animation: 'slide-in-up'});
         }).then(function(modal) {
             $.builderModal = modal;
             deferred.resolve();
-        });  
-        });
+        });          
         return deferred.promise;
     };
     

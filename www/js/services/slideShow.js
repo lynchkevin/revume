@@ -8,9 +8,8 @@
  * Controller for Revu.me - leave behind viewer
  */
 angular.module('RevuMe')
-  .service('slideShow',['$rootScope',
-                        '$ionicSlideBoxDelegate','$state',
-function ($rootScope, sbDelegate,$state) {
+  .service('slideShow',['$rootScope', '$state',
+function ($rootScope, $state) {
     var $ = this;
     $.presentation = {};
     

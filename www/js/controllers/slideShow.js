@@ -162,13 +162,15 @@ function ($scope,$rootScope,$state,sbDelegate,$ionicScrollDelegate,$timeout,slid
         };
     
         $scope.updateSlideStatus = function(slide) {
-          $scope.zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
-          if ($scope.zoomFactor == 1.0) {
-            sbDelegate.enableSlide(true);
-            console.log('slide enabled');
-          } else {
-             sbDelegate.enableSlide(false);
-            console.log('slide disabled');
+          if($scope.presentation.slides[$scope.current].type != 'video'){
+              $scope.zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
+              if ($scope.zoomFactor == 1.0) {
+                sbDelegate.enableSlide(true);
+                console.log('slide enabled');
+              } else {
+                 sbDelegate.enableSlide(false);
+                console.log('slide disabled');
+              }
           }
         };
                  

@@ -21,11 +21,11 @@ angular.module('RevuMe')
                          '$ionicPopover',
                          '$rootScope',
                          'Share', 
-function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
+function (Teams,Users,rightsManager,$q,$ionicPopover,$rootScope,Share) {
     var $ = this;
     var permissionList =[];
 
-    rightsAuth.roles.forEach(function(role){
+    rightsManager.roles.forEach(function(role){
         var x = {}
         x.name = role;
         permissionList.push(x);
@@ -40,7 +40,7 @@ function (Teams,Users,rightsAuth,$q,$ionicPopover,$rootScope,Share) {
         $.scope = $scope;
         $scope.editTeamId = undefined;
         $scope.permissions = permissionList;
-        $.rights = rightsAuth.register($.registeredName,$scope,$.actionList,$);
+        $.rights = rightsManager.register($.registeredName,$scope,$.actionList,$);
         //set admin to all true
         $.rights.setAll('Admin',true);
         //set viewer to all false
