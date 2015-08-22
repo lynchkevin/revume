@@ -48,6 +48,9 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
+    window.shouldRotateToOrientation = function(degrees) {
+     return true;
+    }
   });
     //initialize some globals
     $rootScope.deepLink = false;
@@ -111,18 +114,20 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
         if(!options.stealthMode) {
             if($rootScope.isMobile)
-                $window.localStorage['user'] = JSON.stringify($rootScope.user);
+                $window.localStorage.setItem('user',JSON.stringify($rootScope.user));
             else
                 $cookieStore.put('user', $rootScope.user);  
         }
         $rootScope.$broadcast('Revu.Me:Ready');
+        /*
         Library.cacheImages().then(function(){
             var str = 'Cached '+Library.cachedImages.length+' Images';
             
         });
+        */
     };
     $rootScope.getLocalUser = function(){
-        var userString = $window.localStorage['user'];
+        var userString = $window.localStorage.getItem('user');
         var user = undefined;
         if(userString != undefined)
             user = JSON.parse(userString);

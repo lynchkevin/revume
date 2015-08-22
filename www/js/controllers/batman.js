@@ -13,6 +13,7 @@ function ($scope,$rootScope,$cookieStore,userService,$state,Library,introContent
 
     $scope.build = {date:buildDate};
     $scope.Library = Library;
+    $scope.start = new Date();
     function batmanOn(){
         $rootScope.user.batman = true;
         $scope.utility.actions[1].name = 'Stop Snooping...';

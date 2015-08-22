@@ -37,13 +37,13 @@
               </label>
               <label class="item item-input ">
                 <span class="input-label">Date</span>
-                <input type="Date" name="date" ng-model="sb.session.date" placeholder="Date" required>
+                <input type="Date" name="date" date-format ng-model="sb.session.date" placeholder="Date"  required>
               </label>
               <div class="row">
                 <div class="col col-50">
                   <label class="item item-input">
                     <span class="input-label">Time</span>
-                    <input type="time" name="time" ng-model="sb.session.time" placeholder="Time" required>
+                    <input type="time" name="time" time-format ng-model="sb.session.time" placeholder="Time"  required>
                   </label>
                 </div>
                 <div class="col col-50">
@@ -145,7 +145,7 @@
                     Cancel
                 </button>          
             </div>
-            <div class="centered-container">
+            <div class="centered-container" style="padding-bottom:30px">
                 <p ng-show="sb.sessionForm.sName.$invalid">Session Name is Required</p>
                 <p ng-show="sb.sessionForm.date.$invalid">Session Date is Required</p>
                 <p ng-show="sb.sessionForm.time.$invalid">Session Time is Required</p>            

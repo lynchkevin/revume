@@ -2,10 +2,10 @@
 <widget id="com.ionicframework.revume922842" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>revume</name>
   <description>
-        An Ionic Framework and Cordova project.
+        A Sales Presentation Application.
     </description>
   <author email="hi@ionicframework" href="http://ionicframework.com/">
-      Ionic Framework Team
+      Volerro Corporation
     </author>
   <content src="index.html"/>
   <access origin="*"/>
@@ -15,6 +15,7 @@
   <preference name="BackupWebStorage" value="none"/>
   <preference name="SplashScreen" value="screen"/>
   <preference name="SplashScreenDelay" value="3000"/>
+  <preference name="orientation" value="default" />
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>

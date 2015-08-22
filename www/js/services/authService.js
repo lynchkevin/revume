@@ -268,16 +268,14 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
         } else { // it's a public route
             // check if the user is already a member and push them to welcome
             if(toState.name == 'app.signup'){
-                if($rootScope.isMobile){
-                    var lsUser = $rootScope.getLocalUser();
-                    if(lsUser != undefined){
-                        var User = $.user.byId;
-                        User.get({id:lsUser._id}).$promise.then(function(user){
-                            $rootScope.user={};
-                            $rootScope.userInit(user);
-                            $state.go("app.welcome");
-                        });     
-                    }
+                var lsUser = $rootScope.getLocalUser();
+                if(lsUser != undefined){
+                    var User = $.user.byId;
+                    User.get({id:lsUser._id}).$promise.then(function(user){
+                        $rootScope.user={};
+                        $rootScope.userInit(user);
+                        $state.go("app.welcome");
+                    });     
                 } else {
                     var cookieUser = $cookieStore.get('user');
                     if(cookieUser != undefined){    

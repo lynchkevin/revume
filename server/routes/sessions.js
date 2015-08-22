@@ -5,6 +5,7 @@ var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var iCalEvent = require('icalevent');
+var icalToolkit = require('ical-toolkit');
 var nodemailer = require('nodemailer');
 var signer = require('../lib/cfSigner');
 var volerroSender = 'invitation@volerro.com';
@@ -58,6 +59,38 @@ function endDate(meeting){
     return fullEnd;
 };
 
+function initTkInvite(meeting,inputUrl,organizer,attendees){
+    var invite = icalToolkit.createIcsFileBuilder(); 
+    invite.spacers = true;
+    invite.NEWLINE_CHAR = '\r\n';
+    invite.throError = false;
+    invite.ignorTZIDMismatch=true;
+    
+    invite.calname = meeting.name;
+    invite.timezone = meeting.timeZone;
+    invite.tzid = meeting.timeZone;
+    invite.method = 'REQUEST';
+    invite.events.push({
+        start: startDate(meeting),
+        end:endDate(meeting),
+        transp: 'OPAQUE',
+        summary: meeting.description,
+        additionalTags: {
+            'confID' : meeting.ufId
+        },
+        organizer:organizer,
+        attendees:attendees,
+        uid: meeting.ufId,
+        sequence: null,
+        location:meeting.bridgeNumber+',,,'+meeting.ufId.replace(/-/g,'')+"#\n\n",
+        description:meeting.description,
+        method: 'PUBLISH',
+        status: 'CONFIRMED',
+        url:inputUrl,
+    });
+    return invite;
+}
+/*
 function initInvite(meeting){
     console.log('initInvite: meeting is - \n',meeting);
     var fullStart = startDate(meeting);
@@ -79,7 +112,7 @@ function initInvite(meeting){
     console.log('initInvite: invite is - \n',invite); 
     return invite;
 };
-    
+*/   
 function composeOrgMessage(meeting,update){
         var fullStart = startDate(meeting);
         var orgUrlString = meeting.baseUrl+'/#/app/sessions/'+meeting._id;
@@ -88,7 +121,8 @@ function composeOrgMessage(meeting,update){
             orgMessage = "You setup a new meeting in Revu.Me \n\r";
         else 
             orgMessage = "You changed your meeting in Revu.Me \n\r";
-        var dateStr = fullStart.toString();
+ //       var dateStr = fullStart.toString();
+        var dateStr = meeting.time;
         var attString = "";
         //add the organizer id to the url
         orgUrlString +='?uid='+meeting.organizer._id;    
@@ -120,7 +154,8 @@ function composeAttMessage(meeting,update,userId){
             attMessage = "You\'re invited to a new meeting in Revu.Me \n\r";
         else
             attMessage = "There has been a change to your Revu.Me meeting \n\r"; 
-        var dateStr = fullStart.toString();
+        //var dateStr = fullStart.toString();
+        var dateStr = meeting.time;
         var attString = "";
         meeting.attendees.forEach(function(u){
             attString = attString.concat(u.firstName+" "+u.lastName);
@@ -143,7 +178,7 @@ function composeAttMessage(meeting,update,userId){
         attMessage = attMessage.concat("\n\n");
         return attMessage;
 };
-
+/* depricated code
 function sendInvites(id, update){
     var invites = {};
     var mail = {};
@@ -206,6 +241,66 @@ function sendInvites(id, update){
     });
     
 };
+*/
+function sendTkInvites(id, update){
+    var invites = {};
+    var mail = {};
+    var meeting = getSession(id).then(function(meeting){
+        var oName = meeting.organizer.firstName+' '+meeting.organizer.lastName;
+        var attUrlString = meeting.baseUrl+'/#/app/attsessions/'+meeting._id;
+        var orgUrlString = meeting.baseUrl+'/#/app/sessions/'+meeting._id;
+        orgUrlString += '?uid='+meeting.organizer._id;
+        var organizer={name:oName,email:meeting.organizer.email};
+        var attendees =[];
+        meeting.attendees.forEach(function(usr){
+            var u = {};
+            u.name = usr.firstName+' '+usr.lastName;
+            u.email = usr.email;
+            attendees.push(u);
+        });
+        //build invites for organizer and attendee
+        var orgInvite = initTkInvite(meeting,orgUrlString,organizer,attendees);
+        var attInvite = initTkInvite(meeting,attUrlString,organizer,attendees);
+        
+ 
+        //build an email to send the organizer
+        var orgMessage = composeOrgMessage(meeting,update);
+        mail.from = volerroSender; //invitation@volerro.com
+        mail.to = organizer.email;
+        if (!update)
+            mail.subject = 'A New Revu.Me Meeting You Organized'
+        else
+            mail.subject = 'A Change to Your Revu.Me Meeting'        
+        mail.text = orgMessage;
+        mail.attachments = [{filename:'invite.ics',
+                     content: orgInvite.toString()
+                    }];
+
+        transporter.sendMail(mail);
+
+        //send mail to the attendees;
+        mail.from = volerroSender;
+        if (!update)
+            mail.subject = 'Invitation from '+oName+' to join a Revu.me Meeting';
+        else
+            mail.subject = oName+' made a change to your Revu.me Meeting';            
+        meeting.attendees.forEach(function(usr){
+            var url = attUrlString+'?uid='+usr._id;
+            var attMessage = composeAttMessage(meeting,update,usr._id);
+            //each attendee gets a unique url
+            attInvite.events[0].url = url;
+            mail.to = usr.email;
+            mail.text = attMessage;
+            mail.attachments = [{filename:'invite.ics',
+                             content: attInvite.toString()
+                            }];
+            transporter.sendMail(mail);
+        });
+    }).catch(function(err){
+        console.log('buildInvites error: ',err);
+    });
+    
+};
 // build a user friendly meeting id from the session uuid
 function userFriendlyId (_id){
     var rawNumbers = _id.match(/\d+/g);
@@ -238,7 +333,7 @@ function composeLBMessage(meeting,userId){
         attMessage = attMessage.concat(oName+"\n");
         attMessage = attMessage.concat(meeting.organizer.email+"\n\n");
         attMessage = attMessage.concat("Thank You!\n\n\n");
-        attMessage = attMessage.concat("The Volerro Team\n");
+        attMessage = attMessage.concat("The Revu.Me Team\n");
         return attMessage;
 };
 // send follow up email
@@ -306,7 +401,7 @@ session.post('/sessions',function(req,res){
         return model.saveAsync();
     }).then(function(session){
         console.log('session add new :',session[0]._id.toString());
-        sendInvites(session[0]._id.toString(),false);
+        sendTkInvites(session[0]._id.toString(),false);
         res.send('success');
     }).catch(function(err){
         res.send(err);
@@ -429,7 +524,7 @@ session.put('/sessions/:id',function(req,res){
             return session.saveAsync();
         }).then(function(session){
             console.log('success! building invite...');
-            sendInvites(req.params.id,true);
+            sendTkInvites(req.params.id,true);
             console.log('done and sent');
             res.send('success');
         }).catch(function(err){
@@ -494,7 +589,7 @@ session.put('/sessions/archive/:id',function(req,res){
 session.put('/sessions/resend/:id',function(req,res){
     console.log("session resend invites for session_id: ",req.params.id);
     console.log('success! building invite...');
-    sendInvites(req.params.id,false);
+    sendTkInvites(req.params.id,false);
     console.log('done and sent');
     res.send('success');
 });
