@@ -119,12 +119,12 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
                 $cookieStore.put('user', $rootScope.user);  
         }
         $rootScope.$broadcast('Revu.Me:Ready');
-        /*
-        Library.cacheImages().then(function(){
-            var str = 'Cached '+Library.cachedImages.length+' Images';
-            
-        });
-        */
+        if(!$rootScope.isMobile){
+            Library.cacheImages().then(function(){
+                var str = 'Cached '+Library.cachedImages.length+' Images';
+
+            });
+        }
     };
     $rootScope.getLocalUser = function(){
         var userString = $window.localStorage.getItem('user');
