@@ -15,20 +15,26 @@ angular.module('RevuMe')
                              'baseUrl',
                              '$ionicNavBarDelegate',
                              'tourService',
+                             'ScriptService',
                              function ($scope,
                                         $rootScope,
                                         $timeout,
                                         $http,
                                         baseUrl,
                                         $ionicNavBarDelegate,
-                                        tourService){
+                                        tourService,
+                                        ScriptService){
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $scope.init = function(){
         $timeout(function(){
             $scope.user._id = $rootScope.user._id;
             $scope.user.name = $rootScope.user.name;
+            $scope.user.script = $rootScope.user.script;
             $scope.users = $rootScope.users;
+            ScriptService.daysLeft($scope.user._id).then(function(daysLeft){
+                $scope.user.daysLeft = daysLeft;
+            });
         },0);
     };
 
@@ -37,7 +43,7 @@ angular.module('RevuMe')
             $scope.users = $rootScope.users;
         });
     });
-    if($rootScope.user == undefined)
+    if($rootScope.user._id == undefined)
         $rootScope.$on('Revu.Me:Ready',function(event, data){
             $scope.init();
         });

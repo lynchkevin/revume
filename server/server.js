@@ -17,6 +17,7 @@ var     sfdc = require('./routes/salesforce');
 var     teams = require('./routes/teams');
 var     share = require('./routes/share');
 var     confirm = require('./routes/confirmEmail');
+var     scripts = require('./routes/scripts');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
@@ -71,6 +72,7 @@ app.use('/api',sfdc);
 app.use('/api',teams);
 app.use('/api',share);
 app.use('/api',confirm);
+app.use('/api',scripts);
 
 // stuff for evaporate uploader
 // console logger

@@ -16,6 +16,12 @@
                         ng-click="action.action()">
                 <h2>{{action.name}}</h2>
               </ion-item>
+                <div class="item item-checkbox">
+                     <label class="checkbox">
+                       <input ng-model="rootScope.showArchive" type="checkbox">
+                     </label>
+                     Show Archive on Mobile Device
+                </div>
           </ion-list>    
             </div>
         </div>

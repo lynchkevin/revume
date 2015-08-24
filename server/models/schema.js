@@ -82,6 +82,19 @@ var ShareSchema = new mongoose.Schema({
     item:{type: mongoose.Schema.Types.ObjectId},
     teams:[{type: mongoose.Schema.Types.ObjectId, ref: 'Team'}]
 });
+//license and subscriptions
+// supports user and admin roles
+var ScriptSchema = new mongoose.Schema({
+    type: String,
+    totalSeats: Number,
+    availableSeats: Number,
+    members: [{
+        user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+        role:String
+    }],
+    startDate:{type: Date, default: Date.now},
+    expirationDate:{type:Date, default: Date.now}
+});
 
 var Model = mongoose.model('Model',Container);    
 var Team = mongoose.model('Team',TeamSchema);
@@ -93,6 +106,7 @@ var Category = mongoose.model('Category', Container);
 var Session = mongoose.model('Session',SessionSchema);
 var SessionInteraction = mongoose.model('SessionInteraction',SessionInteractionSchema);
 var Share = mongoose.model('Share',ShareSchema);
+var Script = mongoose.model('Script',ScriptSchema);
 
 var entries = [
 {firstName:"Kevin", lastName:"Lynch", email:"klynch@volerro.com"},
@@ -126,3 +140,4 @@ module.exports.Category = Category;
 module.exports.Session = Session;
 module.exports.SessionInteraction = SessionInteraction;
 module.exports.Share = Share;
+module.exports.Script = Script;

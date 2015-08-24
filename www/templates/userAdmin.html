@@ -1,0 +1,31 @@
+<ion-view title="User Admin" >
+    <ion-content>
+
+   <ion-scroll elem-height="0.80">
+
+  <ion-refresher
+    pulling-text="Pull to refresh..."
+    on-refresh="doRefresh()">
+  </ion-refresher>
+       
+        <ion-list >
+          <ion-item ng-repeat="user in revume.allUsers">
+              <div class="item item-input item-select" style="border-style:none">
+                  <div class="input label" >
+                  <h2>{{user.firstName}} {{user.lastName}}</h2>
+                  <p>email: {{user.email}}</p>
+                  </div>
+                    <select ng-model="user.script.type" 
+                      ng-options="script for script in revume.scriptTypes" 
+                      ng-change="updateScript($index)">
+                    </select>  
+              </div> 
+
+          </ion-item>
+        </ion-list>
+
+    </ion-scroll> 
+  </ion-content>
+</ion-view>
+                    
+                

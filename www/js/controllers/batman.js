@@ -61,12 +61,16 @@ function ($scope,$rootScope,$cookieStore,userService,$state,Library,introContent
             console.log(err);
         });          
     }
-        
-        
+              
+    $scope.userAdmin = function(){
+        $state.go('app.userAdmin');
+    }
+    
     $scope.utility = {actions:[
                                 {name:'Clear User Cookie',action:$scope.clearUserCookie},
                                 {name:'Log In As..',action:$scope.logInAs},
-                                {name:'Set Intro Content',action:$scope.setIntroContent}
+                                {name:'Set Intro Content',action:$scope.setIntroContent},
+                                {name:'User Admin',action:$scope.userAdmin}
                               ]
                      };
     $scope.ls = {};

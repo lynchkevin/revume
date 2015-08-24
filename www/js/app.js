@@ -35,8 +35,11 @@ angular.module('RevuMe',
       '$ionicLoading',
       '$ionicHistory',
       'Library',
-function($ionicPlatform,$rootScope,$window,$http,userService,
-          pnFactory,$timeout,$location,$state,$cookieStore,authService,$ionicLoading,$ionicHistory,Library) {
+      'ScriptService',
+function($ionicPlatform,$rootScope,$window,$http,
+          userService,pnFactory,$timeout,$location,$state,
+          $cookieStore,authService,$ionicLoading,
+          $ionicHistory,Library,ScriptService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -90,41 +93,45 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         $rootScope.user.name = user.firstName+' '+user.lastName;
         $rootScope.user.email = user.email;
         $rootScope.user.authData = user.authData;
-        $rootScope.$broadcast("userID",$rootScope.user);
-        //manage user presence on the rootScope so all controllers can use
-        $rootScope.mHandler = function(message){
-            console.log("message from presence service",message);
-        };
-        $rootScope.pHandler = function(message){
-            $rootScope.mainChannel.resolveUsers(message).then(function(users){
-                $rootScope.users = users;
-                console.log("got a status message", message);
-                $timeout(function(){
-                    $rootScope.$broadcast("presence_change");
-                },0);
-            }).catch(function(err){
-                console.log(err);
-            });
-        }
-        pnFactory.init(user._id);
-        $rootScope.mainChannel = pnFactory.newChannel("volerro_user");
-        $rootScope.mainChannel.setUser($rootScope.user.name);
-        $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
-        //set up the authorization headers
-        //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
-        if(!options.stealthMode) {
-            if($rootScope.isMobile)
-                $window.localStorage.setItem('user',JSON.stringify($rootScope.user));
-            else
-                $cookieStore.put('user', $rootScope.user);  
-        }
-        $rootScope.$broadcast('Revu.Me:Ready');
-        if(!$rootScope.isMobile){
-            Library.cacheImages().then(function(){
-                var str = 'Cached '+Library.cachedImages.length+' Images';
+        ScriptService.userScript(user._id).then(function(script){
+            $rootScope.user.script = script;
+        
+            $rootScope.$broadcast("userID",$rootScope.user);
+            //manage user presence on the rootScope so all controllers can use
+            $rootScope.mHandler = function(message){
+                console.log("message from presence service",message);
+            };
+            $rootScope.pHandler = function(message){
+                $rootScope.mainChannel.resolveUsers(message).then(function(users){
+                    $rootScope.users = users;
+                    console.log("got a status message", message);
+                    $timeout(function(){
+                        $rootScope.$broadcast("presence_change");
+                    },0);
+                }).catch(function(err){
+                    console.log(err);
+                });
+            }
+            pnFactory.init(user._id);
+            $rootScope.mainChannel = pnFactory.newChannel("volerro_user");
+            $rootScope.mainChannel.setUser($rootScope.user.name);
+            $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
+            //set up the authorization headers
+            //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
+            if(!options.stealthMode) {
+                if($rootScope.isMobile)
+                    $window.localStorage.setItem('user',JSON.stringify($rootScope.user));
+                else
+                    $cookieStore.put('user', $rootScope.user);  
+            }
+            $rootScope.$broadcast('Revu.Me:Ready');
+            if(!$rootScope.isMobile){
+                Library.cacheImages().then(function(){
+                    var str = 'Cached '+Library.cachedImages.length+' Images';
 
-            });
-        }
+                });
+            }
+        });
     };
     $rootScope.getLocalUser = function(){
         var userString = $window.localStorage.getItem('user');
@@ -154,7 +161,7 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
         // Web page
         $rootScope.isMobile = false;
     };
-
+    $rootScope.showArchive = false;
     // listen for authenticated routes and force login if needed
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
         authService.listen(event,toState);
@@ -522,6 +529,15 @@ function($ionicPlatform,$rootScope,$window,$http,userService,
       }
     }
     }) 
+    .state('app.userAdmin', {
+    url: "/useradmin",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/userAdmin.html",
+        controller: 'userAdminCtrl'
+      }
+    }
+  }) 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
     

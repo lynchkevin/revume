@@ -1,76 +1,79 @@
 var express = require('express');
-var teams = express.Router();
+var scripts = express.Router();
 var Promise = require('bluebird');
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var ObjectId = require('mongodb').ObjectID;
 var schema = require('../models/schema');
 var share = require('./share');
 
-var Team = schema.Team;
+var Script = schema.Script;
 var User = schema.User;
 //CREATE
-//create a team
-teams.post('/teams',function(req,res){
-    console.log("team got post",req.body);
-    var team = new Team;
+//create a subscription
+scripts.post('/scripts',function(req,res){
+    console.log("script got post",req.body);
+    var script = new Script;
     var sent = req.body;
-    team.members = [];
+    script.members = [];
     sent.members.forEach(function(member){
         var m={};
         m.user = member.user;
         m.role = member.role;
-        team.members.push(m);
+        script.members.push(m);
     });
-    team.name = sent.name;
-    team.saveAsync().then(function(){
-        console.log(team);
-        res.send(team);
+    script.type = sent.type;
+    script.totalSeats = sent.totalSeats;
+    script.availableSeats = sent.availableSeats;
+    script.startDate = sent.startDate;
+    script.expirationDate = sent.expirationDate;
+    script.saveAsync().then(function(){
+        console.log(script);
+        res.send(script);
     }).catch(function(err){
         res.send(err);
     });
 });
 //READ
-//get all teams that a user is a member of - all if member is null
-teams.get('/teams',function(req,res){
-       console.log('teams query! - memberId:', req.query.user);
+//get all scripts that a user is a member of - all if member is null
+scripts.get('/scripts',function(req,res){
+       console.log('scripts query! - memberId:', req.query.user);
     var userId = req.query.user;
     if(userId != undefined){
-        Team.find({'members.user':new ObjectId(userId)})
+        Script.find({'members.user':new ObjectId(userId)})
         .populate('members.user')
         .execAsync()
-        .then(function(teams){
-            console.log('sent ',teams.length,' teams');
-            res.send(teams);
+        .then(function(scripts){
+            res.send(scripts);
         }).catch(function(err){
             res.send(err);
         });
     } else {
-        Team.find()
+        Script.find()
         .populate('members.user')
         .execAsync()
-        .then(function(teams){
-            res.send(teams);
+        .then(function(scripts){
+            res.send(scripts);
         }).catch(function(err){
             res.send(err);
         });
     }
 });
 //READ
-//get all users for all teams that a user is a member of
-teams.get('/teams/justUsers',function(req,res){
-       console.log('team - justUsers! - memberId:', req.query.user);
+//get all users for all scripts that a user is a member of
+scripts.get('/scripts/justUsers',function(req,res){
+       console.log('script - justUsers! - memberId:', req.query.user);
     var userId = req.query.user;
     var first = req.query.first;
     var last = req.query.last;
     var email = req.query.email;
     if(first != undefined){
-        console.log('teams.justUsers: searching by firstName - ',first);
-        Team.find({'members.user':new ObjectId(userId)})
+        console.log('scripts.justUsers: searching by firstName - ',first);
+        Script.find({'members.user':new ObjectId(userId)})
         .execAsync()
-        .then(function(teams){
+        .then(function(scripts){
             var ids = []
-            teams.forEach(function(team){
-                team.members.forEach(function(member){
+            scripts.forEach(function(script){
+                script.members.forEach(function(member){
                     ids.push(member.user);
                 })
             });
@@ -82,13 +85,13 @@ teams.get('/teams/justUsers',function(req,res){
             res.send(err);
         });
     } else if(email !=undefined){
-        console.log('teams.justUsers: searching by email');
-        Team.find({'members.user':new ObjectId(userId)})
+        console.log('scripts.justUsers: searching by email');
+        Script.find({'members.user':new ObjectId(userId)})
         .execAsync()
-        .then(function(teams){
+        .then(function(scripts){
             var ids = []
-            teams.forEach(function(team){
-                team.members.forEach(function(member){
+            scripts.forEach(function(script){
+                script.members.forEach(function(member){
                     ids.push(member.user);
                 })
             });
@@ -103,10 +106,10 @@ teams.get('/teams/justUsers',function(req,res){
     }
 });
 //READ
-//get a single team by id
-teams.get('/teams/:id',function(req,res){
-    console.log('Teams get - id: ',req.params.id);
-    Team.find({_id:new ObjectId(req.params.id)})
+//get a single script by id
+scripts.get('/scripts/:id',function(req,res){
+    console.log('Scripts get - id: ',req.params.id);
+    Script.find({_id:new ObjectId(req.params.id)})
     .populate('members.user')
     .execAsync()
     .then(function(user){
@@ -116,23 +119,27 @@ teams.get('/teams/:id',function(req,res){
     });
 });
 //UPDATE
-//update a team by id
-teams.put('/teams/:id',function(req,res){
-    console.log("team update by id");
+//update a script by id
+scripts.put('/scripts/:id',function(req,res){
+    console.log("script update by id");
     var sent = req.body;
-    Team.findOneAsync({_id:new ObjectId(req.params.id)
-        }).then(function(team){
-            team.name = sent.name;
-            team.members = [];
+    Script.findOneAsync({_id:new ObjectId(req.params.id)
+        }).then(function(script){
+            script.type = sent.type;    
+            script.totalSeats = sent.totalSeats;
+            script.availableSeats = sent.availableSeats;
+            script.startDate = sent.startDate;
+            script.expirationDate = sent.expirationDate;
+            script.members = [];
             sent.members.forEach(function(member){
                 var m = {};
                 m.user = member.user;
                 m.role = member.role;
-                team.members.push(m);
+                script.members.push(m);
             });
-            return team.saveAsync();
-        }).then(function(team){
-            console.log('team updated...');
+            return script.saveAsync();
+        }).then(function(script){
+            console.log('script updated...');
             res.send('success');
         }).catch(function(err){
             console.log(err);
@@ -140,10 +147,10 @@ teams.put('/teams/:id',function(req,res){
         });
 });
 //DELETE
-//delete a team
-teams.delete('/teams/:id',function(req,res){
-    console.log("team delete by id");
-    Team.find({_id:new ObjectId(req.params.id)})
+//delete a script
+scripts.delete('/scripts/:id',function(req,res){
+    console.log("script delete by id");
+    Script.find({_id:new ObjectId(req.params.id)})
         .remove()
         .execAsync()
         .then(function(){
@@ -156,4 +163,4 @@ teams.delete('/teams/:id',function(req,res){
         });
 });
 
-module.exports = teams;
+module.exports = scripts;

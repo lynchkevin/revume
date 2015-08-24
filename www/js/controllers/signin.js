@@ -34,8 +34,9 @@ angular.module('RevuMe')
        };
            
   }])
-  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm','DoConfirm','introContent',
-   function ($scope,$rootScope,$state,authService,$ionicPopup,SendConfirm,DoConfirm,introContent) {
+  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm','DoConfirm','introContent','ScriptService',
+   function ($scope,$rootScope,$state,authService,$ionicPopup,
+              SendConfirm,DoConfirm,introContent,ScriptService) {
        $scope.doSignUp = function(){
            authService.checkExists($scope.forms.signup.email).then(function(user){
                if(user._id){ //this user is in the system
@@ -56,10 +57,16 @@ angular.module('RevuMe')
                         credentials.password = $scope.forms.signup.password;
                         authService.resetPassword(credentials).then(function(result){
                            if(result.success){
-                               //add the intro content
-                               introContent.addIntroContent(user._id).then(function(){
+                                // build a trial subscription
+                                var members = [{user:user._id,role:'Admin'}];
+                                var type = ScriptService.scriptTypes[0];
+                                var script = ScriptService.newScript(type,members);
+                                ScriptService.save(script).then(function(){
+                                    //add the intro content
+                                    return introContent.addIntroContent(user._id);
+                                }).then(function(){
                                     $state.go('app.welcome');   
-                               });
+                                });
                            }else{
                                 var alert = $ionicPopup.alert({
                                     title:'Error Setting PW!',
@@ -79,11 +86,19 @@ angular.module('RevuMe')
                    authService.signUp(newUser).then(function(user){
                        //validate email since they're new
                         SendConfirm.send(user);
+                        newUser._id = user._id;
+                        // build a trial subscription
+                        var members = [{user:user._id,role:'Admin'}];
+                        var type = ScriptService.scriptTypes[0];
+                        var script = ScriptService.newScript(type,members);
+                        return ScriptService.save(script);
+                   }).then(function(script){
                         // add introductory content
-                        return introContent.addIntroContent(user._id);
+                        return introContent.addIntroContent(newUser._id);
                    }).then(function(){
                         $state.go('app.welcome');
                    });
+                   
                 }
            });            
        };

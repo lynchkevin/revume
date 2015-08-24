@@ -101,7 +101,16 @@ angular.module('RevuMe')
     /* jshint ignore:end */
 }])
 
-.service('authService', ['Auth','Users','pnFactory','$q','$ionicPopup','$rootScope','Base64','$location','$cookieStore','$state',
+.service('authService', ['Auth',
+                         'Users',
+                         'pnFactory',
+                         '$q',
+                         '$ionicPopup',
+                         '$rootScope',
+                         'Base64',
+                         '$location',
+                         '$cookieStore',
+                         '$state',
 function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cookieStore,$state) {
     var $ = this;
     
@@ -122,12 +131,11 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
         var usr = new $.user.byId;
         angular.extend(usr,newUser);
         // convert password a base
-        usr.password = Base64.encode(usr.email+':'+usr.password);
+        usr.password = Base64.encode(usr.email+':'+usr.password);       
         usr.$save().then(function(u){
-            //user found return the user object
             defer.resolve(u);
         }).catch(function(err){
-                defer.reject(err);
+            defer.reject(err);
         });
         return defer.promise;
      };
