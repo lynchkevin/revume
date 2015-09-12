@@ -1,0 +1,119 @@
+
+<ion-view view-title="My Account">
+  <ion-content class="presentation-background">
+
+    <div ng-class="{'row row-center':!smallScreen()}">
+        <div ng-class="{'col col-10':!smallScreen()}">
+        </div>
+        <div  ng-class="{'col col-80':!smallScreen()}">
+            <div class="centered-container account-list">
+            
+          <ion-list>
+              <div class="item item-divider positive-bg " style="color:white">
+                Account Information
+              </div>
+              <ion-item>
+                <h2>Subscription Type: {{script.type}}</h2>
+                <h2>Administrator: {{admin.firstName}} {{admin.lastName}}</h2>
+                <p> Days Left {{script.daysLeft}} </p>
+              </ion-item>
+              <ion-item>
+                <h2>Total Seats: {{script.totalSeats}}</h2>
+                <h2>Available Seats: {{script.availableSeats}}</h2>
+                <span class="positive"> Monthly Fee (USD): {{script.cost | currency:'$':0}} </span>
+                <div style="margin-top:7px">
+                    <button class="button button-small button-positive" 
+                            ng-click="changeAccount()">
+                      {{changeButton.text}}
+                    </button>
+                    <button class="button button-small button-calm" 
+                            style="color:black"
+                            ng-click="manageSeats()"
+                            ng-disabled="script.availableSeats == 0">
+                      Manage Seats
+                    </button>
+                </div>
+              </ion-item>
+      <div ng-if="showChange">
+            <div class="item item-divider positive-bg" style="color:white">
+            Upgrade/Change Your Account
+            </div>
+            <div class="item">
+            <div ng-class="{'row':screenSize().width>800}">
+                <div ng-class="{'col col-50':screenSize().width>800}">
+                    <label class="item item-input "
+                           style="border-style:none">
+                         <span class="input-label push-number">Number of Seats</span>
+                        <input type="number" ng-model=order.totalSeats min="1"
+                               ng-change="updateOrderSize()"
+                              >
+                    </label>
+                </div>
+
+                <div ng-class="{'col col-50':screenSize().width>800}">
+                  <div class="item item-input item-select" style="border-style:none">
+                       <span class="input-label">Subscription Type</span>
+
+                        <select ng-model="order.type" 
+                          ng-options="script for script in order.scriptTypes" 
+                          ng-change="changeTerm()">
+                        </select>  
+                  </div> 
+                </div>
+            </div>
+            </div>
+            <div class="item centered-container">
+            <span ng-if="order.type == 'Monthly'"
+                class="positive">
+              Monthly Cost (USD) :   {{order.price | currency: '$':0}}
+            </span>
+            <span ng-if="order.type == 'Annually'"
+                class="positive">
+              Annual Cost (USD) :   {{order.price | currency: '$':0}}
+            </span>
+            <p>{{order.hint}}</p>
+            <button class="button button-small button-positive" 
+                    style="margin-top:5px"
+                    ng-click="checkout()"
+                    ng-disabled="(script.totalSeats == order.totalSeats)&&(script.type == order.type)">
+              Check Out
+            </button>
+           <button class="button button-small button-stable" 
+                style="margin-top:5px"
+                ng-click="cancelChange()">
+             Cancel
+            </button>
+            </div>
+
+        </div>
+                <div ng-if="script.type=='Monthly' || script.type=='Annually'"
+                class="item item-divider dark-bg" style="color:white">
+                Close Your Account
+                </div>
+                <div style="background:white"
+                     ng-if="script.type=='Monthly' || script.type=='Annually'" >
+                <div
+                     class="item item-checkbox no-border" 
+                     ng-class="{'half-item':!smallScreen()}">
+                     <label class="checkbox">
+                       <input ng-model="order.stopRenew" 
+                              type="checkbox"
+                              ng-change="renewChange()">
+                     </label>
+                     Do Not AutoRenew
+                </div>
+                <p ng-class="{'assertive':order.stopRenew,'balanced':script.autoRenew}">
+                    {{script.renewMessage}}
+                </p>
+                </div>
+            </ion-list>
+
+        </div>
+        <div ng-class="{'col col-10':!smallScreen()}">
+        </div>        
+    </div>
+    </div>
+         <div class="presence-message dark-bg" appear-up="show_message">""</div>
+
+  </ion-content>
+</ion-view>

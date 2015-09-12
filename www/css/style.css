@@ -151,6 +151,8 @@
     -webkit-border-radius: 10px;
     border-radius: 10px;
     opacity:0;
+    z-index:999;
+    text-align:center;
 }
 .user-status-bar {
     position:absolute;
@@ -505,6 +507,9 @@ div.progress-value {
 .shove-right{
     margin-right:50%;
 }
+.move-left{
+    margin-right:35%;
+}
 .circle-initials{
     border-radius:50%;
     height:30px;
@@ -578,12 +583,29 @@ div.progress-value {
     margin-top:15px;   
 }
 
-
+.account-list {
+    width:75%;
+}
+.push-number{
+    margin-right:35%;
+}
+.no-border{
+    border-style:none;
+}
+.half-item{
+    width:50%;
+    margin-left:25%;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
     .user-status-bar{
         width:7%;
+    }
+}
+@media screen and (max-width: 1100px) {
+    .account-list{
+        width:90%;
     }
 }
 @media screen and (max-width: 900px) {
@@ -596,7 +618,9 @@ div.progress-value {
     .thumbnail{
         width:45%;
     }
-    
+    .account-list{
+        width:100%;
+    }
 }
 @media screen and (max-width: 800px) {
     .slider-button{ 
@@ -617,6 +641,7 @@ div.progress-value {
     .user-status-bar{
         margin-left:-3.5%;
     }
+    
 }
 @media screen and (max-width: 630px) {
     .user-status-bar{

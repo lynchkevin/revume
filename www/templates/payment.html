@@ -1,0 +1,63 @@
+
+<ion-view view-title="Payment">
+  <ion-content class="presentation-background">
+   <div ng-class="{'row row-center':!smallScreen()}">
+        <div ng-class="{'col col-10':!smallScreen()}">
+        </div>
+        <div  ng-class="{'col col-80':!smallScreen()}">
+            <div class="centered-container account-list" style="background:white;padding-bottom:30px">
+                <ion-item>
+                <h2>Total Seats: {{script.totalSeats}}</h2>
+                <span class="positive"
+                      ng-if="script.type == 'Monthly'"> Monthly Fee (USD): {{script.cost | currency:'$':0}} </span>
+                <span class="positive"
+                      ng-if="script.type == 'Annually'"> Annual Fee (USD): {{script.cost | currency:'$':0}} </span>
+                    <span ng-if="status.errors!=undefined" class="assertive">{{status.errorMessage}}</span>
+                    <p ng-if="status.errors==undefined">{{status.message}}</p>
+                </ion-item>
+                <ion-item ng-if="script.defaultMethod!=undefined">
+                <h2>Pay Using {{script.defaultMethod.cardType}} ending in {{script.defaultMethod.last4}} ?</h2>
+                    <div>
+                        <button class="button button-small button-positive" 
+                                style="margin-top:5px"
+                                ng-click="defaultPay()"
+                                ng-disabled="paymentDisabled">
+                          OK
+                        </button>
+                        <button class="button button-small button-stable" 
+                            style="margin-top:5px"
+                            ng-click="cancelOrder()">
+                         Change Card
+                        </button>
+                    </div>
+                    <span ng-if="status.errors!=undefined" class="assertive">{{status.errorMessage}}</span>
+                    <p ng-if="status.errors==undefined">{{status.message}}</p>
+                </ion-item>
+                <form ng-if="showCardEntry">
+                    <braintree-dropin options="dropinOptions">
+                        Loading payment form...
+                    </braintree-dropin>
+                    <div>
+                        <button class="button button-small button-positive" 
+                                style="margin-top:5px"
+                                type="submit">
+                          Place Order
+                        </button>
+                        <button class="button button-small button-stable" 
+                            style="margin-top:5px"
+                            ng-click="cancelOrder()">
+                         Cancel
+                        </button>
+                    </div>
+                    <span ng-if="status.errors!=undefined" class="assertive">{{status.errorMessage}}</span>
+                    <p ng-if="status.errors==undefined">{{status.message}}</p>
+                </form>
+
+            </div>
+    
+        <div ng-class="{'col col-10':!smallScreen()}">
+        </div> 
+         <div class="presence-message dark-bg" appear-up="show_message">""</div>
+
+  </ion-content>
+</ion-view>

@@ -93,7 +93,10 @@ var ScriptSchema = new mongoose.Schema({
         role:String
     }],
     startDate:{type: Date, default: Date.now},
-    expirationDate:{type:Date, default: Date.now}
+    expirationDate:{type:Date, default: Date.now},
+    autoRenew: Boolean,
+    customerId:String,
+    braintreeId:String
 });
 
 var Model = mongoose.model('Model',Container);    

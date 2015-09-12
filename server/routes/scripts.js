@@ -26,6 +26,11 @@ scripts.post('/scripts',function(req,res){
     script.availableSeats = sent.availableSeats;
     script.startDate = sent.startDate;
     script.expirationDate = sent.expirationDate;
+    script.autoRenew = sent.autoRenew;
+    if(sent.customerId != undefined)
+        script.customerId = sent.customerId;
+    if(sent.braintreeId != undefined)
+        script.braintreeId = sent.braintreeId;
     script.saveAsync().then(function(){
         console.log(script);
         res.send(script);
@@ -43,6 +48,7 @@ scripts.get('/scripts',function(req,res){
         .populate('members.user')
         .execAsync()
         .then(function(scripts){
+            console.log(scripts);
             res.send(scripts);
         }).catch(function(err){
             res.send(err);
@@ -69,6 +75,7 @@ scripts.get('/scripts/justUsers',function(req,res){
     if(first != undefined){
         console.log('scripts.justUsers: searching by firstName - ',first);
         Script.find({'members.user':new ObjectId(userId)})
+        .populate('members.user')
         .execAsync()
         .then(function(scripts){
             var ids = []
@@ -87,6 +94,7 @@ scripts.get('/scripts/justUsers',function(req,res){
     } else if(email !=undefined){
         console.log('scripts.justUsers: searching by email');
         Script.find({'members.user':new ObjectId(userId)})
+        .populate('members.user')
         .execAsync()
         .then(function(scripts){
             var ids = []
@@ -130,6 +138,15 @@ scripts.put('/scripts/:id',function(req,res){
             script.availableSeats = sent.availableSeats;
             script.startDate = sent.startDate;
             script.expirationDate = sent.expirationDate;
+            script.autoRenew = sent.autoRenew;
+            if(sent.customerId != undefined)
+                script.customerId = sent.customerId;
+            else
+                script.customerId = undefined;
+            if(sent.braintreeId != undefined)
+                script.braintreeId = sent.braintreeId;
+            else
+                script.braintreeId = undefined;
             script.members = [];
             sent.members.forEach(function(member){
                 var m = {};
@@ -139,7 +156,7 @@ scripts.put('/scripts/:id',function(req,res){
             });
             return script.saveAsync();
         }).then(function(script){
-            console.log('script updated...');
+            console.log('script updated...',script);
             res.send('success');
         }).catch(function(err){
             console.log(err);

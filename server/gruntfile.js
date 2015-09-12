@@ -22,7 +22,9 @@ module.exports = function(grunt) {
             endpoint: grunt.option('ip'),
             volerro: 'https://rb.volerro.com'
           },
-          buildDate : grunt.option('buildDate')
+          buildDate : grunt.option('buildDate'),
+          clientTokenPath: grunt.option('ip')+'/api/sandbox/client_token',
+          bTree: '/api/sandbox/'
         }
       },
       production: {
@@ -32,10 +34,12 @@ module.exports = function(grunt) {
         constants: {
           baseUrl: {
             name: 'production',
-            endpoint: 'http://m.revu.me',
+            endpoint: 'https://m.revu.me',
             volerro: 'https://rb.volerro.com'
           },
-          buildDate : grunt.option('buildDate')
+          buildDate : grunt.option('buildDate'),
+          clientTokenPath:'https//m.revu.me/api/production/client_token',
+          bTree: '/api/production/'
         }
       }
     },

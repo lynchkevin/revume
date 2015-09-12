@@ -18,6 +18,7 @@ var     teams = require('./routes/teams');
 var     share = require('./routes/share');
 var     confirm = require('./routes/confirmEmail');
 var     scripts = require('./routes/scripts');
+var     braintree = require('./routes/braintree');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
@@ -73,6 +74,7 @@ app.use('/api',teams);
 app.use('/api',share);
 app.use('/api',confirm);
 app.use('/api',scripts);
+app.use('/api',braintree);
 
 // stuff for evaporate uploader
 // console logger

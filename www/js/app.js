@@ -13,6 +13,7 @@ angular.module('RevuMe',
     'ngCookies',
     'imagesLoaded',
     'FBAngular',
+    'braintree-angular',
 ]
 )
 
@@ -36,10 +37,11 @@ angular.module('RevuMe',
       '$ionicHistory',
       'Library',
       'ScriptService',
+      '$q',
 function($ionicPlatform,$rootScope,$window,$http,
           userService,pnFactory,$timeout,$location,$state,
           $cookieStore,authService,$ionicLoading,
-          $ionicHistory,Library,ScriptService) {
+          $ionicHistory,Library,ScriptService,$q) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -88,8 +90,11 @@ function($ionicPlatform,$rootScope,$window,$http,
     $rootScope.history = $ionicHistory;
     
     $rootScope.userInit = function(user,userOptions){
+        var defer = $q.defer();
         var options = angular.extend({},userOptions);
         $rootScope.user._id = user._id;   
+        $rootScope.user.firstName = user.firstName;
+        $rootScope.user.lastName = user.lastName;
         $rootScope.user.name = user.firstName+' '+user.lastName;
         $rootScope.user.email = user.email;
         $rootScope.user.authData = user.authData;
@@ -131,7 +136,9 @@ function($ionicPlatform,$rootScope,$window,$http,
 
                 });
             }
+            return defer.resolve();
         });
+        return defer.promise;
     };
     $rootScope.getLocalUser = function(){
         var userString = $window.localStorage.getItem('user');
@@ -535,6 +542,24 @@ function($ionicPlatform,$rootScope,$window,$http,
       'menuContent': {
         templateUrl: "templates/userAdmin.html",
         controller: 'userAdminCtrl'
+      }
+    }
+  }) 
+  .state('app.myAccount', {
+    url: "/myAccount",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/myAccount.html",
+        controller: 'accountCtrl'
+      }
+    }
+  }) 
+    .state('app.payment', {
+    url: "/payment",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/payment.html",
+        controller: 'paymentCtrl'
       }
     }
   }) 

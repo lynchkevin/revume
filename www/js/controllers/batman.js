@@ -8,8 +8,26 @@
  * Controller of the barebonesApp
  */
 angular.module('RevuMe')
-  .controller('batmanCtrl', ['$scope', '$rootScope','$cookieStore','userService','$state','Library','introContent','buildDate',
-function ($scope,$rootScope,$cookieStore,userService,$state,Library,introContent,buildDate) {
+  .controller('batmanCtrl', ['$scope', 
+                             '$rootScope',
+                             '$cookieStore',
+                             'userService',
+                             '$state',
+                             'Library',
+                             'introContent',
+                             'buildDate',
+                             'ScriptService',
+                             'Braintree',
+function ($scope,
+           $rootScope,
+           $cookieStore,
+           userService,
+           $state,
+           Library,
+           introContent,
+           buildDate,
+           ScriptService,
+           Braintree) {
 
     $scope.build = {date:buildDate};
     $scope.Library = Library;
@@ -61,16 +79,30 @@ function ($scope,$rootScope,$cookieStore,userService,$state,Library,introContent
             console.log(err);
         });          
     }
-              
+      
     $scope.userAdmin = function(){
         $state.go('app.userAdmin');
+    }
+    
+    $scope.setToTrial = function(){
+        ScriptService.setToTrial()
+        .then(function(script){
+            $rootScope.user.script = script;
+            return Braintree.cancel(script)
+        }).then(function(){
+            $rootScope.user.script.braintreeId = undefined;
+            $rootScope.user.script.members[0].user = $rootScope.user;
+        }).catch(function(err){
+            console.log(err);
+        });
     }
     
     $scope.utility = {actions:[
                                 {name:'Clear User Cookie',action:$scope.clearUserCookie},
                                 {name:'Log In As..',action:$scope.logInAs},
                                 {name:'Set Intro Content',action:$scope.setIntroContent},
-                                {name:'User Admin',action:$scope.userAdmin}
+                                {name:'User Admin',action:$scope.userAdmin},
+                                {name:'Set to Trial',action:$scope.setToTrial}
                               ]
                      };
     $scope.ls = {};

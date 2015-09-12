@@ -50,8 +50,10 @@
   </ion-content>
 <div class="bar bar-footer" 
      ng-class="{'bar-positive':user.daysLeft>=14,'bar-energized':(user.daysLeft < 14 && user.daysLeft > 7), 'bar-assertive':(user.daysLeft <= 7)}"
-     ng-if="user.script!=undefined">
+     ng-if="user.script!=undefined && user.script.autoRenew == false">
   <div class="title">Your {{user.script.type}} Subsction has {{user.daysLeft}} days left</div>
+  <button class="button button-calm"
+          ng-if="user.script.type!='Elite' && user.daysLeft < 21">{{buyButton.text}}</button>
 </div>
 </ion-view>
 

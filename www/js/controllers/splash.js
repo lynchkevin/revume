@@ -32,9 +32,13 @@ angular.module('RevuMe')
             $scope.user.name = $rootScope.user.name;
             $scope.user.script = $rootScope.user.script;
             $scope.users = $rootScope.users;
-            ScriptService.daysLeft($scope.user._id).then(function(daysLeft){
-                $scope.user.daysLeft = daysLeft;
-            });
+            $scope.user.daysLeft = ScriptService.getDaysLeft($scope.user.script);
+            $scope.buyButton = {text:'Upgrade Now'};
+            var script = $scope.user.script;
+            if(!script.autoRenew) //don't bug them if they autoRenew
+                if(script.type == 'Monthly' || script.type == 'Annually')
+                    $scope.buyButton.text = 'Renew Now';
+                
         },0);
     };
 
@@ -43,7 +47,7 @@ angular.module('RevuMe')
             $scope.users = $rootScope.users;
         });
     });
-    if($rootScope.user._id == undefined)
+    if($rootScope.user.script == undefined)
         $rootScope.$on('Revu.Me:Ready',function(event, data){
             $scope.init();
         });

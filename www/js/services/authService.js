@@ -111,7 +111,9 @@ angular.module('RevuMe')
                          '$location',
                          '$cookieStore',
                          '$state',
-function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cookieStore,$state) {
+                         'ScriptService',
+function (Auth,Users,pnFactory,$q,$ionicPopup,
+           $rootScope,Base64,$location,$cookieStore,$state,ScriptService) {
     var $ = this;
     
      $.user = Users;    
@@ -226,9 +228,12 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
     $.forceCredentials = function(successState){
         $.signIn().then(function(result){
             if(result.success){
-                $rootScope.userInit(result.user);
-                if(successState != undefined)
-                    $state.go(successState);
+                $rootScope.userInit(result.user).then(function(){
+                    ScriptService.checkScript($rootScope.user.script)
+                    //need to add check for script here
+                    if(successState != undefined)
+                        $state.go(successState);
+                });
             }
             else if(result.reason == 'resetPassword')
                 console.log('resetPassword');
@@ -259,7 +264,9 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
                     var User = $.user.byId;
                     User.get({id:lsUser._id}).$promise.then(function(user){
                         $rootScope.user={};
-                        $rootScope.userInit(user);
+                        return $rootScope.userInit(user);
+                    }).then(function(){
+                        ScriptService.checkScript($rootScope.user.script);
                     });
                 }
             } else if($cookieStore.get('user') != undefined){
@@ -267,7 +274,9 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,$rootScope,Base64,$location,$cooki
                 var User = $.user.byId;
                 User.get({id:cookieUser._id}).$promise.then(function(user){
                     $rootScope.user={};
-                    $rootScope.userInit(user);
+                    return $rootScope.userInit(user);
+                }).then(function(){
+                    ScriptService.checkScript($rootScope.user.script);
                 });
             } else if($rootScope.user == undefined || $rootScope.user._id == undefined){
                 $rootScope.deepLink = false;

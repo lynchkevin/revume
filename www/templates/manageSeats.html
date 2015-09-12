@@ -1,0 +1,90 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-calm"> <h1 class="title"> Allocate Seats </h1> 
+    <div class="buttons">
+      <button class="button button-light" 
+              ng-click="cancelManager()">Close</button>
+    </div>
+    </ion-header-bar> 
+    <ion-header-bar class="bar bar-subheader bar-positive">
+        <h2 class="title">Available Seats : {{script.availableSeats}}</h2>
+    </ion-header-bar>>
+    <ion-content has-header="true" has-subheader="true"> 
+        <form name="forms.members">
+        <div class="list">
+            <div class="item item-input-inset">
+                <label class="item-input-wrapper">
+                    <input type="text" 
+                           name="aName" 
+                           user-complete
+                           field-type='name'
+                           instance-name='script'
+                           ng-model="newMember.name" 
+                           placeholder="Member Name"
+                           required>
+                </label>
+                <label class="item-input-wrapper">
+                    <input type="email" 
+                           name="aEmail" 
+                           user-complete
+                           field-type='email'
+                           instance-name='script'
+                           ng-model="newMember.email"
+                           placeholder="Member Email"
+                           required>
+                </label>
+                <button class="button button-small"
+                        ng-click="addMember()" 
+                        ng-disabled="!forms.members.$valid || script.availableSeats ==0">
+                add
+                </button>
+            </div>
+            </form>
+            <div class="item item-divider item-button-right">
+                Members
+                <button class="button button-small button-positive divider-button"
+                        ng-click="script.showTeams=!script.showTeams">
+                        Add Teams?
+                </button>
+            </div> 
+            <div class="item item-button-right"
+                 ng-if="script.showTeams && script.teamList.length > 0"
+                 style="padding:0px">
+                <label class="item-input">
+                    <span class="input-label"
+                          style="width:20%">
+                        Teams
+                    </span>
+                    <select ng-model="script.team" 
+                            ng-options="t.name for t in script.teamList">
+                    </select>
+                </label> 
+                <button class="button button-small"
+                        ng-click="addTeam()" 
+                        style="font-size:14px"
+                        ng-class="{'move-left':smallScreen() == false}"
+                        ng-disabled="script.availableSeats ==0">
+                    add
+                </button>
+            </div>
+            <div class="list">
+                <div ng-repeat="member in script.members" class="item item-icon-left" >
+                    <i class="icon ion-minus-circled " style="font-size:95%" ng-click="delMember($index)">
+                        <p class="padding-left">{{script.members[$index].user.name}}  </p>         
+                    </i>
+
+                </div>
+            </div>
+        </div>
+    </ion-content>
+    <ion-footer-bar>
+        <div class="centered-container">
+          <button class="button button-positive button-positive"
+                  ng-click="updateSubscription()">
+              Ok
+          </button>
+          <button class="button button-stable" ng-click="cancelManager()">
+              Cancel
+          </button>
+        </div>
+    </ion-footer-bar>
+</ion-modal-view>

@@ -158,13 +158,15 @@ function(UploadedFiles,
         .then(function(items){
             if(items != undefined){
                 items.forEach(function(item){
-                    item.slides.forEach(function(slide){
-                        if(slide.type == 'img'){
-                            img = new Image();
-                            img.src = slide.src = slide.src;
-                            $.cachedImages.push(img);
-                        }
-                    });
+                    if(item.item != undefined){
+                        item.item.slides.forEach(function(slide){
+                            if(slide.type == 'img'){
+                                img = new Image();
+                                img.src = slide.src = slide.src;
+                                $.cachedImages.push(img);
+                            }
+                        });
+                    }
                 });
             }
             deferred.resolve();

@@ -1,7 +1,7 @@
 <ion-view title="User Admin" >
     <ion-content>
 
-   <ion-scroll elem-height="0.80">
+   <ion-scroll elem-height="0.95">
 
   <ion-refresher
     pulling-text="Pull to refresh..."
@@ -14,6 +14,8 @@
                   <div class="input label" >
                   <h2>{{user.firstName}} {{user.lastName}}</h2>
                   <p>email: {{user.email}}</p>
+                  <p>Expires: {{user.script.expirationDate | date: 'mediumDate'}}</p>
+                  <p>AutoRenew: {{user.script.autoRenew}}</p>
                   </div>
                     <select ng-model="user.script.type" 
                       ng-options="script for script in revume.scriptTypes" 
