@@ -563,6 +563,15 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   }) 
+      .state('app.changeCard', {
+    url: "/changeCard",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/changeCard.html",
+        controller: 'cardCtrl'
+      }
+    }
+  })
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
     

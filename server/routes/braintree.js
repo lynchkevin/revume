@@ -3,6 +3,7 @@ var bTree = express.Router();
 var Promise = require('bluebird');
 var braintree = Promise.promisifyAll(require('braintree'));
 var nonces = braintree.Test.Nonces;
+var env = process.env.NODE_ENV;
 
 var sandBoxPlans = {plans:[{name:'RevuMe Monthly AutoRenew',id:'8ccr'},
                            {name:'RevuMe Annually AutoRenew',id:'86n6'}],
@@ -10,6 +11,7 @@ var sandBoxPlans = {plans:[{name:'RevuMe Monthly AutoRenew',id:'8ccr'},
                     discounts:[{name:'RevuMe L1 Seat Discount',id:'2mtw',break:50},
                                {name:'RevuMe Annual Discount',id:'5mfg'}]
                    };
+
 
 var sandbox = braintree.connect({  
   environment: braintree.Environment.Sandbox,
@@ -24,23 +26,25 @@ var production = braintree.connect({
   publicKey: process.env.PD_PUB,
   privateKey: process.env.PD_PRI
 });
+var target = sandbox;
+
+if(env!='development'){
+    target = production;
+    console.log('Braintree target is PRODUCTION');
+} else 
+    console.log('Braintree target is SANDBOX');
+
 //send a confirmation email with a link
-bTree.get('/sandbox/client_token',function(req,res){
+bTree.get('/braintree/client_token',function(req,res){
   console.log('get sandbox token');
-  sandbox.clientToken.generate({},function(err,response){
+  target.clientToken.generate({},function(err,response){
     res.send(response.clientToken);
   });
 });
 
-bTree.get('/production/client_token',function(req,res){
-  console.log('get production token');
-  production.clientToken.generate({}, function (err, response) {
-    res.send(response.clientToken);
-  });
-});
 
-bTree.get('/sandbox/test',function(req,res){
-    sandbox.transaction.sale({
+bTree.get('/braintree/test',function(req,res){
+    target.transaction.sale({
         amount: '10.00',
         paymentMethodNonce: braintree.Test.Nonces.Transactable
     },function(err,result){
@@ -51,11 +55,11 @@ bTree.get('/sandbox/test',function(req,res){
 });
 
 
-bTree.post('/sandbox/customer',function(req,res){
+bTree.post('/braintree/customer',function(req,res){
     console.log('sandbox/customer - create');
     console.log('body is: ',req.body);
     var sent = req.body;
-    sandbox.customer.create({
+    target.customer.create({
         firstName: sent.firstName,
         lastName: sent.lastName,
         email: sent.email,
@@ -63,11 +67,11 @@ bTree.post('/sandbox/customer',function(req,res){
             res.send(result);
     });
 });
-bTree.post('/sandbox/customer/delete',function(req,res){
+bTree.post('/braintree/customer/delete',function(req,res){
     console.log('sandbox/customer - create');
     console.log('body is: ',req.body);
     var sent = req.body;
-    sandbox.customer.delete(sent.id,
+    target.customer.delete(sent.id,
         function(err){
             var result = {success:true};
             if(err){
@@ -77,21 +81,21 @@ bTree.post('/sandbox/customer/delete',function(req,res){
             res.send(result);
     });
 });
-bTree.get('/sandbox/customer',function(req,res){
+bTree.get('/braintree/customer',function(req,res){
     console.log('sandbox get customer id: ',req.query);
-    sandbox.customer.find(req.query.id,function(err,customer){
+    target.customer.find(req.query.id,function(err,customer){
         res.send(customer);
     });
 });
-bTree.post('/sandbox/paymentMethod',function(req,res){
+bTree.post('/braintree/paymentMethod',function(req,res){
     console.log('create payment method');
     console.log('body is: ',req.body);
     var sent = req.body;
-    sandbox.paymentMethod.create({
+    target.paymentMethod.create({
         customerId:sent.customerId,
         paymentMethodNonce:sent.nonce,
-        option:{
-            verifyCard:true,
+        options:{
+            makeDefault:true,
         }
     },function(err,result){
         if(err){
@@ -101,11 +105,52 @@ bTree.post('/sandbox/paymentMethod',function(req,res){
             res.send(result);
     });
 });
-bTree.post('/sandbox/transact',function(req,res){
+
+bTree.post('/braintree/paymentMethod/change',function(req,res){
+    console.log('change payment method');
+    console.log('body is: ',req.body);
+    var sent = req.body;
+    var newToken = undefined;
+    //create a new token
+    target.paymentMethod.create({
+        customerId:sent.customerId,
+        paymentMethodNonce:sent.nonce,
+        options:{makeDefault:true}
+    },function(err,result){
+        if(err){
+            console.log(err)
+            res.send(err);
+        } else { 
+            //we've created a new token - now make it the default;
+            newToken = result.creditCard.token;
+            console.log('New Token Created : ', newToken , ' Default is: ',result.creditCard.default);
+            console.log('Old Token is : ',sent.oldToken);
+            res.send(result);
+        }
+    });
+});
+
+//update the payment method default status
+bTree.put('/braintree/paymentMethod',function(req,res){
+    console.log('Update payment method');
+    console.log('body is: ',req.body);
+    var sent = req.body;
+    target.paymentMethod.delete({makeDefault:sent.makeDefault},function(err,result){
+        if(err){
+            console.log(err);
+            res.send({success:false,errors:err});
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+bTree.post('/braintree/transact',function(req,res){
     console.log('Create a Transaction');
     console.log('body is : ',req.body);
     var sent = req.body;
-    sandbox.transaction.sale({
+    target.transaction.sale({
         amount:sent.amount,
         paymentMethodNonce:sent.nonce,
         option:{
@@ -115,7 +160,7 @@ bTree.post('/sandbox/transact',function(req,res){
         res.send(result);
     });
 });
-bTree.post('/sandbox/formSubmit',function(req,res){
+bTree.post('/braintree/formSubmit',function(req,res){
     console.log('Form Submit');
     console.log('body is ',req.body);
 });
@@ -139,7 +184,7 @@ function addUpdateRemove(target,source,collection,quantity){
 }
 
 //create a subscription
-bTree.post('/sandbox/subscription',function(req,res){
+bTree.post('/braintree/subscription',function(req,res){
     var sent = req.body;
     var addOns = {};
     var discounts = {};
@@ -156,7 +201,7 @@ bTree.post('/sandbox/subscription',function(req,res){
     console.log('addOns : ',addOns);
     console.log('discounts: ',discounts);
 
-    sandbox.subscription.create({
+    target.subscription.create({
         paymentMethodToken: sent.token,
         planId: sent.plan,
         addOns:addOns,
@@ -166,20 +211,20 @@ bTree.post('/sandbox/subscription',function(req,res){
     });
 });
 //find a subscription
-bTree.get('/sandbox/subscription',function(req,res){
+bTree.get('/braintree/subscription',function(req,res){
     console.log('sandbox get subscription id: ',req.query);
-    sandbox.subscription.find(req.query.id,function(err,subscription){
+    target.subscription.find(req.query.id,function(err,subscription){
         res.send(subscription);
     });
 })
 
 
-bTree.put('/sandbox/subscription',function(req,res){
+bTree.put('/braintree/subscription',function(req,res){
     console.log('Update a Subscription');
     console.log('body is : ',req.body);
     var sent = req.body;
     //find the subscription
-    sandbox.subscription.find(sent.id,function(err,subscription){
+    target.subscription.find(sent.id,function(err,subscription){
         var script = subscription;
         var addOns = {};
         var discounts = {};
@@ -197,26 +242,28 @@ bTree.put('/sandbox/subscription',function(req,res){
             params.neverExpires = sent.neverExpires;
         if(sent.numberOfBillingCycles != undefined)
             params.numberOfBillingCycles = sent.numberOfBillingCycles;
+        if(sent.newToken != undefined)
+            params.paymentMethodToken = sent.newToken;
         console.log('params are : ',params);            
-        sandbox.subscription.update(sent.id,params,
+        target.subscription.update(sent.id,params,
         function(err,result){
             console.log(result);
             res.send(result)
         });
     });
 })
-bTree.post('/sandbox/subscription/cancel',function(req,res){
+bTree.post('/braintree/subscription/cancel',function(req,res){
     console.log('Cancel a subscription');
     console.log('body is : ',req.body);
     var sent = req.body;
     
-    sandbox.subscription.cancel(sent.id,
+    target.subscription.cancel(sent.id,
     function(err,result){
         console.log(result);
         res.send(result);
     });
 })
-bTree.get('/sandbox/plans',function(req,res){
+bTree.get('/braintree/plans',function(req,res){
     console.log('sandbox/plans');
     res.json(sandBoxPlans);
 });

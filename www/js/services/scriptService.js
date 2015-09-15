@@ -190,6 +190,7 @@ function (Teams,Users,Scripts,rightsManager,$q,$rootScope,$state) {
     //update a script
     $.update = function(_id,script){
         var defer = $q.defer();
+        script.availableSeats = script.totalSeats - script.members.length;
         Scripts.update({id:_id},script).$promise.then(function(){
             defer.resolve();
         });

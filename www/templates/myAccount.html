@@ -20,7 +20,14 @@
               <ion-item>
                 <h2>Total Seats: {{script.totalSeats}}</h2>
                 <h2>Available Seats: {{script.availableSeats}}</h2>
-                <span class="positive"> Monthly Fee (USD): {{script.cost | currency:'$':0}} </span>
+                <span ng-if="order.type == 'Monthly'"
+                    class="positive">
+                  Monthly Cost (USD) :   {{order.price | currency: '$':0}}
+                </span>
+                <span ng-if="order.type == 'Annually'"
+                    class="positive">
+                  Annual Cost (USD) :   {{order.price | currency: '$':0}}
+                </span>
                 <div style="margin-top:7px">
                     <button class="button button-small button-positive" 
                             ng-click="changeAccount()">
@@ -34,6 +41,14 @@
                     </button>
                 </div>
               </ion-item>
+              <ion-item ng-if="script.customerId != undefined">
+                   <h2>Current Card: <img ng-src="{{script.defaultMethod.imageUrl}}"
+                                          style="width:30px"/> {{script.defaultMethod.cardType}} ending in {{script.defaultMethod.last4}}</h2>
+                    <button class="button button-small button-dark" 
+                            ng-click="changeCard()">
+                      Change Card
+                    </button>
+              </ion-item>
       <div ng-if="showChange">
             <div class="item item-divider positive-bg" style="color:white">
             Upgrade/Change Your Account
@@ -45,7 +60,7 @@
                            style="border-style:none">
                          <span class="input-label push-number">Number of Seats</span>
                         <input type="number" ng-model=order.totalSeats min="1"
-                               ng-change="updateOrderSize()"
+                               ng-change="changeSeatCount()"
                               >
                     </label>
                 </div>

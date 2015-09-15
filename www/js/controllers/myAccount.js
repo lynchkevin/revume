@@ -61,6 +61,18 @@ angular.module('RevuMe')
         Braintree.init($scope);
         $scope.showChange = false;
         $scope.script = $rootScope.user.script;
+        //get the payment method
+        if($scope.script.customerId != undefined){
+            Braintree.findCustomer($scope.script).then(function(customer){
+                $scope.script.customer = customer;
+                $scope.script.defaultMethod = undefined;
+                $scope.showCardEntry = false;
+                customer.paymentMethods.forEach(function(method){
+                    if(method.default)
+                        $scope.script.defaultMethod = method;
+                });
+            });
+        } 
         setChangeButtonName($scope.script);
         $scope.script.daysLeft = ScriptService.getDaysLeft($scope.script);
         $scope.script.scriptTypes = ScriptService.scriptTypes;
@@ -91,12 +103,8 @@ angular.module('RevuMe')
         $scope.newMember = {};
     }
     // Confirm downgrade from annually to monthly
-    function showConfirm() {
-        var confirmPopup = $ionicPopup.confirm({
-        title: 'Downgrade to Monthly',
-        template: 'Please Confirm Monthly Billing'
-        });
-        
+    function showConfirm(confirmMessage) {
+        var confirmPopup = $ionicPopup.confirm(confirmMessage);
         return confirmPopup;
     }
     //show/hide change section
@@ -109,7 +117,10 @@ angular.module('RevuMe')
     $scope.changeTerm = function(){
         if($scope.script.type != 'Trial'){
             if($scope.order.type == 'Monthly' && $scope.script.type == 'Annually'){
-                showConfirm().then(function(res){
+                var confirmMessage={title:'Downgrade to Monthly',
+                                    template: 'Please Confirm Monthly Billing'
+                                   };
+                showConfirm(confirmMessage).then(function(res){
                     if(res){
                         var dateString = $filter('date')($scope.script.expirationDate,'shortDate');
                         $scope.script.type = $scope.order.type;
@@ -135,6 +146,45 @@ angular.module('RevuMe')
             }   
         }
     }
+    
+    $scope.decreaseSeats = function(){
+        var script = $scope.script;
+        var order = $scope.order;
+        var deferred = $q.defer();
+
+        var confirmMessage={title:'Reduce Seats',
+                            template: 'Please Confirm Fewer Seats'
+                           };
+        showConfirm(confirmMessage).then(function(res){
+            if(res){
+                script.totalSeats = order.totalSeats;
+                script.availableSeats = script.totalSeats - script.members.length;
+                Braintree.updateBTScript(script)
+                .then(function(){
+                    return ScriptService.update(script._id,script);
+                }).then(function(){
+                    deferred.resolve();
+                }).catch(function(err){
+                    deferred.reject(err);
+                });
+            } else
+                deferred.resolve();
+        });
+        return deferred.promise;
+    }
+                
+    $scope.changeSeatCount = function(){
+        var order = $scope.order;
+        var script = $scope.script;
+        if(order.totalSeats < script.totalSeats)
+            $scope.decreaseSeats()
+            .then(function(){
+                $scope.updateOrderSize();
+            });
+        else
+            $scope.updateOrderSize();
+    }
+    
     // Handle Changes to Form Input
     $scope.updateOrderSize = function(){
         $scope.order.price = ScriptService.calculateCost($scope.order);
@@ -164,7 +214,9 @@ angular.module('RevuMe')
         ScriptService.setPendingScript(script);
         $state.go('app.payment');
     }
-
+    $scope.changeCard = function(){
+        $state.go('app.changeCard');
+    }
     // keep the members in case of cancel
     function keepMembers(){
         $scope.currentMembers = [];
@@ -191,9 +243,6 @@ angular.module('RevuMe')
     $scope.setPendingScript = function(){
         $scope.script.totalSeats = $scope.order.totalSeats;
         $scope.script.type = $scope.order.type;
-    
-
-        return deferred.promise;
     }
     
     

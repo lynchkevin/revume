@@ -2,12 +2,10 @@
 
  angular.module('config', [])
 
-.constant('baseUrl', {name:'development',endpoint:'http://192.168.1.100:5000',volerro:'https://rb.volerro.com'})
+.constant('baseUrl', {name:'development',endpoint:'http://10.1.10.216:5000',volerro:'https://rb.volerro.com'})
 
-.constant('buildDate', 'Fri Sep 11 2015 19:53:47 GMT-0500 (CDT)')
+.constant('buildDate', 'Tue Sep 15 2015 15:28:21 GMT-0500 (CDT)')
 
-.constant('clientTokenPath', 'http://192.168.1.100:5000/api/sandbox/client_token')
-
-.constant('bTree', '/api/sandbox/')
+.constant('clientTokenPath', 'http://10.1.10.216:5000/api/braintree/client_token')
 
 ;

@@ -8,12 +8,12 @@
  * Controller for Revu.me - leave behind viewer
  */
 angular.module('RevuMe')
-  .service('Braintree',['$rootScope','bTree','ScriptService','$http','baseUrl','$q',
-function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
+  .service('Braintree',['$rootScope','ScriptService','$http','baseUrl','$q',
+function ($rootScope, ScriptService, $http, baseUrl, $q) {
     var $ = this;
     $.planData = undefined;
     
-    $.basePath = baseUrl.endpoint+bTree;
+    $.basePath = baseUrl.endpoint+'/api/braintree/';
     
     $.init = function($scope,pmrCallback){
         $.scope = $scope;
@@ -184,18 +184,20 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
         var deferred = $q.defer();
         var endpoint = $.basePath+'subscription';
         var params = {id:script.braintreeId};
+    
         
         //cancel the current monthly script
         $.cancel(script)
-        .then(function(response){
+        .then(function(result){
             if(result.success){
                 //create a new annual script
                 $.createScript(script)
                 .then(function(btId){
                     script.braintreeId = btId;
-                    $.updateScript(script);
+                     return $.updateScript(script);
+                }).then(function(result){
                     var result = {success:true};
-                    result.subscription.id = btId;
+                    result.subscription = {id:script.braintreeId};
                     deferred.resolve(result);
                 });
             } else{
@@ -266,6 +268,9 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
                         params.discount.id = undefined
                     if(aoQuantity == 0)
                         params.addOn.id = undefined;
+                    // change payment token if needed
+                    if(script.newToken != undefined)
+                        params.newToken = script.newToken;
                     //set auto renew if it has changed
                     if(btScript.neverExpires == true && script.autoRenew == false){
                         params.numberOfBillingCycles = btScript.currentBillingCycle;
@@ -282,8 +287,7 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
                         else
                             deferred.reject(result);
                     });
-            } else
-                deferred.reject('UpdateScript: Undefined elements');
+            } 
             
         });
 
@@ -380,16 +384,20 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
             $.scope.script.braintreeId = braintreeId;
             return $.updateScript();
         }).then(function(response){
+            $rootScope.user.script = angular.copy($.scope.script);
             console.log('new script created');
             deferred.resolve();
         }).catch(function(response){
             if(result.errors){
+                if($.scope.script.customerId != undefined)
+                    $.deleteCustomer($.scope.script.customerId)
                 $.scope.status.errors = result.errors;
                 $.scope.status.errorMessage = 'Failed : '+result.message;
             }
             deferred.reject(result);
         });        
     }
+    
     $.findSubscription = function(script){
         var deferred = $q.defer();   
         var endpoint = $.basePath+'subscription';
@@ -425,6 +433,7 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
                                 break;
         }
         ScriptService.update(script._id,script).then(function(){
+                $rootScope.user.script = angular.copy($.scope.script);
               $.scope.$broadcast("show_message", 'Order Complete!');
               deferred.resolve(script);
         });
@@ -436,6 +445,9 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
         var endpoint = $.basePath+'customer';
         $.scope.token = undefined;
         $.scope.processCardDisabled = true;
+        $.scope.showCardEntry = false;
+        $.scope.status.message = 'Processing Payment...';
+        $.scope.status.errors = undefined;
         //create a customer if no CustomerID;
         if(script.customerId == undefined){
             $.newScriptNewCustomer(payload)
@@ -454,4 +466,40 @@ function ($rootScope, bTree, ScriptService, $http, baseUrl, $q) {
         } //Neeed to add update script for existing customer existing script
     } 
     
+    $.changeCard = function(payload){
+        var script = $.scope.script;
+        var endpoint = $.basePath+'paymentMethod';
+        var oldToken = undefined;
+        $.scope.showCardEntry = false;
+        $.scope.status.message = 'Updating Card...';
+        //get the current token - we will update it later
+        $.getToken(script)
+        .then(function(token){
+            oldToken = token;
+            endpoint += '/change';
+            var params = {customerId:script.customerId,
+                          oldToken:oldToken,
+                          nonce:payload.nonce
+                         };
+            //this will create a new token and make it the default
+            return $http.post(endpoint,params)
+        }).then(function(response){
+            var result = response.data;
+            if(result.success){
+                script.newToken = result.creditCard.token;
+                return $.updateBTScript(script);
+            }
+            else{
+                $.scope.status.errors = result.errors;
+                $.scope.status.errorMessage = 'Failed : '+result.message;
+                return ;
+            }
+        }).then(function(){
+                $.callback();       
+        }).catch(function(err){
+            console.log(err);
+            $.scope.status.errors = {};
+            $.scope.status.errorMessage = 'Failed : '+err;
+        });
+    }
   }]);

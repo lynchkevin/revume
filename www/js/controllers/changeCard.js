@@ -8,7 +8,7 @@
  * Controller of the barebonesApp
  */
 angular.module('RevuMe')
-  .controller('paymentCtrl', ['$scope',
+  .controller('cardCtrl', ['$scope',
                               '$rootScope',
                               'Braintree',
                               'ScriptService',
@@ -38,17 +38,17 @@ angular.module('RevuMe')
             Braintree.findCustomer($scope.script).then(function(customer){
                 $scope.script.customer = customer;
                 $scope.script.defaultMethod = undefined;
-                $scope.showCardEntry = false;
+                $scope.showCardEntry = true;
                 customer.paymentMethods.forEach(function(method){
                     if(method.default)
                         $scope.script.defaultMethod = method;
                 });
             });
         } else 
-            $scope.showCardEntry = true;
+            $scope.showCardEntry = false;
         $scope.dropinOptions = {
             onPaymentMethodReceived: function(payload){
-                Braintree.payMethReceived(payload);
+                Braintree.changeCard(payload);
             },
             onError : function(payload){
                 console.log(payload);
@@ -57,30 +57,13 @@ angular.module('RevuMe')
     }
     //callback when paymentMethodRecieved completes
     $scope.pmrCallback = function(){
-        $scope.status.message = 'Successfully Processed - Thank You!';
+        $scope.status.message = 'New Card Successfully Added';
         $scope.showCardEntry = false;
         $scope.processCardDisabled = true;
     }
-    //update a subscription using default payment
-    $scope.defaultPay = function(){
-        $scope.paymentDisabled = true;
-        $scope.status.message = 'Processing Payment...';
-        $scope.status.errors = undefined;
-        Braintree.updateBTScript($scope.script)
-        .then(function(result){
-            $scope.showCardEntry = false;
-            return ScriptService.update($scope.script._id,$scope.script);
-        }).then(function(result){
-            $rootScope.user.script = angular.copy($scope.script);
-            $scope.status.message = 'Completed Successfully - Thank You!';
-        }).catch(function(result){
-            $scope.status.errors = result.errors;
-            $scope.status.errorMessage = 'Failed : '+result.message;
-        });
-            
-    }
+
     //Take Action When Cancel or Submit
-    $scope.cancelOrder = function(){
+    $scope.cancel = function(){
        $state.go('app.myAccount');
     }
       
