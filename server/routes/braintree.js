@@ -11,7 +11,12 @@ var sandBoxPlans = {plans:[{name:'RevuMe Monthly AutoRenew',id:'8ccr'},
                     discounts:[{name:'RevuMe L1 Seat Discount',id:'2mtw',break:50},
                                {name:'RevuMe Annual Discount',id:'5mfg'}]
                    };
-
+var productionPlans = {plans:[{name:'RevuMe Monthly AutoRenew',id:'kxyw'},
+                           {name:'RevuMe Annually AutoRenew',id:'cysr'}],
+                    addOns:[{name:'RevuMe Seat Full Price',id:'6qg2'}],
+                    discounts:[{name:'RevuMe L1 Seat Discount',id:'mntb',break:50},
+                               {name:'RevuMe Annual Discount',id:'dpn6'}]
+                   };
 
 var sandbox = braintree.connect({  
   environment: braintree.Environment.Sandbox,
@@ -36,9 +41,18 @@ if(env!='development'){
 
 //send a confirmation email with a link
 bTree.get('/braintree/client_token',function(req,res){
-  console.log('get sandbox token');
+  if(env != 'development')
+    console.log('get production token');
+  else
+    console.log('get sandbox token');
   target.clientToken.generate({},function(err,response){
-    res.send(response.clientToken);
+    if(err){
+        console.log(err);
+        res.send(err);
+    }else {
+        console.log('got token',response.clientToken);
+        res.send(response.clientToken);
+    }
   });
 });
 
@@ -264,8 +278,13 @@ bTree.post('/braintree/subscription/cancel',function(req,res){
     });
 })
 bTree.get('/braintree/plans',function(req,res){
-    console.log('sandbox/plans');
-    res.json(sandBoxPlans);
+    if(env!='development'){
+        console.log('production plans');
+        res.send(productionPlans);
+    }else {
+        console.log('sandbox plans');
+        res.json(sandBoxPlans);
+    }
 });
 module.exports = bTree;
 

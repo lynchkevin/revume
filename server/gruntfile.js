@@ -37,7 +37,7 @@ module.exports = function(grunt) {
             volerro: 'https://rb.volerro.com'
           },
           buildDate : grunt.option('buildDate'),
-          clientTokenPath:'https//m.revu.me/api/braintree/client_token'
+          clientTokenPath:'https://m.revu.me/api/braintree/client_token'
         }
       }
     },

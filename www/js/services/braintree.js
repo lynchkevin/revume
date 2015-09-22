@@ -16,13 +16,17 @@ function ($rootScope, ScriptService, $http, baseUrl, $q) {
     $.basePath = baseUrl.endpoint+'/api/braintree/';
     
     $.init = function($scope,pmrCallback){
+        var deferred = $q.defer();
         $.scope = $scope;
+        $.payCallCount = 0;
         $.scope.error = {};
         $.callback = pmrCallback || function(){};
         $.getPlansAndAddons()
         .then(function(result){
             $.planData = result.data;
+            deferred.resolve();
         });
+        return deferred.promise;
     }
     
     $.getPlansAndAddons = function(){
@@ -443,13 +447,21 @@ function ($rootScope, ScriptService, $http, baseUrl, $q) {
     $.payMethReceived = function(payload){
         var script = $.scope.script;
         var endpoint = $.basePath+'customer';
+        
+        $.payCallCount++;
+        console.log('PayMethRecieved - callCount = ',$.payCallCount);
         $.scope.token = undefined;
         $.scope.processCardDisabled = true;
         $.scope.showCardEntry = false;
-        $.scope.status.message = 'Processing Payment...';
-        $.scope.status.errors = undefined;
+        if($.scope.status == undefined){
+            $.scope.status = {message:'Processing Payment...',errors:undefined};
+        } else {
+            $.scope.status.message = 'Processing Payment...';
+            $.scope.status.errors = undefined;
+        }
         //create a customer if no CustomerID;
         if(script.customerId == undefined){
+            console.log('calling newScriptNewCustomer');
             $.newScriptNewCustomer(payload)
             .then(function(){
                 console.log('successfully added new customer/script');
@@ -457,6 +469,7 @@ function ($rootScope, ScriptService, $http, baseUrl, $q) {
             });
 
         } else if(script.braintreeId == undefined){ //no existing subscription
+            console.log('calling newScriptExistingCustomer');
             $.newScriptExistingCustomer(script)
             .then(function(){
                 console.log('successfully added new script for the customer');

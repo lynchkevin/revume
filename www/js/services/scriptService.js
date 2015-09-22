@@ -191,7 +191,14 @@ function (Teams,Users,Scripts,rightsManager,$q,$rootScope,$state) {
     $.update = function(_id,script){
         var defer = $q.defer();
         script.availableSeats = script.totalSeats - script.members.length;
-        Scripts.update({id:_id},script).$promise.then(function(){
+        console.log('ScriptService update - script is: ',script);
+        var scrCopy = angular.copy(script);
+        scrCopy.members.forEach(function(member){
+            if(angular.isObject(member.user))
+                member.user = member.user._id
+        });
+        console.log('ScriptService update - scrCopy: ',scrCopy);
+        Scripts.update({id:_id},scrCopy).$promise.then(function(){
             defer.resolve();
         });
         return defer.promise;

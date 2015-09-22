@@ -26,34 +26,38 @@ angular.module('RevuMe')
                                         $q) {
     
     //Initialize the Scope when everything is Resolved
+    $scope.status = {message:undefined,errors:undefined};
+                                 
     $scope.init = function(){
         $scope.paymentDisabled = false;
-        $scope.script = ScriptService
         $scope.script = ScriptService.getPendingScript();
-        $scope.status = {};
+        $scope.status = {message:undefined,errors:undefined};
         $scope.script.cost = ScriptService.calculateCost($scope.script);
         $scope.processCardDisabled = false;
-        Braintree.init($scope,$scope.pmrCallback);
-        if($scope.script.customerId != undefined){
-            Braintree.findCustomer($scope.script).then(function(customer){
-                $scope.script.customer = customer;
-                $scope.script.defaultMethod = undefined;
-                $scope.showCardEntry = false;
-                customer.paymentMethods.forEach(function(method){
-                    if(method.default)
-                        $scope.script.defaultMethod = method;
+        Braintree.init($scope,$scope.pmrCallback)
+        .then(function(){
+            console.log('payment controlller init: script is: ',$scope.script);
+            if($scope.script.customerId != undefined){
+                Braintree.findCustomer($scope.script).then(function(customer){
+                    $scope.script.customer = customer;
+                    $scope.script.defaultMethod = undefined;
+                    $scope.showCardEntry = false;
+                    customer.paymentMethods.forEach(function(method){
+                        if(method.default)
+                            $scope.script.defaultMethod = method;
+                    });
                 });
-            });
-        } else 
-            $scope.showCardEntry = true;
-        $scope.dropinOptions = {
-            onPaymentMethodReceived: function(payload){
-                Braintree.payMethReceived(payload);
-            },
-            onError : function(payload){
-                console.log(payload);
-            }
-        };
+            } else 
+                $scope.showCardEntry = true;
+            $scope.dropinOptions = {
+                onPaymentMethodReceived: function(payload){
+                    Braintree.payMethReceived(payload);
+                },
+                onError : function(payload){
+                    console.log(payload);
+                }
+            };
+        });
     }
     //callback when paymentMethodRecieved completes
     $scope.pmrCallback = function(){
@@ -84,7 +88,13 @@ angular.module('RevuMe')
        $state.go('app.myAccount');
     }
       
-
+   $scope.$on('$ionicView.enter', function(){
+        if($rootScope.user._id != undefined)
+            if($state.current.name == 'app.payment')
+                setTimeout(function(){
+                    $scope.init();
+                },0);                
+    });
 
     if($rootScope.user.script == undefined)
         $rootScope.$on('Revu.Me:Ready',function(event, data){
