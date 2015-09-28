@@ -2,10 +2,10 @@
 
  angular.module('config', [])
 
-.constant('baseUrl', {name:'production',endpoint:'https://m.revu.me',volerro:'https://rb.volerro.com'})
+.constant('baseUrl', {name:'development',endpoint:'http://192.168.1.166:5000',volerro:'https://rb.volerro.com'})
 
-.constant('buildDate', 'Thu Sep 24 2015 13:56:58 GMT-0500 (CDT)')
+.constant('buildDate', 'Mon Sep 28 2015 11:37:30 GMT-0500 (CDT)')
 
-.constant('clientTokenPath', 'https://m.revu.me/api/braintree/client_token')
+.constant('clientTokenPath', 'http://192.168.1.166:5000/api/braintree/client_token')
 
 ;

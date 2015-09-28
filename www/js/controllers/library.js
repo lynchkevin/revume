@@ -422,14 +422,19 @@ function ($scope,$rootScope,$state,
         action.name = 'Done'; 
         action.callBack = doneCB;
         $scope.editContainer(index);
+        //alert('Before button test');
         if(type != 'button'){
+           // alert('Not Button');
             $scope.navItems[index].actions[0].name = 'Editing...';
             $scope.navItems[index].actions[0].class = 'button-assertive';
         } else {
+           // alert('Is Button');
             $event.stopPropagation();
             action.class = 'button-assertive';
         }
-         $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+        $timeout(function(){
+            $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+        },0);
     }
     function doneCB(index,buttonIndex,$event,type){
         var action = $scope.navItems[index].actions[buttonIndex];        
@@ -443,7 +448,9 @@ function ($scope,$rootScope,$state,
             action.class = 'button-positive';
             $event.stopPropagation();
         }
-        $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];       
+        $timeout(function(){
+            $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];
+        },0);    
     }
     function newMeetingCB(index,buttonIndex,$event,type){
         if(type=='button')

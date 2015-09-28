@@ -1,9 +1,9 @@
-/platforms
-/plugins
-/hooks
+/platforms/*
+/plugins/*
+/hooks/*
 /scss
-/node_modules
-/server/www
+/node_modules/*
+/server/www/*
 /server/img
 /server/tmp
 /server/results
