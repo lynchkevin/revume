@@ -99,7 +99,7 @@
     background: #353535;
 }
 .flashy-background{
-    background-image: url("/img/start-meeting.png");
+    background-image: url("https://s3.amazonaws.com/revu.volerro.com/img/start-meeting.png");
     background-size:100% 100%;
 }
 .vid-content{
@@ -596,6 +596,15 @@ div.progress-value {
     width:50%;
     margin-left:25%;
 }
+.vert-center{
+    margin-top:30%;
+}
+.bar-tall{
+    height:70px;
+}
+.bar-button-bottom{
+    top:35px !important;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
@@ -676,7 +685,19 @@ div.progress-value {
     }
 
 }
-
+@media screen and (max-width:320px){
+    .col.col-10.collapse{
+        padding:0px;
+        flex:none;
+        width:0%;
+    }
+    .col.col-80.collapse{
+        width:100%;
+        flex:none;
+        max-width: 100%;
+        padding:0px
+    }
+}
 @media screen and (min-width: 600px){
     .user_list{
         width:50%;

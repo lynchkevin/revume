@@ -1,7 +1,7 @@
 <ion-view view-title="{{presentation.name}}">
     <ion-content class="has-header presentation-background" scroll="false" id="slideshow" fullscreen>
         <div class="centered-container slide" elem-size controls=true host=false>
-        <div class="row">
+        <div class="row" ng-class="{'vert-center':screenSize().width < screenSize().height}">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
                    ng-click="previousClicked();$event.preventDefault(); $event.stopPropagation();"

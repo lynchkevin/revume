@@ -11,7 +11,7 @@
     </ion-nav-buttons>
     <ion-content class="has-header presentation-background" scroll="false" id="presentation" fullscreen>
         <div class="centered-container slide" elem-size controls=true host=true>    
-            <div class="row">
+            <div class="row" ng-class="{'vert-center':screenSize().width < screenSize().height}">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
                    ng-click="prevSlide();$event.preventDefault(); $event.stopPropagation();"></a>

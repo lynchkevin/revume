@@ -18,6 +18,7 @@ angular.module('RevuMe')
                              'buildDate',
                              'ScriptService',
                              'Braintree',
+                             '$timeout',
 function ($scope,
            $rootScope,
            $cookieStore,
@@ -27,21 +28,26 @@ function ($scope,
            introContent,
            buildDate,
            ScriptService,
-           Braintree) {
+           Braintree,
+           $timeout) {
 
     $scope.build = {date:buildDate};
     $scope.Library = Library;
     $scope.start = new Date();
     function batmanOn(){
-        $rootScope.user.batman = true;
-        $scope.utility.actions[1].name = 'Stop Snooping...';
-        $scope.utility.actions[1].action = $scope.logOutAs;
+        $timeout(function(){
+            $rootScope.user.batman = true;
+            $scope.utility.actions[1].name = 'Stop Snooping...';
+            $scope.utility.actions[1].action = $scope.logOutAs;
+        },0);
     }
                                  
     function batmanOff(){
-        $rootScope.user.batman = false;
-        $scope.utility.actions[1].name = 'Log In As..';
-        $scope.utility.actions[1].action = $scope.logInAs;     
+        $timeout(function(){
+            $rootScope.user.batman = false;
+            $scope.utility.actions[1].name = 'Log In As..';
+            $scope.utility.actions[1].action = $scope.logInAs;     
+        },0);
     }
                                  
     $scope.clearUserCookie = function(){

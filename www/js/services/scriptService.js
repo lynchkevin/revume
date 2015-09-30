@@ -63,8 +63,8 @@ function (Teams,Users,Scripts,rightsManager,$q,$rootScope,$state) {
     }
     
     $.getMonthlyCost = function(totalSeats){
-        if(totalSeats < 50)
-            return 40.00;
+        if(totalSeats < 25)
+            return 35.00;
         else
             return 30.00;
     }

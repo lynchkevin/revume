@@ -9,11 +9,11 @@
 		     ng-intro-onafterchange="AfterChangeEvent"
 		     ng-intro-autostart="ShouldAutoStart">
     <div id="step1" class="row row-center">
-        <div class="col col-10">
+        <div class="col col-10 collapse">
         </div>
-    <div class="col col-80 ">
+    <div class="col col-80 collapse">
      <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div class="centered-container hero-container positive-bg" elem-height="0.50">
+        <div class="centered-container hero-container positive-bg" port-height="0.50">
               <h3 class="hero-welcome">Welcome {{user.name}} </h3> 
         <span class="hero" flash-weight="Revu.Me:Ready">Revu.Me</span>
           <button class="button button-stable tour-button" ng-click="tourService.start()">
@@ -21,14 +21,14 @@
           </button>            
         </div>
     </div>
-        <div class="col col-10">
+        <div class="col col-10 collapse">
         </div>    
     </div>
     <div class="row row-center"
          ng-if="user.email=='klynch@volerro.com'">
-        <div class="col col-10">
+        <div class="col col-10 collapse">
         </div>
-        <div class="col col-80">
+        <div class="col col-80 collapse">
             <div class="centered-container user_list">
             
           <ion-list>
@@ -43,16 +43,17 @@
           </ion-list>    
             </div>
         </div>
-        <div class="col col-10">
+        <div class="col col-10 collapse">
         </div>        
     </div>
     </div>
   </ion-content>
 <div class="bar bar-footer" 
-     ng-class="{'bar-positive':user.daysLeft>=14,'bar-energized':(user.daysLeft < 14 && user.daysLeft > 7), 'bar-assertive':(user.daysLeft <= 7)}"
+     ng-class="{'bar-positive':user.daysLeft>=14,'bar-energized':(user.daysLeft < 14 && user.daysLeft > 7), 'bar-assertive':(user.daysLeft <= 7),'bar-tall':smallScreen()}"
      ng-if="user.script!=undefined && user.script.autoRenew == false">
   <div class="title">Your {{user.script.type}} Subsction has {{user.daysLeft}} days left</div>
   <button class="button button-calm"
+          ng-class="{'bar-button-bottom':smallScreen()}"
           ng-if="user.script.type!='Elite' && user.daysLeft < 21">{{buyButton.text}}</button>
 </div>
 </ion-view>
