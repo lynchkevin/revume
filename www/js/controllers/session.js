@@ -201,11 +201,12 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                             'Decks',
                             'presAnalyzer',
                             '$ionicModal',
+                            '$ionicPopup',
                             '$state', 
                             'BridgeService',
                             '$timeout',
 function($scope,$rootScope, $stateParams,Sess,session, Decks,
-          analyzer,$ionicModal,$state,BridgeService,$timeout) {
+          analyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
@@ -266,7 +267,16 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
             }
         }
     }
-
+    // A general purpose alert dialog
+    $scope.showAlert = function(title,msg) {
+        var alertPopup = $ionicPopup.alert({
+        title: title,
+        template: msg
+        });
+        
+        return alertPopup;
+    };
+    
     $scope.showResults = function(idx){
         if($scope.session.decks.length>0){
             var sid = $scope.session._id;
@@ -292,8 +302,20 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     };
     $scope.startMeeting = function(){
         $scope.activeMeeting = true;
-        if($scope.session.bridge)
-            $scope.bridgeService.startBridge(session.ufId);
+        if($scope.session.bridge){
+            $scope.bridgeService.startBridge(session.ufId)
+            .then(function(){
+                if($scope.session.decks.length == 1)
+                    $scope.go($scope.session._id,0);
+                else
+                    $scope.showAlert('Meeting Started','Please Select your Deck <br> by Clicking Click \'Show\'');
+            });
+        }else{
+            if($scope.session.decks.length == 1)
+                $scope.go($scope.session._id,0);  
+            else
+                $scope.showAlert('Meeting Started','Please Select your Deck <br> by Clicking \'Show\'');   
+        }
     };
     $scope.endMeeting = function(){
         $scope.activeMeeting = false;

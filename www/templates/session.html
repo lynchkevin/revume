@@ -55,8 +55,9 @@
                   <p> {{deck.slides.length}} total slides</p>
                     <div class="buttons session-item-button">
                         <button class="button button-positive"
-                                ng-click="go(session._id,$index)">
-                            Start
+                                ng-click="go(session._id,$index)"
+                                ng-if="session.decks.length > 1">
+                            Show
                         </button>
                         <button class="button button-positive button-outline" 
                                 ng-disabled="!reportsEnabled[$index]" 

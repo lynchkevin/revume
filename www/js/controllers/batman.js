@@ -67,7 +67,10 @@ function ($scope,
     }
     
     $scope.logOutAs = function(){
-        $rootScope.user = $cookieStore.get('user');
+        if($rootScope.isMobile)
+            $rootScope.user = $scope.ls.user;
+        else
+            $rootScope.user = $cookieStore.get('user');
         batmanOff();
     }
     

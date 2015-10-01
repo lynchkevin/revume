@@ -187,6 +187,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                                position)
                      );  
         position = newPosition('410px','340px','275px');
+        if(!$rootScope.isMobile || $rootScope.showArchive)
         $.steps.push($.subStep(rootStep,
                               'The Archive Holds All your Old Pitches and Meetings',
                                position,

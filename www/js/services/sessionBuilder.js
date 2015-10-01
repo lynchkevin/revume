@@ -216,7 +216,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         session.date = new Date(d);
         session.timeZone = tz.name();
         session.baseUrl = baseUrl.endpoint;
-        $.session = session;
+        $.session = angular.copy(session);
         $.session.attIds=[];
         $.session.lengthOptions = lengthOptions;
         $.session.attendees.forEach(function(a){
@@ -229,9 +229,29 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
             $.builderModal.hide();
             defer.resolve();
         }).catch(function(err){
-            console.log('edit cancel',$.defer);
-            $.builderModal.hide();
-            defer.reject(err);
+            if($.sessionForm.$dirty){
+                var confirm = $ionicPopup.confirm({
+                    title:'Unsaved Changes',
+                    template:'Do you want to save your changes?'
+                });
+                confirm.then(function(res){
+                    if(res){
+                        $.updateSession().then(function(){
+                            console.log('Changes saved after cancel');
+                            $.builderModal.hide();
+                            defer.resolve();
+                        });
+                    } else {
+                        console.log('Changes were denied');
+                        $.builderModal.hide();
+                        defer.reject();
+                    }
+                });
+            }else{
+                console.log('edit cancel',$.defer);
+                $.builderModal.hide();
+                defer.reject(err);
+            }
         });
         return defer.promise;
     }; 
