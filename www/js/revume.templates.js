@@ -287,7 +287,7 @@ angular.module('RevuMe').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/viewer.html',
-    "<ion-view view-title=\"{{name}}\"><ion-nav-buttons side=\"right\"><button class=\"button icon ion-ios-telephone\" ng-click=\"bridgeService.showBridgeInfo()\"></button></ion-nav-buttons><ion-content class=\"has-header presentation-background\" scroll=\"false\" id=\"viewer\" fullscreen><div class=\"centered-container slide\" elem-size controls=\"false\"><!--            <div class=\"row\">\n" +
+    "<ion-view view-title=\"{{name}}\"><ion-nav-buttons side=\"right\"><button class=\"button icon ion-ios-telephone\" ng-click=\"bridgeService.showBridgeInfo()\"></button></ion-nav-buttons><ion-content class=\"has-header presentation-background\" scroll=\"false\" id=\"viewer\" fullscreen><div class=\"centered-container slide\" ng-class=\"{'vert-center':screenSize().width < screenSize().height}\" elem-size controls=\"false\"><!--            <div class=\"row\">\n" +
     "                <div class=\"col col-10\">\n" +
     "                </div>\n" +
     "\n" +

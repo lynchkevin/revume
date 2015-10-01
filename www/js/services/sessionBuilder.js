@@ -229,7 +229,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
             $.builderModal.hide();
             defer.resolve();
         }).catch(function(err){
-            if($.sessionForm.$dirty){
+            if($.sessionForm.$dirty || ($.session.attendees.length != session.attendees.length)){
                 var confirm = $ionicPopup.confirm({
                     title:'Unsaved Changes',
                     template:'Do you want to save your changes?'
