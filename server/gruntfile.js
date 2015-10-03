@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-    grunt.option('ip','http://10.1.10.216:5000');
+    grunt.option('ip','http://192.168.1.166:5000');
     grunt.option('buildDate',new Date().toString('mmm d, yyyy h:M'));
     
     grunt.initConfig({
