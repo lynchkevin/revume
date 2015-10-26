@@ -1,4 +1,9 @@
 <ion-view view-title="{{session.name}}" hide-back-button="false" ng-cloak>
+    <ion-nav-buttons side="right">
+      <button class="button" ng-click="editSession()">
+        Edit
+      </button>
+    </ion-nav-buttons>
     <ion-content class="has-header">
         <div class="list card">
             <div class="item item-divider">

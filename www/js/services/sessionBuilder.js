@@ -225,9 +225,9 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         $.show($.builderModal).then(function(){
             console.log('edit',$.defer);
             return $.updateSession();
-        }).then(function(){
+        }).then(function(updated){
             $.builderModal.hide();
-            defer.resolve();
+            defer.resolve(updated);
         }).catch(function(err){
             if($.sessionForm.$dirty || ($.session.attendees.length != session.attendees.length)){
                 var confirm = $ionicPopup.confirm({
@@ -236,10 +236,10 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
                 });
                 confirm.then(function(res){
                     if(res){
-                        $.updateSession().then(function(){
+                        $.updateSession().then(function(updated){
                             console.log('Changes saved after cancel');
                             $.builderModal.hide();
-                            defer.resolve();
+                            defer.resolve(updated);
                         });
                     } else {
                         console.log('Changes were denied');
@@ -356,7 +356,7 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         });
         updateSession.attendees = $.session.attIds;
         Session.update({id:$.session._id},updateSession).$promise.then(function(){
-            defer.resolve();
+            defer.resolve($.session);
         }).catch(function(err){
             defer.reject(err);
         });

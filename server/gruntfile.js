@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-    grunt.option('ip','http://192.168.1.166:5000');
+    grunt.option('ip','http://10.1.10.216:5000');
     grunt.option('buildDate',new Date().toString('mmm d, yyyy h:M'));
     
     grunt.initConfig({
@@ -23,7 +23,8 @@ module.exports = function(grunt) {
             volerro: 'https://rb.volerro.com'
           },
           buildDate : grunt.option('buildDate'),
-          clientTokenPath: grunt.option('ip')+'/api/braintree/client_token'
+          clientTokenPath: grunt.option('ip')+'/api/braintree/client_token',
+          redirectUrl:grunt.option('ip')
         }
       },
       production: {
@@ -37,7 +38,8 @@ module.exports = function(grunt) {
             volerro: 'https://rb.volerro.com'
           },
           buildDate : grunt.option('buildDate'),
-          clientTokenPath:'https://m.revu.me/api/braintree/client_token'
+          clientTokenPath:'https://m.revu.me/api/braintree/client_token',
+          redirectUrl:'http://localhost/callback/'
         }
       }
     },

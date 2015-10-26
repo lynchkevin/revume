@@ -51,6 +51,13 @@
     color:white;
     font-family: Cony-Regular;
 }
+.pres-end-header{
+   width:100%;
+    font-size:200%;
+    line-height:200%;
+    font-family: Cony-Regular;
+}
+
 .input-spacer{
     min-height:15px;
 }
@@ -90,10 +97,10 @@
 
 .slideshow-container {
   /*background-image: url("https://s3.amazonaws.com/revu.volerro.com/img/linen.png");*/
-    background:#E2DDCD;
+    background:#F1F1F1;
 }
 .presentation-background {
-    background: #E2DDCD;
+    background: #FFFFFF;
 }
 .archive-container{
     background: #353535;
@@ -480,6 +487,15 @@ div.progress-value {
   flex: 0 0 90%;
   max-width: 90%; 
 }
+.col-40 {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 40%;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 40%;
+  -ms-flex: 0 0 40%;
+  flex: 0 0 40%;
+  max-width: 40%; 
+}
 .slide-play-video{
     position:absolute;
     left:48%;
@@ -608,6 +624,10 @@ div.progress-value {
 <!-- ios9 hack --->
 .transparent {
     background-color: #FFFF !important:
+}
+.signup-hint{
+    font-weight:800;
+    font-size:115%;
 }
 <!-- MEDIA QUERIES --------->
 

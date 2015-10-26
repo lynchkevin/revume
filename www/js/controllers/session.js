@@ -205,8 +205,9 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                             '$state', 
                             'BridgeService',
                             '$timeout',
+                            'SessionBuilder',
 function($scope,$rootScope, $stateParams,Sess,session, Decks,
-          analyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout) {
+          analyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout,SessionBuilder) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
@@ -214,6 +215,9 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     
     $scope.init = function(){
         if(session._id != undefined){
+            // next 2 lines are new
+            $scope.sb = SessionBuilder;
+            $scope.sb.init($scope);
             $scope.activeMeeting = false;
             $scope.bridgeService.findBridge($scope.session.ufId)
             $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
@@ -233,6 +237,13 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
             }
         }   
     };
+    
+    $scope.editSession = function(){
+        $scope.sb.edit($scope.session)
+        .then(function(updated){
+            $scope.session = updated;
+        });
+    }
     //create a handy dialer for mobile users
     $scope.handyDial = function(){
         var confId = $scope.session.ufId.replace(/-/g,'');

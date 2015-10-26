@@ -1,15 +1,25 @@
 
 <ion-view view-title="Sign Up">
-  <ion-content ng-class="{'presentation-background':smallScreen(),'flashy-background':!smallScreen()}">
+  <ion-content class="presentation-background">
 
     <div class="centered-container"  >
     <div class="row row-center">
-        <div class="col col-10">
+        <div ng-class="{'col col-10':screenSize().width<800, 'col col5':screenSize().width>800}">
         </div>
-    <div class="col col-80 ">
+    <div ng-class="{'col col-40':screenSize().width>800}"
+         ng-if="screenSize().width>800">
+        <div class="centered-container">
+            <H1 class="positive">Revu.Me Signup</H1>
+            <h3 class="positive">We're almost there!</h3>
+            <h3 class="positive">We just need a little information</h3>
+            <p class="calm signup-hint">Please take our short tour once you're in</p>
+        </div>
+    </div>
+    <div ng-class="{'col col-10':screenSize().width>800}"
+         ng-if="screenSize().width>800"></div>
+    <div ng-class="{'col col-80':screenSize().width<800, 'col col-40':screenSize().width>800} ">
      <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div ng-class="{'centered-container hero-container positive-bg padding-bottom':smallScreen(),
-                       'left-container hero-container positive-bg padding-bottom':!smallScreen()}" >
+        <div class="centered-container positive-bg padding-bottom">
             <span class="hero-header">Revu.Me</span> 
             <div class="signup-form ">
                 <form name="forms.signup" ng-controller="signupCtrl">
@@ -84,7 +94,7 @@
         </div>
 
     </div>
-        <div class="col col-10">
+        <div ng-class="{'col col-10':screenSize().width<800, 'col col-5':screenSize().width>800} ">
         </div>    
     </div>
     </div>
