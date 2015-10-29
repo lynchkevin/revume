@@ -12,9 +12,9 @@
       };
     }])
 
-    .directive('evaporate', ['eva','$parse','$rootScope', function (eva,$parse,$rootScope) {
+    .directive('evaporate', ['eva', function (eva) {
 
-      function link (scope, element,attrs,ngModel) {
+      function link (scope, element) {
 
         function foo () {}
 
@@ -41,14 +41,20 @@
         // expose some info for parent scope
         data.ready = false;
         data.files = [];
-        
+
         // ready..
         if (eva._.supported) {
-          //called on drag or drop or on files change
-          scope.doFiles = function(files){
-              angular.forEach(files, function (file) {
-              // send the onFileSubmitted Event
-              onFileSubmitted(file);  
+
+          // ..steady..KCL change to drop event
+          element.bind('drop', function (event) {
+            // execute the users fileSubmited callback
+            event.stopPropagation();
+            event.preventDefault();
+            onFileSubmitted(event.dataTransfer.files);  
+            
+            // process added files
+            // change to drop  - was: angular.forEach(event.target.files, function (file) {
+            angular.forEach(event.dataTransfer.files, function (file) {
               // process file attrs
               file.started = Date.now();
               file.path_ = dir + file.started + timestampSeparator + file.name;
@@ -105,9 +111,7 @@
                   onFileError(file, message);
 
                   // update ui
-                  if(!$rootScope.$$phase) {
-                    scope.$apply();
-                  }
+                  scope.$apply();
                 }
               });
 
@@ -116,27 +120,9 @@
             });
 
             // update ui
-            if(!$rootScope.$$phase) {
-                scope.$apply();
-            }
-          }
-
-          // ..steady..KCL change to drop event
-          element.bind('drop', function (event) {
-            // execute the users fileSubmited callback
-            event.stopPropagation();
-            event.preventDefault(); 
-            scope.doFiles(event.dataTransfer.files);
+            scope.$apply();
           });
-          
-         scope.$watchCollection('inbox',function(newEntry){
-             var processQueue = [];
-             var inbox = newEntry;
-             inbox.forEach(function(file){
-                 processQueue.push(newEntry.shift());
-             });
-             scope.doFiles(processQueue);
-         });
+
           // ..go!
           data.ready = true;
         }
@@ -144,11 +130,9 @@
 
       return {
         restrict: 'A',
-        require:'ngModel',
         link: link,
         scope: {
-          data: '=evaModel',
-          inbox: '=ngModel'
+          data: '=evaModel'
         }
       };
     }]);

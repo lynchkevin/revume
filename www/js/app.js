@@ -14,6 +14,7 @@ angular.module('RevuMe',
     'FBAngular',
     'braintree-angular',
     'ngIOS9UIWebViewPatch',
+    'fileBox',
 ]
 )
 

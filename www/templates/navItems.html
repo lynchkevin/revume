@@ -24,16 +24,21 @@
                     ng-if="!archiveOn()"></button>
                 </div>
             </div> 
+            <div ng-show="eva.Data.ready && modelName=='files'">
+                <file-box></file-box>
+            </div>
             <div ng-show="showAddItem" >
                 <div ng-switch on="modelName">
                     <div ng-switch-when='files'>
 
 <!------evaporate testing------------->
-                        <div ng-show="evaData.ready">
+                        <div ng-show="eva.Data.ready">
                             <div class="flow-drop-zone centered-container" 
                                  drag-enter="class='flow-drag-enter'" 
                                  drag-leave="class='flow-drag-leave'" 
-                                 evaporate eva-model="evaData"
+                                 evaporate 
+                                 eva-model="eva.Data"
+                                 ng-model="eva.Inbox"
                                  ng-class="class"
                                  ng-if="!device.IOS() && !device.isIPad() && !device.isAndroid() && !device.isWindowsPhone()">
                                 <p>Drop your file(s) here</p>     
@@ -41,7 +46,9 @@
                                     <!--ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner--> 
                             <ion-list ng-if="library.uploading.files.length > 0">
                                 <ion-item ng-repeat="file in library.uploading.files"
-                                          class="upload-content" ng-cloak>
+                                          class="upload-content"
+                                          style="min-height:70px"
+                                          ng-cloak>
                                     <ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner> 
                                     <h2>{{file.name}}</h2>
                                     <p ng-show="file.timeLeft != 0">{{file.timeLeft}} seconds remaining...</p>

@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
-
-    grunt.option('ip','http://10.1.10.216:5000');
+    grunt.option('port','9000');
+    grunt.option('ip','http://10.1.10.216:'+grunt.option('port'));
+    grunt.option('home_ip','http://192.168.1.166:'+grunt.option('port'));
     grunt.option('buildDate',new Date().toString('mmm d, yyyy h:M'));
     
     grunt.initConfig({
@@ -12,6 +13,21 @@ module.exports = function(grunt) {
         name: 'config',
       },
       // Environment targets
+      home: {
+        options: {
+          dest: '../www/js/config.js'
+        },
+        constants: {
+          baseUrl: {
+            name: 'development',
+            endpoint: grunt.option('home_ip'),
+            volerro: 'https://rb.volerro.com'
+          },
+          buildDate : grunt.option('buildDate'),
+          clientTokenPath: grunt.option('home_ip')+'/api/braintree/client_token',
+          redirectUrl:'http://localhost:'+grunt.option('port')
+        }
+      },
       development: {
         options: {
           dest: '../www/js/config.js'
@@ -24,7 +40,7 @@ module.exports = function(grunt) {
           },
           buildDate : grunt.option('buildDate'),
           clientTokenPath: grunt.option('ip')+'/api/braintree/client_token',
-          redirectUrl:grunt.option('ip')
+          redirectUrl:'http://localhost:'+grunt.option('port')
         }
       },
       production: {
@@ -57,21 +73,32 @@ module.exports = function(grunt) {
         options: {
           // Task-specific options go here.
         },
-        your_target: {
+        server: {
           cmd: 'node',
-          args: [
-            'server.js'
-          ]
-        }
+          args: ['server.js']
+        },
+        debug:{
+            cmd:'node',
+            args: ['--debug-brk','server.js']
+        }      
     },
     env : {
         options : {
         //Shared Options Hash 
         },
+        home : {
+          options : {
+              replace : {
+                  BASE_URL : grunt.option('home_ip'),
+                  PORT:grunt.option('port')
+              },
+          }
+        },
         development : {
           options : {
               replace : {
-                  BASE_URL : grunt.option('ip')
+                  BASE_URL : grunt.option('ip'),
+                  PORT:grunt.option('port')
               },
           }
         },
@@ -151,7 +178,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-dev-prod-switch');
     
-    grunt.registerTask('dev', function () {
+    grunt.registerTask('dev', function (debug) {   
         grunt.log.writeln("ip is: " + grunt.option("ip"));
         grunt.log.writeln("buildDate: " + grunt.option('buildDate'));
 
@@ -172,10 +199,53 @@ module.exports = function(grunt) {
         grunt.task.run([
           'dev_prod_switch'
         ]);        
-        grunt.task.run([
-        'run'
-        ]);
+        if(!debug){
+            grunt.task.run([
+            'run:server'
+            ]);
+        }else {
+            grunt.task.run([
+            'run:debug'
+            ]);
+        }
     });
+    
+    
+    grunt.registerTask('home', function (debug) {
+        grunt.option('port','9000');
+        grunt.option('ip','http://192.168.1.166:'+grunt.option('port'));
+
+        grunt.log.writeln("ip is: " + grunt.option("ip"));
+        grunt.log.writeln("buildDate: " + grunt.option('buildDate'));
+
+        grunt.config.data.dev_prod_switch.options.environment = 'dev';
+
+        grunt.task.run([
+        'shell:watch'
+        ]);
+        grunt.task.run([
+        'env:home'
+        ]);
+        grunt.task.run([
+        'ngconstant:home'
+        ]);
+        grunt.task.run([
+          'ngtemplates:RevuMe'
+        ]);
+        grunt.task.run([
+          'dev_prod_switch'
+        ]);        
+        if(!debug){
+            grunt.task.run([
+            'run:server'
+            ]);
+        }else {
+            grunt.task.run([
+            'run:debug'
+            ]);
+        }
+    });
+    
     
     grunt.registerTask('prod', function () {
       grunt.config.data.dev_prod_switch.options.environment = 'prod';

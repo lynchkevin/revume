@@ -119,6 +119,11 @@ function saveVideoUpload(fileName,thumbFile,userId){
     });
     });
 }
+// file types and extensions we handle
+var documentFiles = ['.ppt','.pptx','.pdf','.doc','.docx'];
+var videoFiles = ['.mp4','.avi','.mov','.webm','.ogg','.mov','.wmv'];
+var imageFiles = ['.jpg','.png','.gif','.tif'];
+var allFiles = documentFiles.concat(videoFiles).concat(imageFiles);
 
 function getExtention(f){
     return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
@@ -126,36 +131,27 @@ function getExtention(f){
 //test if powerpoint file
 function documentFile(filePath){
     var f = filePath;
-    var result = false;
     var ext = getExtention(f);
-    switch(ext){
-        case ".ppt"     :
-        case ".pptx"    :
-        case ".pdf"     :
-        case ".doc"     :
-        case ".docx"    :
-            result = true;
-            break
-    }
-    return result;
-}
+    if(documentFiles.indexOf(ext)<0)
+        return false;
+    else
+        return true;
+};
 function videoFile(filename){
     var ext = getExtention(filename)
-    var result = false;
-    switch (ext){
-        case ".mp4":
-        case ".avi":
-        case ".mov":
-        case ".webm":
-        case ".ogg":
-        case ".mov":
-        case ".wmv":
-            result = true;
-            break;
-    }
-    return result;
-};      
-
+    if(videoFiles.indexOf(ext)<0)
+        return false;
+    else
+        return true;
+};
+   
+function imageFile(filename){
+    var ext = getExtention(filename)
+    if(imageFiles.indexOf(ext) <0)
+        return false;
+    else
+        return true;
+}; 
 function createVideoThumb(fileName){
     return new Promise(function(resolve, reject){ 
         var justFile = fileName.slice(fileName.indexOf('/')+1);
@@ -366,7 +362,7 @@ function pptx2png(s3FileName,userId){
 function sendProgress(fileName,message){
     var progress = { event: 'progress',
                      message:message,
-                     file : {name:fileName.slice(fileName.lastIndexOf('_')+1)},
+                     file : {name:fileName.slice(fileName.indexOf('_')+1)}, //was lastIndexOf
                      error: ''
                    };
     channel.publish(progress);
@@ -410,8 +406,8 @@ function processFile(fileName,userId){
             }).catch(function(err){
                 reject(err);
             });
-        }       
-        if(videoFile(fileName)){
+        } else if(videoFile(fileName)){
+            // copy from server to s3
             var target = library.serve+fileName.slice(fileName.indexOf('/'));
             var source = encodeURI('revu.volerro.com' + '/' + fileName);
             console.log('target is: ',target);
@@ -446,6 +442,63 @@ function processFile(fileName,userId){
             }).catch(function(err){
                 reject(err);
             });
+        } else if (imageFile(fileName)){
+            console.log("image!");
+            //evaporate uploads to s3/uploads so let's get a local copy
+            var justFile = fileName.slice(fileName.indexOf('/')+1);
+            var source = 'tmp/'+justFile;
+            var params = { Bucket: library.bucket+library.domain,
+                           Key: library.upload+'/'+justFile
+                         };
+            // send progress update
+            sendProgress(fileName,'reading file...');
+            console.log('target for download: ',source);
+            s3.getObjectAsync(params).then(function(object){
+                return fs.writeFileAsync(source,object.Body);
+            }).then(function(){
+                // file is now copied from s3/uploads to source (tmp/justFile)
+                console.log('file written');
+                status = 'Compressing Image';
+                sendProgress(fileName,status);
+                //compress the image
+                return tiny.compress(justFile);
+            }).then(function(smallFileName){
+                //file is compressed let's replace the big with the little
+                var bigFile = source;
+                var smallFile = 'tmp/$'+justFile;
+                return fs.renameAsync(smallFile,bigFile)
+            }).then(function(){
+                // upload the compressed to s3/img (librar.serve)
+                status = 'Uploading Compressed Image';
+                sendProgress(fileName,status);
+                var file = {name:justFile};
+                //upload takes a file object with a name property rather than just a name
+                return uploadFile(file);
+            }).then(function(){
+                //ok the image is in s3/img let's save it to the database
+                var img = library.serve+'/'+justFile;
+                var images = [img];
+                return savePowerpointUpload(fileName,images,userId);
+            }).then(function(uf){
+                //everything is done - let's delete the local tmp file
+                try{
+                console.log('deleting: ','tmp/'+justFile);
+                fs.unlink('tmp/'+justFile); 
+                } catch(err){
+                    console.log('error deleting file: ','tmp/'+justFile);
+                }
+                uFile = uf;
+                // delete origanally uploaded file in s3/uploads
+                var params = {
+                  Bucket: library.bucket+library.domain, 
+                  Key: justFile, 
+                };
+                return s3.deleteObjectAsync(params);
+            }).then(function(data) {
+                resolve(uFile);                
+            }).catch(function(err){
+                reject(err);
+            });   
         }
     } else {
         reject('fileName undefined');
@@ -513,6 +566,10 @@ function getById(Model,req,res){
     });
 }
 //handle requests for library objects
+library.get('/library/fileTypes',function(req,res){
+    console.log('Library - fileTypes: ',allFiles);
+    res.send(allFiles);
+});
 // uploaded files
 library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var filePath = req.params.filePath;
@@ -525,7 +582,7 @@ library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
         processFile(filePath,userId).then(function(uFile){
         result = {event: 'end',
                   success:true,
-                  file : {name:filePath.slice(filePath.lastIndexOf('_')+1)},
+                  file : {name:filePath.slice(filePath.indexOf('_')+1)}, //was lastIndexOf
                   error: ''
                  };
         console.log('result: ',result);

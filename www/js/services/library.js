@@ -94,6 +94,18 @@ function(UploadedFiles,
         $.deckRights.setRight('Viewer','SlideShow',true);
     }
 
+    $.fileTypes = function(){
+       var deferred = $q.defer();
+       var target = baseUrl.endpoint+'/api/library/fileTypes';
+       var r = $resource(target);
+       r.query().$promise.then(function(types){
+           deferred.resolve(types);
+       }).catch(function(err){
+           deferred.reject(err);
+       });
+       return deferred.promise;
+    }
+        
     $.init = function($scope){
         $.scope = $scope;
         $scope.navItems =[];
@@ -476,12 +488,12 @@ function(UploadedFiles,
             });
         }
     }
-    $.startUpload = function(files){
-        for(var i = 0; i<files.length;i++){
-            files[i].spinner = false;
-            files[i].progress = '0%';
-            files[i].message = ''
-            $.uploading.files.push(files[i]);
+    $.startUpload = function(file){
+        if(file){
+            file.spinner = false;
+            file.progress = '0%';
+            file.message = ''
+            $.uploading.files.push(file);
         }
     }
     $.setArchive = function($scope,index){

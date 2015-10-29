@@ -1,0 +1,14 @@
+
+<div ng-controller="fileNavCtrl">
+<div class="button-bar"
+     evaporate
+     eva-model="eva.Data"
+     ng-model="eva.Inbox">
+    <a class="button button-light"
+       ng-click="fileNavigator.show('dropBox')"
+       dropbox-button> Dropbox Import</a>
+    <a class="button button-light" 
+       ng-click="fileNavigator.show('Box')"
+       box-button> Import </a>
+</div>
+        

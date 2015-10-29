@@ -14,6 +14,7 @@ angular.module('RevuMe')
                              '$state',
                              '$window',
                              '$timeout',
+                             'Evaporate',
                              '$resource',
                              'Library',
                              '$ionicScrollDelegate',
@@ -26,7 +27,7 @@ angular.module('RevuMe')
                              'slideShow',
                              '$q',
 function ($scope,$rootScope,$state,
-           $window,$timeout,$resource,Library,
+           $window,$timeout,Evaporate,$resource,Library,
            $ionicScrollDelegate,$ionicListDelegate,
            pnFactory,$ionicPopup,SessionBuilder,baseUrl,shareMediator,slideShow,$q) {
       
@@ -67,7 +68,13 @@ function ($scope,$rootScope,$state,
         if(!$rootScope.isMobile && !$rootScope.smallScreen() && !$rootScope.archiveOn())
             $scope.showAddItem=true;
         shareMediator.init($scope);
+        // get the valid file types we can handle
+        $scope.fileTypes = undefined;
+        Library.fileTypes().then(function(types){
+            $scope.fileTypes = types;
+        });
         // initialize the evaporate uploader
+        /*
         $scope.evaData = {
           dir: 'uploads',
           timestampSeparator: '_',
@@ -101,8 +108,36 @@ function ($scope,$rootScope,$state,
             file.errMessage = message;
           }
         };
-    };
-    
+        */
+    }
+    function getExtention(f){
+        return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
+    }
+    //Connect to Evaporate
+    $scope.eva = Evaporate;
+    // Handle the file completion from Evaporate
+    $scope.eva.$on('fileComplete',function(file){
+        $scope.fullName = file.path_
+        console.log($scope.fullName);
+        file.spinner = true;
+        Library.processUpload($scope,file);
+    });
+    //handle new files dropped into upload
+    $scope.eva.$on('fileSubmitted',function(file,length){
+        var ext = getExtention(file.name);
+        if($scope.fileTypes.indexOf(ext)>=0)
+            Library.startUpload(file);
+        else {
+            var alert = $ionicPopup.alert({
+                title:'Invalid File Type !',
+                template:'valid types are: '+$scope.fileTypes,
+            });
+            alert.then(function(){});
+        }
+            
+    });
+    //any file(s) added to this array will get uploaded via $watch in evaporate directive   
+    $scope.evaInbox = [];
     //this is called back when conversions complete
     function uploadComplete(result){
         switch (result.event) {
@@ -196,7 +231,7 @@ function ($scope,$rootScope,$state,
                 title:'Error',
                 template:'Error Code: '+err,
             });
-            alert();
+            alert.then(function(){});
         });
     }
     

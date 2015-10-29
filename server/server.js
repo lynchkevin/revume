@@ -4,7 +4,7 @@ var     bodyParser     = require('body-parser');
 var     methodOverride = require('method-override');
 var     session = require('express-session');
 var     MongoStore = require('connect-mongo')(session);
-var     port = process.env.PORT || 5000;
+var     port = process.env.PORT || 9000;
 var     mongo = process.env.MONGO || 'localhost:27017'
 var     sessions = require('./routes/sessions');
 var     users = require('./routes/users');
@@ -19,12 +19,14 @@ var     share = require('./routes/share');
 var     confirm = require('./routes/confirmEmail');
 var     scripts = require('./routes/scripts');
 var     braintree = require('./routes/braintree');
+var     box = require('./routes/box');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
 
 console.log('connectString :',connectString);
 console.log('BASE_URL : ',process.env.BASE_URL);
+console.log('PORT : ',process.env.PORT);
 //setup the database
 try {
     mongoose.connect(connectString);
@@ -75,6 +77,7 @@ app.use('/api',share);
 app.use('/api',confirm);
 app.use('/api',scripts);
 app.use('/api',braintree);
+app.use('/api',box);
 
 // stuff for evaporate uploader
 // console logger
