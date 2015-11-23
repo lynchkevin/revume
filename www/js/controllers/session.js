@@ -31,6 +31,10 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                 $scope.sb = SessionBuilder;
                 $scope.sb.init($scope);
                 $scope.bridge = {};
+                if($scope.deferNewSession){
+                    $scope.deferNewSession = false;
+                    $scope.newSession();
+                }
             }).catch(function(err){
                 console.log(err);
             });
@@ -174,6 +178,12 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
         $scope.init();
     });
     
+    $scope.$on('Revu.Me:NewMeeting',function(event){
+        if($scope.sb)
+            $scope.newSession();
+        else
+            $scope.deferNewSession = true;
+    });    
         
     $scope.$on('Revu.Me:Archive',function(event){
         //close the delete button

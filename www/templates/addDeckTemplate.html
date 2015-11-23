@@ -1,14 +1,44 @@
 <ion-modal-view>
-    <ion-header-bar class="bar-calm"> <h1 class="title"> Add a Deck </h1> 
+    <ion-header-bar class="bar-calm"> <h1 class="title"> Step 1: Add a Deck </h1> 
     <div class="buttons">
       <button class="button button-clear button-light" 
+              style="color:black"
               ng-click="sb.defer.pop().reject('cancel')">Close</button>
     </div>
     </ion-header-bar> 
-    <ion-content> 
+    <ion-content>
+        <file-box close-on-select="true"></file-box>
+        <div ng-show="eva.Data.ready">
+            <div class="flow-drop-zone centered-container" 
+                 drag-enter="class='flow-drag-enter'" 
+                 drag-leave="class='flow-drag-leave'" 
+                 evaporate 
+                 eva-model="eva.Data"
+                 ng-model="eva.Inbox"
+                 ng-class="class"
+                 ng-if="!device.IOS() && !device.isIPad() && !device.isAndroid() && !device.isWindowsPhone()">
+                <p>Drop your file(s) here</p>     
+            </div>
+            <ion-list ng-if="library.uploading.files.length > 0">
+                <ion-item ng-repeat="file in library.uploading.files"
+                          class="upload-content"
+                          style="min-height:70px"
+                          ng-cloak>
+                    <ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner> 
+                    <h2>{{file.name}}</h2>
+                    <p ng-show="file.timeLeft != 0">{{file.timeLeft}} seconds remaining...</p>
+                    <p ng-show="file.message != ''">{{file.message}}</p>
+                    <div ng-show="!file.spinner"
+                         class="progress-bar" 
+                         elem-height="0.01" 
+                         ng-style="{'width':file.progressString}">
+                    </div>
+                </ion-item>
+            </ion-list>
+        </div>
         <ion-list >
             <ion-item ng-repeat="deck in sb.decks" class="item-thumbnail-left item-button-right" >
-                <img ng-src="{{deck.thumb}}" alt="New" class="alt">
+                <img ng-src="{{deck.thumb}}" alt="New" ng-class="{'alt':deck.thumb==undefined}">
                 <h2>{{deck.name}} <span ng-show="deck.added" class="add-color heavy">-Added-</span></h2>
                 <p>{{deck.user.firstName}} {{deck.user.lastName}}</p>
                 <p>{{deck.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>

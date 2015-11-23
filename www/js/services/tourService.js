@@ -202,7 +202,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
         else
             state = 'app.library';
         var libStep = $.newStep(state,
-                               'This is the slide library. Drop files here to upload (Desktop Only)',
+                               'This is the slide library. Drop files here to upload (Desktop Only).<br> You can also import files from your Dropbox or Box account',
                                position,
                               function(){$ionicSideMenuDelegate.toggleLeft(false)});
         $.steps.push(libStep);

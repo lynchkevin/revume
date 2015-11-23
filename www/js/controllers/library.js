@@ -14,12 +14,10 @@ angular.module('RevuMe')
                              '$state',
                              '$window',
                              '$timeout',
-                             'Evaporate',
                              '$resource',
                              'Library',
                              '$ionicScrollDelegate',
                              '$ionicListDelegate',
-                             'pnFactory',
                              '$ionicPopup',
                              'SessionBuilder',
                              'baseUrl',
@@ -27,20 +25,16 @@ angular.module('RevuMe')
                              'slideShow',
                              '$q',
 function ($scope,$rootScope,$state,
-           $window,$timeout,Evaporate,$resource,Library,
+           $window,$timeout,$resource,Library,
            $ionicScrollDelegate,$ionicListDelegate,
-           pnFactory,$ionicPopup,SessionBuilder,baseUrl,shareMediator,slideShow,$q) {
+           $ionicPopup,SessionBuilder,baseUrl,
+           shareMediator,slideShow,$q) {
       
     $scope.w = angular.element($window);
     
-    //connect to server callbacks
-    //pnFactory.init(); - now done once in rootScope
-    var channel = pnFactory.newChannel("library::fileEvents");
-
-  
     
     $scope.init = function(){
-        channel.subscribe(uploadComplete);
+        $scope.scrollDelegate = $ionicScrollDelegate;
         SessionBuilder.init($scope);
         $scope.title = "Slide Library";
         $scope.library = Library;
@@ -73,83 +67,8 @@ function ($scope,$rootScope,$state,
         Library.fileTypes().then(function(types){
             $scope.fileTypes = types;
         });
-        // initialize the evaporate uploader
-        /*
-        $scope.evaData = {
-          dir: 'uploads',
-          timestampSeparator: '_',
-          headersCommon: {
-            'Cache-Control': 'max-age=3600'
-          },
-          headersSigned: {
-            'x-amz-acl': 'bucket-owner-full-control'
-          },
-          onFileSubmitted: function(files){
-              Library.startUpload(files);
-          },
-          onFileProgress: function (file) {
-            console.log(
-              'onProgress || name: %s, uploaded: %f%, remaining: %d seconds',
-              file.name,
-              file.progress,
-              file.timeLeft
-            );
-            file.progressString = (file.progress).toString()+"%";
-          },
-          onFileComplete: function (file) {
-            console.log('onComplete || name: %s', file.name);
-            $scope.fullName = file.path_
-            console.log($scope.fullName);
-            file.spinner = true;
-            Library.processUpload($scope,file);
-          },
-          onFileError: function (file, message) {
-            console.log('onError || message: %s', message);
-            file.errMessage = message;
-          }
-        };
-        */
     }
-    function getExtention(f){
-        return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
-    }
-    //Connect to Evaporate
-    $scope.eva = Evaporate;
-    // Handle the file completion from Evaporate
-    $scope.eva.$on('fileComplete',function(file){
-        $scope.fullName = file.path_
-        console.log($scope.fullName);
-        file.spinner = true;
-        Library.processUpload($scope,file);
-    });
-    //handle new files dropped into upload
-    $scope.eva.$on('fileSubmitted',function(file,length){
-        var ext = getExtention(file.name);
-        if($scope.fileTypes.indexOf(ext)>=0)
-            Library.startUpload(file);
-        else {
-            var alert = $ionicPopup.alert({
-                title:'Invalid File Type !',
-                template:'valid types are: '+$scope.fileTypes,
-            });
-            alert.then(function(){});
-        }
-            
-    });
-    //any file(s) added to this array will get uploaded via $watch in evaporate directive   
-    $scope.evaInbox = [];
-    //this is called back when conversions complete
-    function uploadComplete(result){
-        switch (result.event) {
-                case 'end' : 
-                    Library.uploadComplete(result);
-                    updateView();
-                    break;
-                case 'progress' : 
-                    Library.uploadProgress(result);
-                    break;
-        }
-    }
+
         
     $scope.slideOver=function(){
         $scope.$broadcast("library::slide");
@@ -194,25 +113,12 @@ function ($scope,$rootScope,$state,
             Library.closeCollection($scope,index);
         }
     };
-                   
-    function updateView(){
-        var defer = $q.defer();
-        $rootScope.showLoading();
-        Library.updateModel($scope).then(function(){
-            defer.resolve();
-            $rootScope.hideLoading();
-            $timeout(function(){
-                $ionicScrollDelegate.scrollTop();
-            },0);
-        }).catch(function(err){defer.reject(err)});
-        return defer.promise;
-    };
         
-   $scope.doRefresh = function(){
-       updateView().then(function(){
+    $scope.doRefresh = function(){
+       Library.updateView().then(function(){
             $scope.$broadcast('scroll.refreshComplete');
        });
-   };
+    };
     
     function add(){
       $scope.addingTo.user={}
@@ -239,33 +145,6 @@ function ($scope,$rootScope,$state,
         $scope.addingTo = new Library.decks;
         $scope.addingTo.name = $scope.deck.name;
         add();
-   }
-
-   $scope.newDeckFromFile = function(navItem){
-       var defer = $q.defer();
-       $scope.addingTo = new Library.decks;
-       $scope.addingTo.name = navItem.name;
-       $scope.addingTo.user={_id: $rootScope.user._id};
-       $scope.addingTo.slides = [];
-       $scope.addingTo.thumb = '';
-       $scope.addingTo.isArchived = false;
-       // save the shell first
-       Library.newNavItem($scope).then(function(result){
-            navItem.slides.forEach(function(slide){
-                $scope.addingTo.slides.push(slide);
-            });
-            $scope.addingTo.thumb = navItem.thumb;
-            $scope.addingTo.isArchived = false;
-            $scope.addingTo._id = result._id;
-        
-            // update the deck
-            return Library.decks.update({id:$scope.addingTo._id},$scope.addingTo).$promise;
-       }).then(function(){
-           //we have now copied the slides by updating the deck
-           //fix the thumb
-           defer.resolve($scope.addingTo);
-       });
-       return defer.promise;   
    }
    
     $scope.addCategory= function(){
@@ -337,7 +216,7 @@ function ($scope,$rootScope,$state,
       showConfirm(filename).then(function(res){
           if(res){
               Library.removeNavItem($scope, $index).then(function(){
-                updateView();
+                Library.updateView();
               });
           }
       });
@@ -354,7 +233,7 @@ function ($scope,$rootScope,$state,
         Library.setUserId(job.file_id).then(function(){
             $scope.spinner = false;
             $rootScope.$broadcast("show_message", job.message);
-            updateView();
+            Library.updateView();
         }).catch(function(err){console.log(err)});
     };
 
@@ -437,7 +316,7 @@ function ($scope,$rootScope,$state,
         console.log('Archive Nav Item: ',index);
         $scope.navItems[index].isArchived = true;
         Library.setArchive($scope,index).then(function(){
-            updateView();
+            Library.updateView();
         });
     };
     
@@ -447,7 +326,7 @@ function ($scope,$rootScope,$state,
         console.log('UnArchive Nav Item: ',index);
         $scope.navItems[index].isArchived = false;
         Library.setArchive($scope,index).then(function(){
-            updateView();
+            Library.updateView();
         });
     };
  
@@ -491,7 +370,7 @@ function ($scope,$rootScope,$state,
         if(type=='button')
             $event.stopPropagation();
         if($scope.modelName == 'files'){
-            $scope.newDeckFromFile($scope.navItems[index])
+            Library.newDeckFromFile($scope.navItems[index])
             .then(function(navItem){
                 $scope.buildSession(navItem);
                 $scope.navItems[index].action.selected = $scope.navItems[index].actions[0]; 
@@ -578,12 +457,16 @@ function ($scope,$rootScope,$state,
          $scope.init();
 
     $scope.$on('$ionicView.enter', function(){
-        if($rootScope.user._id != undefined)
+        if($rootScope.user._id != undefined){
             if($state.current.name == 'app.library')
                 setTimeout(function(){
+                    Library.init($scope);
                     $scope.setModel($scope.modelName);
-                },0);                
+                },0);  
+        }
     });
+    
+        
     $scope.$on('Revu.Me:Archive',function(event){
         Library.updateModel($scope);
         if($rootScope.archiveOn()){

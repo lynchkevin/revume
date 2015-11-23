@@ -562,12 +562,17 @@ div.progress-value {
     -webkit-box-shadow: 7px 7px #3f3f3f;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
     -moz-box-shadow:    7px 7px #3f3f3f;  /* Firefox 3.5 - 3.6 */
     box-shadow:         7px 7px #3f3f3f; 
+    border-style:solid;
+    border-width:2px;
+    border-color:#105594;
+    background-color:white;
+    border-radius:7px;
 }
 .tour-tip{
     position:relative;
     line-height: 300%;
     font-weight:600;
-    color:white ;
+    color:105594 ;
     min-width:200px;
     opacity:0.75;
     text-align:center;
@@ -578,6 +583,7 @@ div.progress-value {
     line-height:20px;
     margin-top:7px;
     margin-left:15px;
+    color:#105594;
 }
 .tour-tip-buttons{
     position:absolute;

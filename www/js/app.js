@@ -180,6 +180,11 @@ function($ionicPlatform,$rootScope,$window,$http,
         $rootScope.deepLink = false;
         $state.go('app.welcome');
     }
+    $rootScope.newMeeting = function(stateName){
+        $state.go(stateName).then(function(){
+            $rootScope.$broadcast('Revu.Me:NewMeeting');
+        });
+    }
     $rootScope.fullUrl = function(src){
         return baseUrl+src;
     };
@@ -220,7 +225,22 @@ function($ionicPlatform,$rootScope,$window,$http,
     views: {
       'menuContent': {
         templateUrl: "templates/splash.html",
-        controller: 'splashCtrl'
+        controller: 'splashCtrl',
+        resolve : {
+            slideHint: function(){return true}
+        }
+      }
+    }
+  })
+ .state('app.tour', {
+    url: "/tour",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/splash.html",
+        controller: 'splashCtrl',
+        resolve : {
+            slideHint: function(){return false}
+        }
       }
     }
   })
@@ -242,12 +262,30 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   })
+  .state('app.newMeeting', {
+    url: "/newMeeting",
+    views: {
+      'menuContent': {
+       templateUrl: "templates/sessions.html",
+       controller: 'SessionsCtrl'
+      }
+    }
+  })
   .state('app.library', {
     url: "/library",
     views: {
       'menuContent': {
         templateUrl: "templates/library.html",
         controller: 'libraryCtrl'
+      }
+    }
+  })
+  .state('app.mobileNewMeeting', {
+    url: "/mobile/newMeeting",
+    views: {
+      'menuContent': {
+       templateUrl: "templates/sessions.html",
+       controller: 'SessionsCtrl'
       }
     }
   })

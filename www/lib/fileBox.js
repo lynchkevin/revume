@@ -44,7 +44,8 @@ angular.module('ngHello', [])
 function(helloProvider,redirectUrl,baseUrl) {
 
   helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
-                      box:'11rseev2g1yripmmx833cp5jhiqy82v2'},
+                      box:'11rseev2g1yripmmx833cp5jhiqy82v2',
+                      google:'945597499290-2q1a0915fabg68368ou1v7udko2j21nc.apps.googleusercontent.com'},
                      {
                         redirect_uri:redirectUrl,
                     });
@@ -80,22 +81,55 @@ function($ionicPlatform,$ionicPopup,BoxService) {
 .directive('dropboxButton',['$compile','$parse',function($compile,$parse){
     return{
         restrict: 'A',
-        template:'<i class="icon icon-left ion-social-dropbox positive"></i>  Dropbox Import'
+        template:'<i class="icon icon-left ion-social-dropbox" style="color:RGB(26,99,218)"></i><span style="color:RGB(26,99,218)"> &nbsp Dropbox Import</span>'
     }
 }])
 .directive('boxButton',['$compile','$parse','baseUrl',function($compile,$parse,baseUrl){
     return{
         restrict: 'A',
-        template:'<img src="'+baseUrl.endpoint+'/img/box_navy.png" style="max-width:30px" >  Import',
+        template:'<img src="'+baseUrl.endpoint+'/img/box_navy.png" style="max-width:30px"><span style="color:RGB(17,34,70)">&nbsp Import</span> ',
     }
 }])
 //collapse all the evaporate settings into a foolproof package
-.directive('fileBox',['$compile',function($compile){
+.directive('fileBox',['$compile','FileNav',function($compile,FileNav){
     return{
         restrict: 'E',
         replace:true,
-        templateUrl: 'templates/fileBox.html'
-    }
+        templateUrl: 'templates/fileBox.html',
+        /*
+        link: function($scope,element,attrs){
+                //modify the template based on the closeOnSelect attribute passed in...
+                var closeOnSelect = attrs.closeOnSelect || false;
+                var el = element[0];
+                var buttonBar = el.childNodes[0];
+                var buttons = buttonBar.children;
+                for(var i=0; i<buttons.length;i++){
+                    var attributes = buttons[i].attributes;
+                    var ngClick = attributes.getNamedItem('ng-click');
+                    var start = ngClick.nodeValue.slice(0,-1);
+                    var newNodeValue = start+','+attrs.closeOnSelect+')';
+                    ngClick.nodeValue = newNodeValue;     
+                    attributes.setNamedItem(ngClick);
+                };
+                //$compile(element.contents())($scope);
+        }*/
+        compile: function(element,attrs){
+                //modify the template based on the closeOnSelect attribute passed in...
+                var closeOnSelect = attrs.closeOnSelect || false;
+                var el = element[0];
+                var buttonBar = el.childNodes[0];
+                var buttons = buttonBar.children;
+                for(var i=0; i<buttons.length;i++){
+                    var attributes = buttons[i].attributes;
+                    var ngClick = attributes.getNamedItem('ng-click');
+                    var start = ngClick.nodeValue.slice(0,-1);
+                    var newNodeValue = start+','+attrs.closeOnSelect+')';
+                    ngClick.nodeValue = newNodeValue;     
+                    attributes.setNamedItem(ngClick);
+                };
+                //$compile(element.contents())($scope);
+        }
+    };
 }])
 //create a drop zone that is connected to evaporate
 .directive('dropZone',['$compile',function($compile){
@@ -177,93 +211,119 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
 }])
 
 //controller for the fileNavigator view (template)      
-.controller('fileNavCtrl',['$scope',
-                           '$timeout',
-                           'Evaporate',
-                           'DropboxService',
-                           'BoxService',
-                           '$ionicModal',
-                           '$ionicLoading',
-                           '$ionicScrollDelegate',
-                           'baseUrl',
-function($scope,
-          $timeout,
-          Evaporate,
-          DropboxService,
-          BoxService,$ionicModal,
-          $ionicLoading,
-          $ionicScrollDelegate,
-          baseUrl){
-    //connect to box and dropbox services
-    $scope.dropBox = DropboxService;
-    $scope.box = BoxService;
-    // create a modal to show the fileNavigator
-    $ionicModal.fromTemplateUrl('templates/fileNavigator.html', {
-        scope: $scope
-    }).then(function(modal) {
-        $scope.fileModal = modal;
+.controller('fileNavCtrl',['$rootScope','$scope','FileNav',
+function($rootScope,$scope, FileNav){
+    FileNav.attach($scope);
+    //connect to fileNav service when we enter a new view
+    $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+        FileNav.attach($scope);
     });
-    //bring in the evaporate module
-    $scope.eva = Evaporate;  
-    $scope.eva.$on('fileSubmitted',function(){console.log('Test: file submitted!')});
+}])
+
+.service('FileNav',['$state',
+                   '$timeout',
+                   'baseUrl',
+                   'DropboxService',
+                   'BoxService',
+                   'Evaporate',
+                   '$ionicModal',
+                   '$ionicLoading',
+                   '$ionicScrollDelegate',
+                    'onEvent',
+    function($state,
+              $timeout,
+              baseUrl,
+              DropboxService,
+              BoxService,
+              Evaporate,
+              $ionicModal,
+              $ionicLoading,
+              $ionicScrollDelegate,
+              onEvent){
+    var $ = this;
+
+    //enable events on this service
+    onEvent.attach($);
+    // this service fires a file event when a file has been selected 
+    $.eva = Evaporate;
     
+    //connect to box and dropbox services
+    $.dropBox = DropboxService;
+    $.box = BoxService;
+    
+    
+    $.attach = function($scope){
+        $.scope = $scope;
+        $.scope.eva = $.eva;
+        $.scope.fileNavigator = $.fileNavigator;
+        // create a modal to show the fileNavigator
+        $ionicModal.fromTemplateUrl('templates/fileNavigator.html', {
+            scope: $.scope
+        }).then(function(modal) {
+            $.fileModal = modal;
+        });
+    }
     //dropbox and box services 'file' event callback                    
-    $scope.selectedCallback = function(file){
+    $.selectedCallback = function(file){
         $timeout(function(){
-            $scope.eva.Inbox.push(file);
+            $.eva.Inbox.push(file);
+            $.$fire('file',file);
+            if($.fileNavigator.active.closeOnSelect)
+                $.fileNavigator.hide();
         },0);
     }
     //attach dropbox and box to evaporate
-    $scope.dropBox.$on('file',$scope.selectedCallback);
-    $scope.box.$on('file',$scope.selectedCallback);
-
+    $.dropBox.$on('file',$.selectedCallback);
+    $.box.$on('file',$.selectedCallback);
+        
     //backdrops to show while loading
     //Loading Templates for Each Service
     var templateStart = '<div style="display:block">';
     var templateEnd = '<p>Loading...</p></div>';
-    
     var dropboxBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/Dropbox-white.png"></img>';
-    var dropboxTemplate = templateStart+dropboxBranding+templateEnd;
-                             
     var boxBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/box_white.png"></img>';
-    var boxTemplate = templateStart+boxBranding+templateEnd;
-    $scope.loadStart = function(){
+        
+    // build the branded loading templates
+    $.dropboxTemplate = templateStart+dropboxBranding+templateEnd;
+    $.boxTemplate = templateStart+boxBranding+templateEnd;  
+    // Use the templates to show loading 
+    $.loadStart = function(){
         $ionicLoading.show({
-            template: $scope.active.template
+            template: $.fileNavigator.active.template
         });
     }
-    $scope.loadEnd = function(){
+    $.loadEnd = function(){
         $ionicLoading.hide();
         $ionicScrollDelegate.$getByHandle('fileNavigator').scrollTop();
     }
     // connect to the service events
-    $scope.dropBox.$on('loadStart',$scope.loadStart);
-    $scope.box.$on('loadStart',$scope.loadStart);
-    $scope.dropBox.$on('loadEnd',$scope.loadEnd);
-    $scope.box.$on('loadEnd',$scope.loadEnd);
-                             
+    $.dropBox.$on('loadStart',$.loadStart);
+    $.box.$on('loadStart',$.loadStart);
+    $.dropBox.$on('loadEnd',$.loadEnd);
+    $.box.$on('loadEnd',$.loadEnd);
+        
     //The fileNavigator does all the work...                         
-    $scope.fileNavigator = {
-        dropBox : { provider:$scope.dropBox,
-                    template:dropboxTemplate
+    $.fileNavigator = {
+        dropBox : { service:$.dropBox,
+                    template:$.dropboxTemplate
                   },
-        Box : { provider:$scope.box,
-                template:boxTemplate
+        Box : { service:$.box,
+                template:$.boxTemplate
               },
-        show : function(service){
-                    if(this.hasOwnProperty(service)){
+        show : function(service,closeOnSelect){
+                    if(this.hasOwnProperty(service) && closeOnSelect != undefined){
                         var svc = this[service];
-                        $scope.active = svc.provider;
-                        $scope.active.template = svc.template;
-                        $scope.active.showRoot();
-                        $scope.fileModal.show();
+                        this.active = svc.service;
+                        this.active.template = svc.template;
+                        this.active.closeOnSelect = closeOnSelect;
+                        this.active.showRoot();
+                        $.fileModal.show();
                     }
                 },
         hide : function(){
-                    $scope.fileModal.hide();
+                    $.fileModal.hide();
                 },
     }  
-
 }])
 //service that models both dropbox and box rest APIs
 .service('onEvent',[function(){
@@ -306,6 +366,7 @@ function($scope,
             if(this.hasOwnProperty($event))
                 this[$event].splice(identifier.id,1)
         }
+        return undefined;
     }   
     //attach thise functionality to the client
     $.attach = function(client){
@@ -368,6 +429,9 @@ function($scope,
 function($rootScope,hello,$timeout,$sce,onEvent){
     var $ = this;
     $.name = 'Dropbox';
+    //just in case we are instantiated after the auth broadcast from rootscope
+    if($rootScope.hasOwnProperty('dropbox'))
+        $.authData = $rootScope['dropbox'];
     
     var dropBox = hello('dropbox');
     var noop = function(){};
@@ -517,7 +581,9 @@ function($rootScope,hello,$timeout,$sce,onEvent){
 function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
     var $ = this;
     $.name = 'Box';
-    
+    //just in case we are instantiated after the auth broadcast from rootscope
+    if($rootScope.hasOwnProperty('box'))
+        $.authData = $rootScope['box'];
     var baseRoute = baseUrl.endpoint+'/api/box';
     var routes = {
             baseRoute: baseRoute,

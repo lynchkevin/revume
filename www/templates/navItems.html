@@ -25,7 +25,7 @@
                 </div>
             </div> 
             <div ng-show="eva.Data.ready && modelName=='files'">
-                <file-box></file-box>
+                <file-box close-on-select="false"></file-box>
             </div>
             <div ng-show="showAddItem" >
                 <div ng-switch on="modelName">

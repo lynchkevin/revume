@@ -51,6 +51,9 @@ angular.module('RevuMe')
                     'rightsManager',
                     'shareMediator',
                     'Archiver',
+                    'pnFactory',
+                    'Evaporate',
+                    'onEvent',
 function(UploadedFiles,
           Decks,
           Categories,
@@ -61,18 +64,52 @@ function(UploadedFiles,
           $ionicPopup,
           rightsManager,
           shareMediator,
-          Archiver){
+          Archiver,
+          pnFactory,
+          Evaporate,
+          onEvent){
     
     var $ = this;
     var collection={};
     //database objects
     $.files = UploadedFiles;
+    $.files.modelName = 'files';
     $.decks = Decks;
+    $.decks.modelName = 'decks';
     $.categories = Categories;
+    $.categories.modelName = 'categories';
     
     //files currently being uploaded
     $.uploading = {files:[]};
 
+    //attach to the onEvent Service
+    onEvent.attach($);
+    /*
+        we fire uploadComplete event
+    */
+    
+
+    
+    //connect to server callbacks
+    //pnFactory.init(); - now done once in rootScope    
+    $.channel = pnFactory.newChannel("library::fileEvents");
+    function uploadComplete(result){
+        switch (result.event) {
+                case 'end' : 
+                    $.uploadComplete(result);
+                    $.updateView();
+                    $.$fire('uploadComplete');
+                    break;
+                case 'progress' : 
+                    $.uploadProgress(result);
+                    break;
+        }
+    }
+    //rootscope must call pubnub.init - then we're ready
+    $rootScope.$on('Revu.Me:Ready',function(){
+           $.channel.subscribe(uploadComplete);
+    });
+    
     $.actionList = ['Edit','New Meeting','Share','Hide','Archive','Delete','Reorder','SlideShow'];
     
     function establishRights($scope){
@@ -99,11 +136,17 @@ function(UploadedFiles,
        var target = baseUrl.endpoint+'/api/library/fileTypes';
        var r = $resource(target);
        r.query().$promise.then(function(types){
+           $.validTypes = types;
            deferred.resolve(types);
        }).catch(function(err){
            deferred.reject(err);
        });
        return deferred.promise;
+    }
+    //set the file types
+    $.fileTypes();
+    function getExtention(f){
+        return f.substr(f.lastIndexOf('.'),f.length-1).toLowerCase();
     }
         
     $.init = function($scope){
@@ -115,6 +158,31 @@ function(UploadedFiles,
         $scope.editText = "Edit";
         $scope.container ={};
         collection.index=-1;
+        //Connect to Evaporate
+        $.scope.eva = Evaporate;
+        // Handle the file completion from Evaporate
+        if($.fcEvent == undefined)
+            $.fcEvent = $.scope.eva.$on('fileComplete',function(file){
+                $.scope.fullName = file.path_
+                console.log($.scope.fullName);
+                file.spinner = true;
+                $.processUpload($.scope,file);
+            });
+        //handle new files dropped into upload
+        if($.fsEvent == undefined)
+            $.fsEvent = $.scope.eva.$on('fileSubmitted',function(file,length){
+                var ext = getExtention(file.name);
+                if($.validTypes.indexOf(ext)>=0)
+                    $.startUpload(file);
+                else {
+                    var alert = $ionicPopup.alert({
+                        title:'Invalid File Type !',
+                        template:'valid types are: '+$.validTypes,
+                    });
+                    alert.then(function(){});
+                }
+
+            });
         establishRights($scope); 
     };  
     
@@ -187,6 +255,23 @@ function(UploadedFiles,
         return deferred.promise;
     };
     
+    $.updateView = function(){
+        var defer = $q.defer();
+        $rootScope.showLoading();
+        //this might be getting called by the session which has no Library view
+        if($.scope.model != undefined)
+            $.updateModel($.scope).then(function(){
+                defer.resolve();
+                $rootScope.hideLoading();
+                $timeout(function(){
+                    $.scope.scrollDelegate.scrollTop();
+                },0);
+            }).catch(function(err){defer.reject(err)});
+        else
+            $rootScope.hideLoading();
+        return defer.promise;
+    };
+    
     $.updateModel = function($scope){
         var deferred = $q.defer();
         if($.model != $scope.model) console.log("model error in Library service");
@@ -248,6 +333,32 @@ function(UploadedFiles,
         });
     };
     
+   $.newDeckFromFile = function(navItem){
+       var defer = $q.defer();
+       $.scope.addingTo = new $.decks;
+       $.scope.addingTo.name = navItem.name;
+       $.scope.addingTo.user={_id: $rootScope.user._id};
+       $.scope.addingTo.slides = [];
+       $.scope.addingTo.thumb = '';
+       $.scope.addingTo.isArchived = false;
+       // save the shell first
+       $.newNavItem($.scope).then(function(result){
+            navItem.slides.forEach(function(slide){
+                $.scope.addingTo.slides.push(slide);
+            });
+            $.scope.addingTo.thumb = navItem.thumb;
+            $.scope.addingTo.isArchived = false;
+            $.scope.addingTo._id = result._id;
+        
+            // update the deck
+            return $.decks.update({id:$.scope.addingTo._id},$.scope.addingTo).$promise;
+       }).then(function(){
+           //we have now copied the slides by updating the deck
+           //fix the thumb
+           defer.resolve($.scope.addingTo);
+       });
+       return defer.promise;   
+   }    
     $.newNavItem = function($scope){
         if($.model != $scope.model) console.log("model error in Library service"); 
         return $scope.addingTo.$save();

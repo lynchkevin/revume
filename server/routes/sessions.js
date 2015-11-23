@@ -47,6 +47,7 @@ function startDate(meeting){
     fullStart.setHours(startTime.getHours());
     fullStart.setMinutes(startTime.getMinutes());
     fullStart.setSeconds(0);
+    fullStart.setDate(startTime.getDate());
     return fullStart;
 };
 
@@ -56,6 +57,7 @@ function endDate(meeting){
     fullEnd.setHours(endTime.getHours());
     fullEnd.setMinutes(endTime.getMinutes());
     fullEnd.setSeconds(0);
+    fullEnd.setDate(endTime.getDate());
     return fullEnd;
 };
 

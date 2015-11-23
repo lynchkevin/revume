@@ -181,7 +181,8 @@ angular.module('RevuMe')
     $.getItems = function(inputModel){
         var deferred = $q.defer();
         var model = inputModel;  
-        var modelName = rightsManager.findKey(model).getName();
+        //var modelName = rightsManager.findKey(model).getName();
+        var modelName = inputModel.modelName;
         var allItems = [];
         var sharedItems = [];
         var promises = [];

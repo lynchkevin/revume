@@ -55,7 +55,7 @@ module.exports = function(grunt) {
           },
           buildDate : grunt.option('buildDate'),
           clientTokenPath:'https://m.revu.me/api/braintree/client_token',
-          redirectUrl:'http://localhost/callback/'
+          redirectUrl:'https://m.revu.me/'
         }
       }
     },
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
           archive: '/users/kevin/zip/archive.zip'
         },
         files: [
-          {src: ['**'], dest: '.'}, // includes files in path and its subdirs
+          {src: ['**/*'], dest: '.'}, // includes files in path and its subdirs
         ]
       }
     },
@@ -179,6 +179,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-dev-prod-switch');
     
     grunt.registerTask('dev', function (debug) {   
+        grunt.log.writeln('debug is: ', grunt.option('debug'));
         grunt.log.writeln("ip is: " + grunt.option("ip"));
         grunt.log.writeln("buildDate: " + grunt.option('buildDate'));
 
@@ -199,7 +200,7 @@ module.exports = function(grunt) {
         grunt.task.run([
           'dev_prod_switch'
         ]);        
-        if(!debug){
+        if(grunt.option('debug') == undefined){
             grunt.task.run([
             'run:server'
             ]);
@@ -235,7 +236,7 @@ module.exports = function(grunt) {
         grunt.task.run([
           'dev_prod_switch'
         ]);        
-        if(!debug){
+        if(grunt.option('debug') == undefined){
             grunt.task.run([
             'run:server'
             ]);
@@ -259,12 +260,14 @@ module.exports = function(grunt) {
       grunt.task.run([
           'ngtemplates:RevuMe'
       ]);
+      /*
       grunt.task.run([
           'uglify:javascript'
       ]);
       grunt.task.run([
           'dev_prod_switch'
-      ]);  
+      ]);   
+      */
       grunt.task.run([
           'compress'
       ]);

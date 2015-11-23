@@ -67,6 +67,7 @@ angular.module('RevuMe')
 .service('SessionBuilder', ['$rootScope',
                               'Session',
                               'Decks',
+                              'UploadedFiles',
                               'userService',
                               '$ionicModal',
                               '$ionicPopup',
@@ -74,11 +75,16 @@ angular.module('RevuMe')
                               '$timeout',
                               'baseUrl',
                               'TeamService',
-function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeout,baseUrl,TeamService) {
+                              'shareMediator',
+                              'Library',
+function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
+           $ionicPopup,$q,$timeout,baseUrl,TeamService,shareMediator,Library) {
     var $ = this;
     var $user = userService.user;
     var lengthOptions = [30,60,90,120];
     var tz = jstz.determine();
+    Decks.modelName = 'decks';
+    UploadedFiles.modelName = 'files';
     
     function initSession(){
         if($.sessionForm != undefined)
@@ -115,10 +121,14 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         var deferred = $q.defer();
         $.session = {}
         $.scope=$scope;
+        // add the library to the scope
+        $.scope.library = Library;
+        Library.init($.scope);
         $.session.baseUrl = baseUrl.endpoint;
         $.builderCallback = function(){};
         $.deckCallback = function(){};
         $.defer = [];
+        $.ucEvent = undefined;
         initSession();
         //modal for selecting decks to add to session
         $ionicModal.fromTemplateUrl('templates/addDeckTemplate.html',{
@@ -153,27 +163,46 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         return p.promise
     };
 
+    $.processUpload = function(){
+        shareMediator.getItems(UploadedFiles).then(function(files){
+            if(files.length > 0){
+                var file = files[0];
+                Library.newDeckFromFile(file).then(function(deck){
+                    var d = deck;
+                    $timeout(function(deck){
+                        $.decks.unshift(d);
+                    },0);
+                });
+            }
+        });
+    };
+    
     //create a new session from scratch
     $.new = function(){
         //we need to populate the decks so the user can select one or more
         var defer = $q.defer();
-        var decks = Decks.query({user:$rootScope.user._id});
         $.decks=[];
         $.session.decks=[];
         $.session.timeZone = tz.name();   
         $.session.baseUrl = baseUrl.endpoint;
-        decks.$promise.then(function(decks){
+        shareMediator.getItems(Decks).then(function(decks){
             if(decks.length>0){
                 $.decks = decks;
                 $.decks.forEach(function(deck){
                     deck.added = false;
                 });
+                // attach to the library upload complete event - in case the user uploads a file
+                if($.ucEvent == undefined)
+                    $.ucEvent = Library.$on('uploadComplete',$.processUpload);
                 return $.show($.deckModal);
             }else{
                 showAlert('No Decks Built Yet - Please Build one First');  
             };
         }).then(function(){
             $.deckModal.hide();
+            // disconnect from the upload event
+            if($.ucEvent!=undefined)
+                $.ucEvent = Library.$off($.ucEvent);
             $.session.date = new Date();
             $.session.lengthOptions = lengthOptions;
             return $.show($.builderModal);
@@ -185,6 +214,8 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
         }).catch(function(err){
             $.builderModal.hide();
             $.deckModal.hide();
+            if($.ucEvent != undefined)
+                $.ucEvent = Library.$off($.ucEvent);
             defer.reject(err);
             console.log(err);
         });    
@@ -259,23 +290,40 @@ function ($rootScope,Session,Decks,userService,$ionicModal,$ionicPopup,$q,$timeo
     //sub edit decks within edit window
     $.subEdit = function(){
     //we need to populate the decks so the user can select one or more
-        var decks = Decks.query({user:$rootScope.user._id});
         $.decks=[];
-        decks.$promise.then(function(decks){
-            if(decks.length>0){
+        shareMediator.getItems(Decks).then(function(decks){
+            if(decks.length==0){
+                showAlert('No Decks Built Yet - Please Build or Upload One First'); 
+            } else {
                 $.decks = decks;
                 $.decks.forEach(function(deck){
                     deck.added = false;
                 });
+                //if deckmodal was shown it will be behind the builder modal
+                //so we have to remove it.
+                return $.deckModal.remove();
+            }
+        }).then(function(){
+            return $ionicModal.fromTemplateUrl('templates/addDeckTemplate.html',{
+                scope: $.scope,
+                animation:'slide-in-up'
+            });
+        }).then(function(modal){
+                $.deckModal = modal;  
+                // attach to the library upload complete event - in case the user uploads a file
+                if($.ucEvent == undefined)
+                    $.ucEvent = Library.$on('uploadComplete',$.processUpload);
                 return $.show($.deckModal);
-            }else{
-                showAlert('No Decks Built Yet - Please Build one First');  
-            };
         }).then(function(){
             console.log('subEdit', $.defer);
+            // disconnect from the upload event
+            if($.ucEvent!=undefined)
+                $.ucEvent = Library.$off($.ucEvent);
             $.deckModal.hide();
         }).catch(function(){
             console.log('subEdit reject',$.defer);
+           if($.ucEvent!=undefined)
+                $.ucEvent = Library.$off($.ucEvent);
             $.deckModal.hide();
         });
     };

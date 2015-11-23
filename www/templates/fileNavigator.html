@@ -9,17 +9,20 @@
     <ion-scroll direction="x" 
                 class="path-scroll"
                 delegate-handle="path">
-        <span ng-click="active.showRoot()">Path:&nbsp{{active.folders.root}}</span>
+        <span ng-click="fileNavigator.active.showRoot()">
+            Path:&nbsp{{fileNavigator.active.folders.root}}
+        </span>
         <span path-to-links 
-              ng-model="active.folders"
-              on-Change="active.showFolder"></span>
+              ng-model="fileNavigator.active.folders"
+              on-Change="fileNavigator.active.showFolder">
+        </span>
     </ion-scroll>
  </ionc-header-bar>
   <ion-content class="has-header has-subheader" delegate-handle="fileNavigator">
-      <div ng-if="active.name == 'Dropbox'">
+      <div ng-if="fileNavigator.active.name == 'Dropbox'">
         <ion-list >
-            <ion-item ng-repeat="file in active.folders.data"
-                      ng-click="dropBox.select($index)"
+            <ion-item ng-repeat="file in fileNavigator.active.folders.data"
+                      ng-click="fileNavigator.active.select($index)"
                       ng-class="{'item-icon-left':file.is_dir||!file.thumb_exists,'item-thumbnail-left':!file.is_dir&&file.thumb_exists}">
                 <i ng-if="file.is_dir"
                    class="icon ion-folder positive"></i>
@@ -34,10 +37,10 @@
             </ion-item>
         </ion-list>
     </div>
-      <div ng-if="active.name == 'Box'">
+      <div ng-if="fileNavigator.active.name == 'Box'">
         <ion-list >
             <ion-item ng-repeat="file in box.folders.item_collection.entries"
-                      ng-click="box.select($index)"
+                      ng-click="fileNavigator.active.select($index)"
                       ng-class="{'item-icon-left':file.type == 'folder' || file.type!='folder'}">
                 <i ng-if="file.type == 'folder'"
                    class="icon ion-folder positive"></i>
