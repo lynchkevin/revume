@@ -33,6 +33,7 @@ var UserSchema = new mongoose.Schema({
     email:String,
     password:String,
     confirmed:Boolean,
+    tempPassword:String,
 });
 
     

@@ -219,7 +219,14 @@ function($rootScope,$scope, FileNav){
         FileNav.attach($scope);
     });
 }])
-
+.controller('signInCtrl',['$scope','DropboxService','BoxService', function($scope,DropboxService,BoxService){
+    $scope.getDropboxUser = function(){
+        DropboxService.getUser();
+    }
+    $scope.getBoxUser = function(){
+        BoxService.getUser();
+    }
+}])
 .service('FileNav',['$state',
                    '$timeout',
                    'baseUrl',
@@ -458,6 +465,27 @@ function($rootScope,hello,$timeout,$sce,onEvent){
                 $.$fire('auth');
             });
     } 
+    //get the user information
+    $.getUser = function(){
+        function userFromDropbox(u){
+            var user = {};
+            user.firstName = u.first_name;
+            user.lastName = u.last_name;
+            user.email = u.email;
+            user.accountId = u.id;
+            return user;
+        }
+        if(!$.loggedIn)
+            dropBox.login().then(function(){
+                dropBox.api('me',function(u){
+                    return userFromDropbox(u);
+                });
+            });
+        else
+            dropBox.api('me',function(u){
+                return userFromDropbox(u);
+            });
+    }
     // strip out the long openXml descriptors
     function stripOpenXmlCrap(type){
         if(type.indexOf('vnd.openxmlformats')>0){
@@ -614,6 +642,29 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
                 $.loggedIn = false;
                 $.authData = undefined;
                 $.$fire('auth');
+            });
+    }
+    //get the user information
+    $.getUser = function(){
+        function userFromBox(u){
+            var user = {};
+            var names = u.name.split(' ');
+            user.firstName = names[0];
+            user.lastName = names[1];
+            user.email = u.login;
+            user.accountId = u.id;
+            return user;
+        }
+            
+        if(!$.loggedIn)
+            box.login().then(function(){
+                box.api('me',function(u){
+                    return userFromBox(u);
+                });
+            });
+        else
+            box.api('me',function(u){
+                return userFromBox(u);
             });
     }
     //show the root directory    

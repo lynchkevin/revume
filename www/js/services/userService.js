@@ -8,6 +8,7 @@ angular.module('RevuMe')
 .factory('Users', ['$resource','baseUrl',function ($resource, baseUrl) {
     var _idTarget = baseUrl.endpoint+'/api/users/:id';
     var emailTarget = baseUrl.endpoint+'/api/users/email/:email';
+    var pwResetTarget = baseUrl.endpoint+'/api/users/password/reset/:email';
     return {
         byId: $resource(_idTarget,
         {id:'@id'},
@@ -16,6 +17,10 @@ angular.module('RevuMe')
         byEmail: $resource(emailTarget,
         {email:'@email'},
         {    update: {method:'PUT',params:{email:'@email'}}
+        }),
+        pwReset: $resource(pwResetTarget,
+        {email:'@email'},
+        {    reset: {method:'PUT',params:{email:'@email'}}
         })
     };
 }])

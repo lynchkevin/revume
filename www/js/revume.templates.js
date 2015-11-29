@@ -102,7 +102,7 @@ angular.module('RevuMe').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/library.html',
-    "<ion-view view-title=\"{{title}}\" ng-cloak><ion-content has-bouncing=\"false\" ng-class=\"{'slideshow-container':!archiveOn(),'archive-container':archiveOn()}\"><div class=\"row\" style=\"padding:0px 5px 0px 0px\"><div class=\"{{navClass}}\" style=\"padding:0px 5px 0px 0px\"><add-template template-url=\"templates/navItems.html\"></add-template></div><div class=\"{{thumbClass}}\"><add-template template-url=\"templates/slideItems.html\"></add-template></div></div></ion-content><div class=\"presence-message dark-bg centered-container\" appear-up=\"show_message\">\"\"</div><tour-step step-name=\"Library\" ext=\"tourShow()\"></tour-step></ion-view>"
+    "<ion-view view-title=\"{{title}}\" ng-cloak><ion-nav-buttons side=\"right\"><div ng-controller=\"signInCtrl\"><button class=\"button\" ng-click=\"getDropboxUser()\">Dropbox</button></div><div ng-controller=\"signInCtrl\"><button class=\"button\" ng-click=\"getBoxUser()\">Box</button></div></ion-nav-buttons><ion-content has-bouncing=\"false\" ng-class=\"{'slideshow-container':!archiveOn(),'archive-container':archiveOn()}\"><div class=\"row\" style=\"padding:0px 5px 0px 0px\"><div class=\"{{navClass}}\" style=\"padding:0px 5px 0px 0px\"><add-template template-url=\"templates/navItems.html\"></add-template></div><div class=\"{{thumbClass}}\"><add-template template-url=\"templates/slideItems.html\"></add-template></div></div></ion-content><div class=\"presence-message dark-bg centered-container\" appear-up=\"show_message\">\"\"</div><tour-step step-name=\"Library\" ext=\"tourShow()\"></tour-step></ion-view>"
   );
 
 
