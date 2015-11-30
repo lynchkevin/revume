@@ -40,7 +40,7 @@ function (Teams,Users,Scripts,rightsManager,$q,$rootScope,$state) {
         if(script != undefined ){
         var today = new Date();
         var expDate = new Date(script.expirationDate);
-        var left = Math.round(Math.abs((expDate.getTime() - today.getTime())/(oneDay)));
+        var left = Math.round((expDate.getTime() - today.getTime())/(oneDay));
         if(left < 0)
             left = 0;
         if(script.type == 'Elite')
@@ -163,10 +163,13 @@ function (Teams,Users,Scripts,rightsManager,$q,$rootScope,$state) {
         return deferred.promise;
     }
                 
-    $.checkScript = function(script){
+    $.checkScript = function(script,event){
         var days = $.getDaysLeft(script);
-        if(days <=0)
+        if(days <=0 && script.type!='Elite'){
+            if(event != undefined)
+                event.preventDefault();
             $state.go('app.myAccount');
+        }
         else
             return;
     }

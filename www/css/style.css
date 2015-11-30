@@ -635,6 +635,9 @@ div.progress-value {
     font-weight:800;
     font-size:115%;
 }
+.centered-checkbox{
+    margin-left:30%;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
@@ -645,6 +648,14 @@ div.progress-value {
 @media screen and (max-width: 1100px) {
     .account-list{
         width:90%;
+    }
+}
+@media screen and (min-width:900px){
+    .item-checkbox{
+        padding-left:0px;
+    }
+    .checkbox input, .checkbox-icon {
+        margin-left:25%;
     }
 }
 @media screen and (max-width: 900px) {
@@ -659,6 +670,12 @@ div.progress-value {
     }
     .account-list{
         width:100%;
+    }  
+    .item-checkbox{
+        padding-left:0px;
+    }
+    .checkbox input, .checkbox-icon {
+        margin-left:20%;
     }
 }
 @media screen and (max-width: 800px) {
@@ -697,6 +714,9 @@ div.progress-value {
         overflow-x:scroll;
         white-space: nowrap;
     }
+    .checkbox input, .checkbox-icon {
+        margin-left:10%;
+    }
 }
 
 @media screen and (max-width: 475px) {
@@ -713,7 +733,17 @@ div.progress-value {
     .session-item-button{
         top:60px !important;
     }
-
+    .col.col-10.collapse{
+        padding:0px;
+        flex:none;
+        width:0%;
+    }
+    .col.col-80.collapse{
+        width:100%;
+        flex:none;
+        max-width: 100%;
+        padding:0px
+    }
 }
 @media screen and (max-width:320px){
     .col.col-10.collapse{
@@ -728,12 +758,12 @@ div.progress-value {
         padding:0px
     }
 }
-@media screen and (min-width: 600px){
+@media screen and (min-width: 900px){
     .user_list{
-        width:50%;
+        width:60%;
     }
     .hero-container{
-        width:50%;
+        width:60%;
     }
 }
 

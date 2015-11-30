@@ -9,6 +9,9 @@
             <div class="centered-container account-list">
             
           <ion-list>
+              <ion-item>
+                  <h2 class="positive">Account Email:&nbsp{{user.email}}</h2>
+              </ion-item>
               <div class="item item-divider">
                 Setting List
               </div>
@@ -17,15 +20,14 @@
                 <h2>{{action.name}}</h2>
               </ion-item>
                <div style="background:white;margin-top:1px">
-              
-                <div class="item item-checkbox no-border"
-                     ng-class="{'half-item':!smallScreen()}">
-                     <label class="checkbox">
-                       <input ng-model="$rootScope.showArchive" type="checkbox">
-                     </label>
-                     Show Archive on Mobile 
-                </div>
-                   
+                    <div class="item item-checkbox ">
+                         <label class="checkbox">
+                           <input ng-model="$rootScope.showArchive" 
+                                  class="centered-checkbox"
+                                  type="checkbox">
+                         </label>
+                         Show Archive on Mobile 
+                    </div>
                 </div>
           </ion-list>    
             </div>

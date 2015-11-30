@@ -230,13 +230,22 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
     
 
     //authenticate certain routes
-    var publicStates = ['app.signup','app.changePassword','app.confirmEmail'];
+    var publicStates = ['app.signup',
+                        'app.changePassword',
+                        'app.confirmEmail',
+                        'app.myAccount',
+                        'app.settings',
+                        'app.batman'];
     function isPrivate(state){
         var isPrivate=true;
-        publicStates.forEach(function(publicState){
-            if(state.name == publicState)
-                isPrivate = false;
-        });
+        if(!$rootScope.user.batman){
+            publicStates.forEach(function(publicState){
+                if(state.name == publicState)
+                    isPrivate = false;
+            });
+        } 
+        else
+            isPrivate = false;
         return isPrivate;
     }
     
@@ -298,7 +307,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                 });
             } else if ($rootScope.user._id){
                 // this is here so we can impersonate other users
-                console.log($rootScope.user.email);
+                ScriptService.checkScript($rootScope.user.script,event);
             } else if($rootScope.isMobile){
                 //check if local store has a user on a mobile device
                 var lsUser = $rootScope.getLocalUser();
@@ -308,7 +317,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                         $rootScope.user={};
                         return $rootScope.userInit(user);
                     }).then(function(){
-                        ScriptService.checkScript($rootScope.user.script);
+                        ScriptService.checkScript($rootScope.user.script,event);
                     });
                 }
             } else if($cookieStore.get('user') != undefined){
@@ -318,7 +327,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                     $rootScope.user={};
                     return $rootScope.userInit(user);
                 }).then(function(){
-                    ScriptService.checkScript($rootScope.user.script);
+                    ScriptService.checkScript($rootScope.user.script,event);
                 });
             } else if($rootScope.user == undefined || $rootScope.user._id == undefined){
                 $rootScope.deepLink = false;
@@ -326,14 +335,15 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
             }
         } else { // it's a public route
             // check if the user is already a member and push them to welcome
-            if(toState.name == 'app.signup'){
+            if($rootScope.user._id == undefined){
                 var lsUser = $rootScope.getLocalUser();
                 if(lsUser != undefined){
                     var User = $.user.byId;
                     User.get({id:lsUser._id}).$promise.then(function(user){
                         $rootScope.user={};
                         $rootScope.userInit(user);
-                        $state.go("app.welcome");
+                        if(toState.name == 'app.signup')
+                            $state.go("app.welcome");
                     });     
                 } else {
                     var cookieUser = $cookieStore.get('user');
@@ -342,12 +352,12 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                         User.get({id:cookieUser._id}).$promise.then(function(user){
                             $rootScope.user={};
                             $rootScope.userInit(user);
-                            $state.go("app.welcome");
+                            if(toState.name == 'app.signup')
+                                $state.go("app.welcome");
                         });              
                     }
                 }
             }
-        // else - it's a public route so let it go.
         }
     }
         
