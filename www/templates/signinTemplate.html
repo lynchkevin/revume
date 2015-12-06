@@ -1,0 +1,38 @@
+<div ng-controller="signupCtrl">
+        <div class="row centered-container">
+            <button class="button icon-left ion-social-google button-signin skinny google"
+                    ng-click="signInWith('Google')">
+                Sign-in with Google
+            </button>
+        </div>
+        <div class="row centered-container">
+            <button class="button icon-left ion-social-windows button-signin skinny windows"
+                    ng-click="signInWith('Windows')">
+                Sign-in with Microsoft
+            </button>
+        </div>
+        <div class="row centered-container">
+            <button class="button icon-left ion-social-dropbox button-signin skinny dropbox "
+                    ng-click="signInWith('Dropbox')">
+                Sign-in with Dropbox
+            </button>
+        </div>
+        <div class="row centered-container">
+            <button class="button button-signin skinny box "
+                    ng-click="signInWith('Box')"
+                    ng-mouseEnter="mouseEnter()"
+                    ng-mouseLeave="mouseLeave()">
+                <img ng-src="{{mouse.over && 'img/box_hover.png' || 'img/box_white.png'}}" >
+                Sign-in with Box
+            </button>
+        </div>
+</div>  
+
+<input type="email" placeholder="email" ng-model="user.email">
+<br>
+<input type="password" placeholder="password" ng-model="user.password">
+<br>
+<input style="width:10%" type="checkbox" ng-model="user.resetPassword">
+<p class="dark" style="line-height:normal;display:inline">Reset My Password (add email)</p>
+<br>
+<p class="assertive" style="line-height:normal;text-align:center">{{user.message}}</p>

@@ -3,97 +3,115 @@
   <ion-content class="presentation-background">
 
     <div class="centered-container"  >
-    <div class="row row-center">
-        <div ng-class="{'col col-10':screenSize().width<800, 'col col5':screenSize().width>800}">
-        </div>
-    <div ng-class="{'col col-40':screenSize().width>800}"
-         ng-if="screenSize().width>800">
-        <div class="centered-container">
-            <H1 class="positive">Revu.Me Signup</H1>
-            <h3 class="positive">We're almost there!</h3>
-            <h3 class="positive">We just need a little information</h3>
-            <p class="calm signup-hint">Please take our short tour once you're in</p>
-        </div>
-    </div>
-    <div ng-class="{'col col-10':screenSize().width>800}"
-         ng-if="screenSize().width>800"></div>
-    <div ng-class="{'col col-80':screenSize().width<800, 'col col-40':screenSize().width>800} ">
-     <!--   <img ng-src="{{image}}" class="splash-image"> -->
-        <div class="centered-container positive-bg padding-bottom">
-            <span class="hero-header">Revu.Me</span> 
-            <div class="signup-form ">
-                <form name="forms.signup" ng-controller="signupCtrl">
-                    <div class="list">
-                      <label class="item item-input item-floating-label light-bg">
-                        <span class="input-label" style="text-align:left">First Name</span>
-                        <input name="fName"
-                               ng-model="forms.signup.firstName"
-                               type="text"
-                               placeholder="firstName"
-                               required>
-                      </label>
-      
-                      <label class="item item-input item-floating-label light-bg">
-                        <span class="input-label" style="text-align:left">Last Name</span>
-                        <input name="lName"
-                               ng-model="forms.signup.lastName"
-                               type="text"
-                               placeholder="Lastname"
-                               required>
-                      </label>
-                      <label class="item item-input item-floating-label light-bg">
-                        <span class="input-label" style="text-align:left">Email</span>
-                        <input name="inpEmail"
-                               ng-model="forms.signup.email"
-                               type="email"
-                               placeholder="Email"
-                               required>
-                      </label>
-                      <label class="item item-input item-floating-label light-bg">
-                        <span class="input-label" style="text-align:left">Password</span>
-                        <input name="inpPassword"
-                               ng-model="forms.signup.password"
-                               type="password"
-                               placeholder="Password"
-                               required>
-                      </label>
-                    </div>
-                    <button class="button "
-                            ng-click="doSignUp()"
-                            ng-disabled="!forms.signup.fName.$dirty || 
-                                         !forms.signup.lName.$dirty || 
-                                         !forms.signup.inpPassword.$dirty || 
-                                         !forms.signup.inpEmail.$dirty || 
-                                         forms.signup.inpEmail.$invalid">
-                        Sign Up
-                    </button>
-                    <div class="signin-button">
-                        <p class="signin-message" ng-click="signIn()">Sign In</p>
-                    </div>
-                    <div>
-                        <span ng-if="forms.signup.inpEmail.$dirty && forms.signup.inpEmail.$invalid"
-                              class="signin-message">
-                            Invalid Email Format
-                        </span>
-                        <span ng-if="forms.signup.inpPassword.$dirty && forms.signup.inpPassword.$error.required"
-                              class="signin-message">
-                            Password is Required
-                        </span>      
-                        <span ng-if="forms.signup.fName.$dirty && forms.signup.fName.$error.required"
-                              class="signin-message">
-                            First Name is Required
-                        </span>  
-                            <span ng-if="forms.signup.lName.$dirty && forms.signup.lName.$error.required"
-                              class="signin-message">
-                            Last Name is Required
-                        </span>  
-                    </div>
-
-                </form>
+    <div ng-class="screenSize().width<800 ? 'col' : 'row row-center signin-margin-top'">
+        <!--div ng-class="{'col col-10':screenSize().width<800, 'col col5':screenSize().width>800}"-->
+        <div ng-class="screenSize().width<800 ? '' : 'col col-40'">
+            <div class="row centered-container">
+                <button class="button icon-left ion-social-google button-signin google"
+                        ng-click="signInWith('Google')">
+                    Sign-in with Google
+                </button>
+            </div>
+            <div class="row centered-container">
+                <button class="button icon-left ion-social-windows button-signin windows"
+                        ng-click="signInWith('Windows')">
+                    Sign-in with Microsoft
+                </button>
+            </div>
+            <div class="row centered-container">
+                <button class="button icon-left ion-social-dropbox button-signin dropbox"
+                        ng-click="signInWith('Dropbox')">
+                    Sign-in with Dropbox
+                </button>
+            </div>
+            <div class="row centered-container">
+                <button class="button button-signin box"
+                        ng-click="signInWith('Box')"
+                        ng-mouseEnter="mouseEnter()"
+                        ng-mouseLeave="mouseLeave()">
+                    <img ng-src="{{mouse.over && 'img/box_hover.png' || 'img/box_white.png'}}" >
+                    Sign-in with Box
+                </button>
             </div>
         </div>
+        <div ng-class="{'col col-10':screenSize().width>800}"
+             ng-if="screenSize().width>800"></div>
+       <div ng-class="screenSize().width<800 ? 'row' : 'col col-40'">
+            <div class="centered-container positive-bg padding-bottom full-width">
+                <span class="signup-header">Sign in with Email</span> 
+                <div class="signup-form ">
+                    <form name="forms.signup" ng-controller="signupCtrl">
+                        <div class="list">
+                          <label class="item item-input item-floating-label light-bg">
+                            <span class="input-label" style="text-align:left">First Name</span>
+                            <input name="fName"
+                                   ng-model="forms.signup.firstName"
+                                   type="text"
+                                   placeholder="firstName"
+                                   required>
+                          </label>
 
-    </div>
+                          <label class="item item-input item-floating-label light-bg">
+                            <span class="input-label" style="text-align:left">Last Name</span>
+                            <input name="lName"
+                                   ng-model="forms.signup.lastName"
+                                   type="text"
+                                   placeholder="Lastname"
+                                   required>
+                          </label>
+                          <label class="item item-input item-floating-label light-bg">
+                            <span class="input-label" style="text-align:left">Email</span>
+                            <input name="inpEmail"
+                                   ng-model="forms.signup.email"
+                                   type="email"
+                                   placeholder="Email"
+                                   required>
+                          </label>
+                          <label class="item item-input item-floating-label light-bg">
+                            <span class="input-label" style="text-align:left">Password</span>
+                            <input name="inpPassword"
+                                   ng-model="forms.signup.password"
+                                   type="password"
+                                   placeholder="Password"
+                                   required>
+                          </label>
+                        </div>
+                        <button class="button "
+                                ng-click="doSignUp()"
+                                ng-disabled="!forms.signup.fName.$dirty || 
+                                             !forms.signup.lName.$dirty || 
+                                             !forms.signup.inpPassword.$dirty || 
+                                             !forms.signup.inpEmail.$dirty || 
+                                             forms.signup.inpEmail.$invalid">
+                            Sign Up
+                        </button>
+                        <div class="signin-button">
+                            <p class="signin-message" ng-click="signIn()">Sign In</p>
+                        </div>
+                        <div>
+                            <span ng-if="forms.signup.inpEmail.$dirty && forms.signup.inpEmail.$invalid"
+                                  class="signin-message">
+                                Invalid Email Format
+                            </span>
+                            <span ng-if="forms.signup.inpPassword.$dirty && forms.signup.inpPassword.$error.required"
+                                  class="signin-message">
+                                Password is Required
+                            </span>      
+                            <span ng-if="forms.signup.fName.$dirty && forms.signup.fName.$error.required"
+                                  class="signin-message">
+                                First Name is Required
+                            </span>  
+                                <span ng-if="forms.signup.lName.$dirty && forms.signup.lName.$error.required"
+                                  class="signin-message">
+                                Last Name is Required
+                            </span>  
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
         <div ng-class="{'col col-10':screenSize().width<800, 'col col-5':screenSize().width>800} ">
         </div>    
     </div>

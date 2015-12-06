@@ -30,7 +30,8 @@
                 </span>
                 <div style="margin-top:7px">
                     <button class="button button-small button-positive" 
-                            ng-click="changeAccount()">
+                            ng-click="changeAccount()"
+                            ng-if="script.type != 'Elite'">
                       {{changeButton.text}}
                     </button>
                     <button class="button button-small button-calm" 

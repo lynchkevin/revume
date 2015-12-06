@@ -81,6 +81,8 @@ users.post('/users',function(req,res){
     usr.lastName = sent.lastName;
     usr.email = sent.email;
     usr.password = sent.password;
+    if(sent.service != undefined)
+        usr.signInService = sent.service;
     usr.saveAsync().then(function(){
         console.log(usr);
         res.send(usr);

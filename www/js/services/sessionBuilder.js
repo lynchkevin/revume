@@ -106,7 +106,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         $.session.baseUrl = baseUrl.endpoint;
         $.session.offset = new Date().getTimezoneOffset();
         $.session.showTeams = false;
-        TeamService.getAll().then(function(teams){
+        TeamService.getAll($rootScope.user._id).then(function(teams){
             $.session.teamList = teams;
             if($.session.teamList.length >0)
                 $.session.team = $.session.teamList[0];

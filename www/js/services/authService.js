@@ -117,6 +117,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
     var $ = this;
     
      $.user = Users;    
+     $.signinPopup = undefined;
     //check if a user exists in the database
      $.checkExists = function(email){
         var defer = $q.defer();
@@ -169,8 +170,8 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
         var defer = $q.defer();
         $rootScope.user = {};
         $rootScope.user.message = '';
-        var myPopup = $ionicPopup.show({
-            template: '<input type="email" placeholder="email" ng-model="user.email"><br><input type="password" placeholder="password" ng-model="user.password">  <br><input style="width:10%" type="checkbox" ng-model="user.resetPassword"><p class="dark" style="line-height:normal;display:inline">Reset My Password (add email)</p><br><p class="assertive" style="line-height:normal;text-align:center">{{user.message}}</p>',
+        $.signinPopup = $ionicPopup.show({
+            templateUrl: 'templates/signinTemplate.html',
             title: 'Sign In',
             scope: $rootScope,
             buttons: [
@@ -199,36 +200,49 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
               }
             ]
           });
-          myPopup.then(function(user) {
-            if(user.resetPassword){
-                 var result = {success:false,reason:'resetPassword',user:user};
-                 defer.resolve(result);
-            } else {
-            var credentials = {};
-            credentials.email = user.email;
-            credentials.password = user.password;
-            $.authenticate(credentials).then(function(result){    
-                  if(result.success){
-                      //authenticated
-                      result.user.authData = result.user.password;
-                      defer.resolve(result);
-                  }else{
-                        var alert = $ionicPopup.alert({
-                            title:'Authentication Failed',
-                            template:result.reason,
-                        });
-                        alert.then(function(){
-                            var result= {success:false,reason:'authentication failed'};
-                            defer.resolve(result);
-                        });
-                  }
-              });  
+          $.signinPopup.then(function(user) {
+            $.signinPopup = undefined;
+            if($rootScope.user.network!=undefined){
+                var result = {success:true};
+                defer.resolve(result);
+            }else {
+                if(user.resetPassword){
+                     var result = {success:false,reason:'resetPassword',user:user};
+                     defer.resolve(result);
+                } else {
+                var credentials = {};
+                credentials.email = user.email;
+                credentials.password = user.password;
+                $.authenticate(credentials).then(function(result){    
+                      if(result.success){
+                          //authenticated
+                          result.user.authData = result.user.password;
+                          defer.resolve(result);
+                      }else{
+                            var alert = $ionicPopup.alert({
+                                title:'Authentication Failed',
+                                template:result.reason,
+                            });
+                            alert.then(function(){
+                                var result= {success:false,reason:'authentication failed'};
+                                defer.resolve(result);
+                            });
+                      }
+                  });  
+                }
             }
           });
         return defer.promise;  
      };
     
-
+    $.hideSignup = function(network){
+        $rootScope.user.network = network;
+        if($.signinPopup != undefined){
+            $.signinPopup.close();
+            $.signinPopup = undefined;
+        }
+    }
+    
     //authenticate certain routes
     var publicStates = ['app.signup',
                         'app.changePassword',
@@ -250,7 +264,7 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
     }
     
     // generate a random key of a certain length
-    function randomKey(length){
+    $.randomKey = function(length){
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -262,19 +276,22 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
     $.forceCredentials = function(successState){
         $.signIn().then(function(result){
             if(result.success){
-                $rootScope.userInit(result.user).then(function(){
-                    ScriptService.checkScript($rootScope.user.script)
-                    //need to add check for script here
-                    if(successState != undefined)
-                        $state.go(successState);
-                });
+                // check if authenticated by a partner network
+                if($rootScope.user.network == undefined){
+                    $rootScope.userInit(result.user).then(function(){
+                        ScriptService.checkScript($rootScope.user.script)
+                        //need to add check for script here
+                        if(successState != undefined)
+                            $state.go(successState);
+                    });
+                }
             }
             else if(result.reason == 'resetPassword'){
                 if(result.user && result.user.email){
                     var User = $.user.pwReset;
                     var credentials = {};
                     credentials.email = result.user.email;
-                    credentials.pw = randomKey(6);
+                    credentials.pw = $.randomKey(6);
                     credentials.authData = Base64.encode(credentials.email+':'+credentials.pw);
                     User.reset({email:result.user.email},credentials).$promise.then(function(){
                         var alert = $ionicPopup.alert({
@@ -307,7 +324,8 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                 });
             } else if ($rootScope.user._id){
                 // this is here so we can impersonate other users
-                ScriptService.checkScript($rootScope.user.script,event);
+                if($rootScope.user.script) //listen can get called before user is initialized
+                    ScriptService.checkScript($rootScope.user.script,event);
             } else if($rootScope.isMobile){
                 //check if local store has a user on a mobile device
                 var lsUser = $rootScope.getLocalUser();

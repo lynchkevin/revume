@@ -95,7 +95,7 @@ angular.module('RevuMe')
         });
         $scope.script.showTeams = false;
         $scope.form = {};
-        TeamService.getAll().then(function(teams){
+        TeamService.getAll($rootScope.user._id).then(function(teams){
             $scope.script.teamList = teams;
             if($scope.script.teamList.length >0)
                 $scope.script.team = $scope.script.teamList[0];

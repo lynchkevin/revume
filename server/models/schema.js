@@ -34,6 +34,7 @@ var UserSchema = new mongoose.Schema({
     password:String,
     confirmed:Boolean,
     tempPassword:String,
+    signInService:String,
 });
 
     

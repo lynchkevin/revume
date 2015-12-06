@@ -42,10 +42,21 @@ angular.module('ngHello', [])
 })
 .config(['helloProvider','redirectUrl','baseUrl',
 function(helloProvider,redirectUrl,baseUrl) {
-
+/*
   helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
                       box:'11rseev2g1yripmmx833cp5jhiqy82v2',
                       google:'945597499290-2q1a0915fabg68368ou1v7udko2j21nc.apps.googleusercontent.com'},
+                     {
+                        redirect_uri:redirectUrl,
+                    });
+*/
+    
+//debug callbacks to localhost
+    helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
+                        box:'11rseev2g1yripmmx833cp5jhiqy82v2',
+                        google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
+                        windows:'000000004817AFBB',
+                    },
                      {
                         redirect_uri:redirectUrl,
                     });
@@ -96,23 +107,6 @@ function($ionicPlatform,$ionicPopup,BoxService) {
         restrict: 'E',
         replace:true,
         templateUrl: 'templates/fileBox.html',
-        /*
-        link: function($scope,element,attrs){
-                //modify the template based on the closeOnSelect attribute passed in...
-                var closeOnSelect = attrs.closeOnSelect || false;
-                var el = element[0];
-                var buttonBar = el.childNodes[0];
-                var buttons = buttonBar.children;
-                for(var i=0; i<buttons.length;i++){
-                    var attributes = buttons[i].attributes;
-                    var ngClick = attributes.getNamedItem('ng-click');
-                    var start = ngClick.nodeValue.slice(0,-1);
-                    var newNodeValue = start+','+attrs.closeOnSelect+')';
-                    ngClick.nodeValue = newNodeValue;     
-                    attributes.setNamedItem(ngClick);
-                };
-                //$compile(element.contents())($scope);
-        }*/
         compile: function(element,attrs){
                 //modify the template based on the closeOnSelect attribute passed in...
                 var closeOnSelect = attrs.closeOnSelect || false;
@@ -127,7 +121,6 @@ function($ionicPlatform,$ionicPopup,BoxService) {
                     ngClick.nodeValue = newNodeValue;     
                     attributes.setNamedItem(ngClick);
                 };
-                //$compile(element.contents())($scope);
         }
     };
 }])
@@ -432,8 +425,8 @@ function($rootScope,$scope, FileNav){
     //any file(s) added to this array will get uploaded via $watch in directive            
     $.Inbox = [];
 }])
-.service('DropboxService',['$rootScope','hello','$timeout','$sce','onEvent',
-function($rootScope,hello,$timeout,$sce,onEvent){
+.service('DropboxService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
+function($rootScope,hello,$timeout,$sce,onEvent,$q){
     var $ = this;
     $.name = 'Dropbox';
     //just in case we are instantiated after the auth broadcast from rootscope
@@ -467,6 +460,7 @@ function($rootScope,hello,$timeout,$sce,onEvent){
     } 
     //get the user information
     $.getUser = function(){
+        var deferred = $q.defer();
         function userFromDropbox(u){
             var user = {};
             user.firstName = u.first_name;
@@ -478,13 +472,16 @@ function($rootScope,hello,$timeout,$sce,onEvent){
         if(!$.loggedIn)
             dropBox.login().then(function(){
                 dropBox.api('me',function(u){
-                    return userFromDropbox(u);
+                    var user = userFromDropbox(u);
+                    deferred.resolve(user);
                 });
             });
         else
             dropBox.api('me',function(u){
-                return userFromDropbox(u);
+                var user = userFromDropbox(u);
+                deferred.resolve(user);
             });
+        return deferred.promise;
     }
     // strip out the long openXml descriptors
     function stripOpenXmlCrap(type){
@@ -835,7 +832,180 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
         $.$fire('auth');
     });
                     
+}])
+
+.service('GoogleService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
+function($rootScope,hello,$timeout,$sce,onEvent,$q){
+    var $ = this;
+    $.name = 'Google';
+    //just in case we are instantiated after the auth broadcast from rootscope
+    if($rootScope.hasOwnProperty('google'))
+        $.authData = $rootScope['google'];
+    
+    var google = hello('google');
+    var options = {scope:'email,files'};
+    var noop = function(){};
+    $.loggedIn = false;
+    $.folders = undefined;
+
+    onEvent.attach($);
+
+    function blobToFile(theBlob,fileName){
+        theBlob.lastModifiedDate = new Date();
+        theBlob.name = fileName;
+        return theBlob;
+    }
+    //OATH2 signin
+    $.authenticate = function(){
+        if(!$.loggedIn)
+            google.login(options).then(function(){
+                $.loggedIn = true;
+            });
+        else
+            google.logout().then(function(){
+                $.loggedIn = false;
+                $.authData = undefined;
+                $.$fire('auth');
+            });
+    } 
+    //get the user information
+    $.getUser = function(){
+        var deferred = $q.defer();
+        function userFromDropbox(u){
+            var user = {};
+            user.firstName = u.first_name;
+            user.lastName = u.last_name;
+            user.email = u.email;
+            user.accountId = u.id;
+            return user;
+        }
+        if(!$.loggedIn || $.loggedIn)
+            google.login(options).then(function(){
+                google.api('me',function(u){
+                    var user = userFromDropbox(u);
+                    deferred.resolve(user);
+                });
+            });
+        else
+            google.api('me',function(u){
+                var user = userFromDropbox(u);
+                deferred.resolve(user);
+            });
+        return deferred.promise;
+    }
+   
+    $rootScope.$on('auth.google',function(event,auth){
+        $.authData = auth;
+        google.api('/me',function(p){
+            $timeout(function(){
+                $.loggedIn = true;
+                $.userInfo = p;
+                $.$fire('auth');
+                console.log(p);
+            },0);
+        });
+    });
+                    
+}])
+.service('WindowsService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
+function($rootScope,hello,$timeout,$sce,onEvent,$q){
+    var $ = this;
+    $.name = 'Windows';
+    //just in case we are instantiated after the auth broadcast from rootscope
+    if($rootScope.hasOwnProperty('windows'))
+        $.authData = $rootScope['windows'];
+    
+    var windows = hello('windows');
+    var options = {scope:'email,files'};
+    var noop = function(){};
+    $.loggedIn = false;
+    $.folders = undefined;
+
+    onEvent.attach($);
+
+    function blobToFile(theBlob,fileName){
+        theBlob.lastModifiedDate = new Date();
+        theBlob.name = fileName;
+        return theBlob;
+    }
+    //OATH2 signin
+    $.authenticate = function(){
+        if(!$.loggedIn)
+            windows.login(options).then(function(){
+                $.loggedIn = true;
+            });
+        else
+            windows.logout().then(function(){
+                $.loggedIn = false;
+                $.authData = undefined;
+                $.$fire('auth');
+            });
+    } 
+    //get the user information
+    $.getUser = function(){
+        var deferred = $q.defer();
+        function userFromDropbox(u){
+            var user = {};
+            user.firstName = u.first_name;
+            user.lastName = u.last_name;
+            user.email = u.email;
+            user.accountId = u.id;
+            return user;
+        }
+        if(!$.loggedIn)
+            windows.login(options).then(function(){
+                windows.api('me',function(u){
+                    var user = userFromDropbox(u);
+                    deferred.resolve(user);
+                });
+            });
+        else
+            windows.api('me',function(u){
+                var user = userFromDropbox(u);
+                deferred.resolve(user);
+            });
+        return deferred.promise;
+    }
+   
+    $rootScope.$on('auth.windows',function(event,auth){
+        $.authData = auth;
+        windows.api('/me',function(p){
+            $timeout(function(){
+                $.loggedIn = true;
+                $.userInfo = p;
+                $.$fire('auth');
+                console.log(p);
+            },0);
+        });
+    });
+                    
+}])
+.service('SigninPartners',['authService',
+                           'GoogleService',
+                           'WindowsService',
+                           'DropboxService',
+                           'BoxService',
+function(authService,GoogleService,WindowsService,DropboxService,BoxService){
+    
+    var $ = this;
+    
+    $.network = {
+        Google : {
+            getUser : GoogleService.getUser,
+        },
+        Windows : {
+            getUser : WindowsService.getUser,
+        },
+        Dropbox : {
+            getUser : DropboxService.getUser,
+        },
+        Box : {
+            getUser : BoxService.getUser,
+        },
+        authService : authService,
+    };
 }]);
+
 
 
 

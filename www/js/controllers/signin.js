@@ -34,9 +34,24 @@ angular.module('RevuMe')
        };
            
   }])
-  .controller('signupCtrl', ['$scope', '$rootScope', '$state','authService','$ionicPopup','SendConfirm','DoConfirm','introContent','ScriptService',
+  .controller('signupCtrl', ['$scope', 
+                             '$rootScope',
+                             '$state',
+                             'authService',
+                             '$ionicPopup',
+                             'SendConfirm',
+                             'DoConfirm',
+                             'introContent',
+                             'ScriptService',
+                             'SigninPartners',
+                             '$q',
    function ($scope,$rootScope,$state,authService,$ionicPopup,
-              SendConfirm,DoConfirm,introContent,ScriptService) {
+              SendConfirm,DoConfirm,introContent,ScriptService,
+              SigninPartners,$q) {
+       
+       $scope.network = SigninPartners.network;
+       $scope.mouse = {over:false};
+       
        $scope.doSignUp = function(){
            authService.checkExists($scope.forms.signup.email).then(function(user){
                if(user._id){ //this user is in the system
@@ -102,10 +117,68 @@ angular.module('RevuMe')
                 }
            });            
        };
+       
+       function partnerSignin(networkName,user){
+            var deferred = $q.defer();
+            if(!user || !user.email){
+                var titleStr = networkName + 'Authentication Failed!';
+                var alert = $ionicPopup.alert({
+                    title:titleStr,
+                    template:'Please Try Again',
+                });
+            }else{
+                //check if the user exists
+                authService.checkExists(user.email).then(function(usr){
+                    if(usr._id){//user exists
+                        $rootScope.userInit(usr).then(function(){
+                            ScriptService.checkScript($rootScope.user.script)
+                                $state.go('app.welcome');
+                                deferred.resolve();
+                        });
+                    }else{//new user sigingin up
+                        user.service = networkName;
+                        user.password = authService.randomKey(6);
+                        authService.signUp(user).then(function(u){
+                            user._id = u._id;
+                            var members = [{user:user._id,role:'Admin'}];
+                            var type = ScriptService.scriptTypes[0];
+                            var script = ScriptService.newScript(type,members);
+                            return ScriptService.save(script);
+                        }).then(function(script){
+                            // script is set - lets init the user
+                            return $rootScope.userInit(user)
+                        }).then(function(){
+                           // add introductory content
+                            return introContent.addIntroContent(user._id);
+                       }).then(function(){
+                            $state.go('app.welcome');
+                            deferred.resolve();
+                       });       
+                    }
+                });
+            }    
+           return deferred.promise;
+       }
+       
        $scope.signIn = function(){
             authService.forceCredentials('app.welcome');
        }
-           
+       
+       $scope.signInWith = function(partnerName){
+           if($scope.network.hasOwnProperty(partnerName)){
+                $scope.network[partnerName].getUser().then(function(user){
+                    return partnerSignin(partnerName,user);
+                }).then(function(){
+                    $scope.network.authService.hideSignup(partnerName);
+                });
+            };
+        }
+        $scope.mouseEnter = function(){
+            $scope.mouse.over = true;
+        }
+        $scope.mouseLeave = function(){
+            $scope.mouse.over = false;
+        }
   }])
   .controller('confirmCtrl', ['$scope','user',
    function ($scope,user) {

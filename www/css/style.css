@@ -24,6 +24,8 @@
     font-family: Cony-Decor;
     src: url(../lib/cony/ConyDecor.otf);
 }
+
+
 .hero.heavy{
     font-size:600%;
     font-weight:600;
@@ -635,8 +637,51 @@ div.progress-value {
     font-weight:800;
     font-size:115%;
 }
+.signup-header{
+   width:100%;
+    font-size:150%;
+    line-height:200%;
+    color:white;
+}
+.button-signin{
+    min-width:250px;
+    color:white;
+    margin:0 auto;
+    margin-bottom:5px;
+}
+.button-signin.skinny{
+    min-width:220px;
+}
+.button-signin.google{
+    background-color:rgb(209,56,50);
+    border-color:rgb(209,56,50);
+}
+.button-signin.dropbox{
+    background-color:#007ee5;
+    border-color:#007ee5 
+}
+.button-signin.box{
+    background-color:rgb(11,0,75);
+    border-color:rgb(11,0,75);
+}
+.button-signin.windows{
+    background-color:rgb(19,85,189);
+    border-color:rgb(19,85,189);
+}
+.button.button-signin.box img{
+    position:absolute;
+    width:32px;
+    top:12px;
+    left:8px;
+}
 .centered-checkbox{
     margin-left:30%;
+}
+.full-width{
+    width:100%;
+}
+.signin-margin-top{
+    margin-top:0px;
 }
 <!-- MEDIA QUERIES --------->
 
@@ -766,7 +811,11 @@ div.progress-value {
         width:60%;
     }
 }
-
+@media screen and (min-height:600px){
+    .signin-margin-top{
+        margin-top:100px;
+    }
+}
 
 
 
