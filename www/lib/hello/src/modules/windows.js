@@ -56,7 +56,8 @@
 				// Files
 				'me/files': '@{parent|me/skydrive}/files',
 				'me/folders': '@{id|me/skydrive}/files',
-				'me/folder': '@{id|me/skydrive}/files'
+				'me/folder': '@{id|me/skydrive}/files',
+                'me/file': '@{id}/content',
 			},
 
 			// Map POST requests

@@ -59,7 +59,7 @@ function ($scope,$rootScope,$state,
         $scope.deck = {name: ''};
         $scope.category={name:''};
         $scope.addingTo = undefined;
-        if(!$rootScope.isMobile && !$rootScope.smallScreen() && !$rootScope.archiveOn())
+        if(!$rootScope.archiveOn())
             $scope.showAddItem=true;
         shareMediator.init($scope);
         // get the valid file types we can handle

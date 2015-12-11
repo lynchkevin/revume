@@ -13,6 +13,8 @@ fileBox.js - A self Contained Module to Interface with Box and Dropbox
         - 'BoxService       - service that models the box rest api
                             - requires node routes because box sends files back in a location header 
                             that is difficult to read in the browser, so we proxy it in node.
+        - 'GoogleService    - service that talks to Google Drive api
+        - 'WindowsService   - service that talks to MS OneDrive
         - 'onEvent'         - a service that allows any other service to provide subscribable events for callbacks
         - 'Evaporate'       - a service that interfaces with the evaporate upload module
         
@@ -53,7 +55,7 @@ function(helloProvider,redirectUrl,baseUrl) {
     
 //debug callbacks to localhost
     helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
-                        box:'11rseev2g1yripmmx833cp5jhiqy82v2',
+                        box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
                         google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
                         windows:'000000004817AFBB',
                     },
@@ -92,13 +94,45 @@ function($ionicPlatform,$ionicPopup,BoxService) {
 .directive('dropboxButton',['$compile','$parse',function($compile,$parse){
     return{
         restrict: 'A',
-        template:'<i class="icon icon-left ion-social-dropbox" style="color:RGB(26,99,218)"></i><span style="color:RGB(26,99,218)"> &nbsp Dropbox Import</span>'
+        template:'<i class="icon icon-left ion-social-dropbox" style="color:RGB(26,99,218)"></i><span style="color:RGB(26,99,218)"> &nbsp Dropbox </span>'
     }
 }])
 .directive('boxButton',['$compile','$parse','baseUrl',function($compile,$parse,baseUrl){
     return{
         restrict: 'A',
-        template:'<img src="'+baseUrl.endpoint+'/img/box_navy.png" style="max-width:30px"><span style="color:RGB(17,34,70)">&nbsp Import</span> ',
+        template:'<img src="'+baseUrl.endpoint+'/img/box_navy.png" style="max-width:35px;vertical-align:middle"><span style="color:RGB(17,34,70)">&nbsp </span> ',
+    }
+}])
+.directive('googleButton',['$compile','$parse','baseUrl',function($compile,$parse,baseUrl){
+    return{
+        restrict: 'A',
+        template:'<img src="'+baseUrl.endpoint+'/img/google-drive.png" style="max-width:20px;vertical-align:middle"><span style="color:RGB(98,101,104);vertical-align:middle">&nbsp Drive</span> ',
+    }
+}])
+.directive('windowsButton',['$compile','$parse','baseUrl',function($compile,$parse,baseUrl){
+    return{
+        restrict: 'A',
+        template:'<img src="'+baseUrl.endpoint+'/img/onedrive.png" style="max-width:100px;vertical-align:middle"><span style="vertical-align:middle"></span> ',
+    }
+}])
+.directive('resize',['$window', function ($window) {
+    return function (scope, element) {
+        var el = element[0];
+        var w  = angular.element($window);
+        scope.getDimensions = function () {
+            return {
+                'h': el.offsetHeight,
+                'w': el.offsetWidth
+            };
+        };
+        scope.$watch(scope.getDimensions, function (newValue, oldValue) {
+            scope.elHeight = newValue.h;
+            scope.elWidth = newValue.w;
+        }, true);
+
+        w.bind('resize', function () {
+            scope.$apply();
+        });
     }
 }])
 //collapse all the evaporate settings into a foolproof package
@@ -111,16 +145,28 @@ function($ionicPlatform,$ionicPopup,BoxService) {
                 //modify the template based on the closeOnSelect attribute passed in...
                 var closeOnSelect = attrs.closeOnSelect || false;
                 var el = element[0];
-                var buttonBar = el.childNodes[0];
-                var buttons = buttonBar.children;
-                for(var i=0; i<buttons.length;i++){
-                    var attributes = buttons[i].attributes;
-                    var ngClick = attributes.getNamedItem('ng-click');
-                    var start = ngClick.nodeValue.slice(0,-1);
-                    var newNodeValue = start+','+attrs.closeOnSelect+')';
-                    ngClick.nodeValue = newNodeValue;     
-                    attributes.setNamedItem(ngClick);
-                };
+                //find button bar
+                var bbIdxs = [];
+                for(var i=0; i<el.childNodes.length;i++){
+                    if(el.childNodes[i].className == "button-bar")
+                        bbIdxs.push(i);
+                }
+                if(bbIdxs.length>0){
+                    bbIdxs.forEach(function(idx){
+                        var buttonBar = el.childNodes[idx];
+                        var buttons = buttonBar.children;
+                        for(var i=0; i<buttons.length;i++){
+                            var attributes = buttons[i].attributes;
+                            var ngClick = attributes.getNamedItem('ng-click');
+                            var start = ngClick.nodeValue.slice(0,-1);
+                            var newNodeValue = start+','+attrs.closeOnSelect+')';
+                            ngClick.nodeValue = newNodeValue;     
+                            attributes.setNamedItem(ngClick);
+                        };
+                    });
+                } else {
+                    console.log('fileBox directive - button-bar not found!!!');
+                }
         }
     };
 }])
@@ -187,15 +233,64 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                     element[0].innerHTML = $sce.trustAsHtml(html);
                     $compile(element.contents())(scope);
                     $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                }else{
+                    element[0].innerHTML = $sce.trustAsHtml(html);
+                    $compile(element.contents())(scope);
+                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
                 }
             }
+            scope.updateLinksGoogle = function(){
+                var folder = ngModelCtrl.$viewValue;
+                var parts = folder.path;
+                var html = '';
+                var newPart = undefined;
+                
+                parts.forEach(function(part){
+                    if(scope.callBack !== undefined)
+                        newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
+                    else
+                        newPart = '/'+part.name;
+                    html += newPart;
+                });
+                element[0].innerHTML = $sce.trustAsHtml(html);
+                $compile(element.contents())(scope);
+                $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
             
+            }
+            scope.updateLinksWindows = function(){
+                var folder = ngModelCtrl.$viewValue;
+                var parts = folder.path;
+                var html = '';
+                var newPart = undefined;
+                
+                parts.forEach(function(part){
+                    if(scope.callBack !== undefined)
+                        newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
+                    else
+                        newPart = '/'+part.name;
+                    html += newPart;
+                });
+                element[0].innerHTML = $sce.trustAsHtml(html);
+                $compile(element.contents())(scope);
+                $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+            
+            }
             scope.$watch(model,function(model){
                 if(model){
-                    if(model.hasOwnProperty('item_collection'))
-                        scope.updateLinksBox();
-                    if(model.hasOwnProperty('is_dir')&&model.hasOwnProperty('thumb_exists'))
-                        scope.updateLinksDropBox();
+                    switch(model.root){
+                        case 'Dropbox' : 
+                            scope.updateLinksDropBox();
+                            break;
+                        case 'Box' : 
+                            scope.updateLinksBox();
+                            break;
+                        case 'Drive' :
+                            scope.updateLinksGoogle();
+                            break;
+                        case 'OneDrive' :
+                            scope.updateLinksWindows();
+                            break;
+                    }
                 }
             });
                 
@@ -221,20 +316,24 @@ function($rootScope,$scope, FileNav){
     }
 }])
 .service('FileNav',['$state',
-                   '$timeout',
-                   'baseUrl',
-                   'DropboxService',
-                   'BoxService',
-                   'Evaporate',
-                   '$ionicModal',
-                   '$ionicLoading',
-                   '$ionicScrollDelegate',
+                    '$timeout',
+                    'baseUrl',
+                    'DropboxService',
+                    'BoxService',
+                    'GoogleService',
+                    'WindowsService',
+                    'Evaporate',
+                    '$ionicModal',
+                    '$ionicLoading',
+                    '$ionicScrollDelegate',
                     'onEvent',
     function($state,
               $timeout,
               baseUrl,
               DropboxService,
               BoxService,
+              GoogleService,
+              WindowsService,
               Evaporate,
               $ionicModal,
               $ionicLoading,
@@ -250,7 +349,8 @@ function($rootScope,$scope, FileNav){
     //connect to box and dropbox services
     $.dropBox = DropboxService;
     $.box = BoxService;
-    
+    $.google = GoogleService;
+    $.windows = WindowsService;
     
     $.attach = function($scope){
         $.scope = $scope;
@@ -275,17 +375,23 @@ function($rootScope,$scope, FileNav){
     //attach dropbox and box to evaporate
     $.dropBox.$on('file',$.selectedCallback);
     $.box.$on('file',$.selectedCallback);
+    $.google.$on('file',$.selectedCallback);
+    $.windows.$on('file',$.selectedCallback);
         
     //backdrops to show while loading
     //Loading Templates for Each Service
     var templateStart = '<div style="display:block">';
-    var templateEnd = '<p>Loading...</p></div>';
+    var templateEnd = '<br><p>Loading...</p></div>';
     var dropboxBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/Dropbox-white.png"></img>';
     var boxBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/box_white.png"></img>';
-        
+    var googleBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/google-drive.png"></img>';
+    var windowsBranding = '<img style="max-width:64px" src="'+baseUrl.endpoint+'/img/onedrive-white.png"></img>';
     // build the branded loading templates
     $.dropboxTemplate = templateStart+dropboxBranding+templateEnd;
     $.boxTemplate = templateStart+boxBranding+templateEnd;  
+    $.googleTemplate = templateStart+googleBranding+templateEnd;  
+    $.windowsTemplate = templateStart+windowsBranding+templateEnd;  
+        
     // Use the templates to show loading 
     $.loadStart = function(){
         $ionicLoading.show({
@@ -299,22 +405,32 @@ function($rootScope,$scope, FileNav){
     // connect to the service events
     $.dropBox.$on('loadStart',$.loadStart);
     $.box.$on('loadStart',$.loadStart);
+    $.google.$on('loadStart',$.loadStart);
+    $.windows.$on('loadStart',$.loadStart);
     $.dropBox.$on('loadEnd',$.loadEnd);
-    $.box.$on('loadEnd',$.loadEnd);
+    $.box.$on('loadEnd',$.loadEnd);    
+    $.google.$on('loadEnd',$.loadEnd);
+    $.windows.$on('loadEnd',$.loadEnd);
         
     //The fileNavigator does all the work...                         
     $.fileNavigator = {
         dropBox : { service:$.dropBox,
-                    template:$.dropboxTemplate
+                    template:$.dropboxTemplate,
                   },
         Box : { service:$.box,
-                template:$.boxTemplate
+                template:$.boxTemplate,
+              },
+        Google : {  service:$.google,
+                    template:$.googleTemplate,
+              },
+        Windows : {  service:$.windows,
+                    template:$.windowsTemplate,
               },
         show : function(service,closeOnSelect){
                     if(this.hasOwnProperty(service) && closeOnSelect != undefined){
                         var svc = this[service];
                         this.active = svc.service;
-                        this.active.template = svc.template;
+                        this.active.template = svc.template; 
                         this.active.closeOnSelect = closeOnSelect;
                         this.active.showRoot();
                         $.fileModal.show();
@@ -425,10 +541,12 @@ function($rootScope,$scope, FileNav){
     //any file(s) added to this array will get uploaded via $watch in directive            
     $.Inbox = [];
 }])
+
 .service('DropboxService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
 function($rootScope,hello,$timeout,$sce,onEvent,$q){
     var $ = this;
     $.name = 'Dropbox';
+    $.root = $.name;
     //just in case we are instantiated after the auth broadcast from rootscope
     if($rootScope.hasOwnProperty('dropbox'))
         $.authData = $rootScope['dropbox'];
@@ -501,8 +619,9 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
                     file.type = stripOpenXmlCrap(file.type);
                 });
                 $timeout(function(){
-                     $.folders = folders;
-                     $.loadThumbs();
+                    $.folders = folders;
+                    $.folders.root = $.root; 
+                    $.loadThumbs();
                     $.$fire('loadEnd');
                 });
             });
@@ -537,6 +656,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
             }
             $timeout(function(){
                 $.folders = contents
+                $.folders.root = $.root; 
                 $.loadThumbs();
                 $.$fire('loadEnd');
             },0);
@@ -605,7 +725,8 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
 .service('BoxService',['$rootScope','hello','$timeout','$sce','$http','onEvent','$q','baseUrl','$ionicPopup',
 function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
     var $ = this;
-    $.name = 'Box';
+    $.name = 'Box'; //used for filenav titles - the root is used if the product name is different from company
+    $.root = $.name; //the name of the product and company are the same
     //just in case we are instantiated after the auth broadcast from rootscope
     if($rootScope.hasOwnProperty('box'))
         $.authData = $rootScope['box'];
@@ -622,12 +743,13 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
     $.loggedIn = false;
     $.folders = undefined;
     onEvent.attach($);
-    
+
     function blobToFile(theBlob,fileName){
         theBlob.lastModifiedDate = new Date();
         theBlob.name = fileName;
         return theBlob;
     }
+    
     //OATH2 signin
     $.authenticate = function(){
         if(!$.loggedIn)
@@ -643,6 +765,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
     }
     //get the user information
     $.getUser = function(){
+        var deferred = $q.defer();
         function userFromBox(u){
             var user = {};
             var names = u.name.split(' ');
@@ -656,13 +779,16 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
         if(!$.loggedIn)
             box.login().then(function(){
                 box.api('me',function(u){
-                    return userFromBox(u);
+                    var user = userFromBox(u);
+                    deferred.resolve(user);
                 });
             });
         else
             box.api('me',function(u){
-                return userFromBox(u);
+                var user = userFromBox(u);
+                deferred.resolve(user);
             });
+        return deferred.promise;
     }
     //show the root directory    
     $.showRoot = function(){
@@ -672,7 +798,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
             box.api(endpoint,'get',{},function(folders){
                 $timeout(function(){
                      $.folders = folders;
-                     $.folders.root = folders.name;
+                     $.folders.root = $.root;
                      $.folders.path = '';
                      $.$fire('loadEnd');
                 });
@@ -728,6 +854,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
             }
             $timeout(function(){
                 $.folders = contents
+                $.folders.root = $.root;
                 $.$fire('loadEnd');
             },0);
         });
@@ -785,6 +912,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
             console.log(error);
         });
     }
+
     //select an item in a folder
     $.select = function(index){
         if($.folders.item_collection.entries.length >= index){
@@ -834,10 +962,21 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
                     
 }])
 
-.service('GoogleService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
-function($rootScope,hello,$timeout,$sce,onEvent,$q){
+.service('GoogleService',['$rootScope',
+                          'hello',
+                          '$timeout',
+                          '$sce',
+                          'onEvent',
+                          '$q',
+                          '$ionicPopup',
+                          '$http',
+function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
     var $ = this;
-    $.name = 'Google';
+    $.name = 'Google'; //Used for file navigator so it needs to be brand/user friendly
+    $.root = 'Drive'; //consistent name for the root directory
+    
+    //google doesnt have the concept of a path so we need to create one
+    $.path = [];
     //just in case we are instantiated after the auth broadcast from rootscope
     if($rootScope.hasOwnProperty('google'))
         $.authData = $rootScope['google'];
@@ -849,12 +988,13 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
     $.folders = undefined;
 
     onEvent.attach($);
-
+    
     function blobToFile(theBlob,fileName){
         theBlob.lastModifiedDate = new Date();
         theBlob.name = fileName;
         return theBlob;
     }
+    
     //OATH2 signin
     $.authenticate = function(){
         if(!$.loggedIn)
@@ -871,7 +1011,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
     //get the user information
     $.getUser = function(){
         var deferred = $q.defer();
-        function userFromDropbox(u){
+        function userFromGoogle(u){
             var user = {};
             user.firstName = u.first_name;
             user.lastName = u.last_name;
@@ -882,7 +1022,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
         if(!$.loggedIn || $.loggedIn)
             google.login(options).then(function(){
                 google.api('me',function(u){
-                    var user = userFromDropbox(u);
+                    var user = userFromGoogle(u);
                     deferred.resolve(user);
                 });
             });
@@ -893,7 +1033,123 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
             });
         return deferred.promise;
     }
-   
+    // Show the root directory of google drive
+    //show the root directory    
+    $.showRoot = function(){
+        var doit = function(){
+            $.$fire('loadStart');
+            google.api('me/folders','get',{},function(folders){
+                $.path = [];
+                $timeout(function(){
+                     $.folders = folders;
+                     $.folders.root = $.root;
+                     $.folders.path = $.path;
+                    $.$fire('loadEnd');
+                });
+            });
+                
+        }
+        //if not authenticated - then authenticate
+        if(!$.authData){
+            google.login(options).then(function(){
+                $.loggedIn = true;
+                doit();
+            });
+        } else {
+            doit();
+        }
+    }
+    // set path - used when user clicks on breadcrumbs
+    function setPath(folderId){
+        function findInPath(folderId){
+            var idx = -1;
+            var where = 0;
+            $.path.forEach(function(node){
+                if(node.id == folderId)
+                    idx = where;
+                where+=1;
+            });
+            return idx;
+        }
+                
+        var idx = findInPath(folderId);
+        if(idx>=0){
+            $.path = $.path.slice(0,idx+1)   
+        } 
+    }
+    //show the contents of a folder
+    $.showFolder = function(path){
+         $.$fire('loadStart');
+         setPath(path);
+         google.api('me/folder','get',{id:path},function(contents){
+            if(contents.data.length == 0){
+                var file = {title:'No Files Found',
+                            is_dir:false,
+                            thumb_exists:false,
+                            is_empty:true,
+                            path:contents.path,
+                           };
+                contents.data.push(file);
+            }else{
+                contents.data.forEach(function(item){
+                    if(item.type == undefined)
+                        item.type = item.fileExtension;
+                });
+            }
+            $timeout(function(){
+                $.folders = contents
+                $.folders.path = $.path;
+                $.folders.root = $.root;
+                $.$fire('loadEnd');
+            },0);
+        });
+    }
+    //select an item in a folder
+    $.select = function(index){
+        if($.folders.data.length >= index){
+            var item = $.folders.data[index];
+            if(item.type == 'folder'){
+                $.path.push(item);
+                $.showFolder(item.id);
+            }else
+                $.getFile(item);
+            
+        }
+    }
+    //get the file from google Drive
+    $.getFile = function(driveFile){
+        $.$fire('loadStart');
+        google.api('me/file','get',{id:driveFile.id},function(response){
+            if(response && response.downloadUrl){
+                var fileUrl = response.downloadUrl;
+                var authHeader = 'Bearer '+$.authData.access_token;
+                var options = {responseType:'blob',
+                               headers:{'Authorization':authHeader},
+                              };
+                $http.get(fileUrl,options)
+                .then(function(response){
+                    var blob = response.data;
+                    if(blob){
+                        $.file = blobToFile(blob,driveFile.title);
+                        $.$fire('file',$.file);
+                        $.$fire('loadEnd');
+                    }
+                });
+            } else {
+                $.$fire('loadEnd');
+                var template = 'code : '+response.error.code
+                template +='<br> message : '+response.error.message;
+                var alert = $ionicPopup.alert({
+                    title:'Drive API Error !',
+                    template: template
+                });
+                alert.then(function(){
+                    console.log('Alerted!');
+                });
+            }
+            console.log(response);
+        });
+    }
     $rootScope.$on('auth.google',function(event,auth){
         $.authData = auth;
         google.api('/me',function(p){
@@ -907,10 +1163,22 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
     });
                     
 }])
-.service('WindowsService',['$rootScope','hello','$timeout','$sce','onEvent','$q',
-function($rootScope,hello,$timeout,$sce,onEvent,$q){
+.service('WindowsService',['$rootScope',
+                           'hello',
+                           '$timeout',
+                           '$sce',
+                           'onEvent',
+                           '$q',
+                           '$ionicPopup',
+                           '$http',
+function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
     var $ = this;
-    $.name = 'Windows';
+    $.name = 'Microsoft'; //only used for filenavigator window
+    $.root = 'OneDrive'; //specify the name of the root directory
+    //windows doesnt have the concept of a path so we need to create one
+    $.path = [];
+
+    
     //just in case we are instantiated after the auth broadcast from rootscope
     if($rootScope.hasOwnProperty('windows'))
         $.authData = $rootScope['windows'];
@@ -928,6 +1196,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
         theBlob.name = fileName;
         return theBlob;
     }
+
     //OATH2 signin
     $.authenticate = function(){
         if(!$.loggedIn)
@@ -944,7 +1213,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
     //get the user information
     $.getUser = function(){
         var deferred = $q.defer();
-        function userFromDropbox(u){
+        function userFromWindows(u){
             var user = {};
             user.firstName = u.first_name;
             user.lastName = u.last_name;
@@ -955,18 +1224,149 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
         if(!$.loggedIn)
             windows.login(options).then(function(){
                 windows.api('me',function(u){
-                    var user = userFromDropbox(u);
+                    var user = userFromWindows(u);
                     deferred.resolve(user);
                 });
             });
         else
             windows.api('me',function(u){
-                var user = userFromDropbox(u);
+                var user = userFromWindows(u);
                 deferred.resolve(user);
             });
         return deferred.promise;
     }
-   
+    $.showRoot = function(){
+        var doit = function(){
+            $.$fire('loadStart');
+            windows.api('me/folders','get',{},function(folders){
+                $.path = [];
+                $timeout(function(){
+                     $.folders = folders;
+                     $.folders.root = $.root;
+                     $.folders.path = $.path;
+                    $.$fire('loadEnd');
+                });
+            });
+                
+        }
+        //if not authenticated - then authenticate
+        if(!$.authData){
+            windows.login(options).then(function(){
+                $.loggedIn = true;
+                doit();
+            });
+        } else {
+            doit();
+        }
+    }   
+    
+    // set path - used when user clicks on breadcrumbs
+    function setPath(folderId){
+        function findInPath(folderId){
+            var idx = -1;
+            var where = 0;
+            $.path.forEach(function(node){
+                if(node.id == folderId)
+                    idx = where;
+                where+=1;
+            });
+            return idx;
+        }
+                
+        var idx = findInPath(folderId);
+        if(idx>=0){
+            $.path = $.path.slice(0,idx+1)   
+        } 
+    }
+    //show the contents of a folder
+    $.showFolder = function(path){
+         $.$fire('loadStart');
+         setPath(path);
+         windows.api('me/folder','get',{id:path},function(contents){
+            if(contents.data.length == 0){
+                var file = {name:'No Files Found',
+                            is_dir:false,
+                            thumb_exists:false,
+                            is_empty:true,
+                            path:contents.path,
+                           };
+                contents.data.push(file);
+            }else{
+                contents.data.forEach(function(item){
+                    if(item.type == undefined)
+                        item.type = item.fileExtension;
+                });
+            }
+            $timeout(function(){
+                $.folders = contents
+                $.folders.root = $.root;
+                $.folders.path = $.path;
+                $.$fire('loadEnd');
+            },0);
+        });
+    }
+    //select an item in a folder
+    $.select = function(index){
+        if($.folders.data.length >= index){
+            var item = $.folders.data[index];
+            if(item.type == 'folder'||item.type == 'album'){
+                $.path.push(item);
+                $.showFolder(item.id);
+            }else
+                $.getFile(item);
+            
+        }
+    }
+    //get the file from google Drive
+    $.getFile = function(windowsFile){
+        $.$fire('loadStart');
+        var fileUrl = 'https://apis.live.net/v5.0/'+windowsFile.id+'/content'
+        var authHeader = 'Bearer '+$.authData.access_token;
+        var options = {params:{'suppress_redirects':true,
+                               'access_token':$.authData.access_token,
+                              },
+                      };
+        $http.get(fileUrl,options)
+        .then(function(response){
+            if(response.data && response.data.location){
+                var linkUrl = response.data.location;
+                var options = {responseType:'blob',
+                               headers:{'Authorization':authHeader},
+                              };
+                $http.get(linkUrl,options)
+                .then(function(response){
+                    blob = response.data;
+                    if(blob){
+                        $.file = blobToFile(blob,windowsFile.name);
+                        $.$fire('file',$.file);
+                        $.$fire('loadEnd');
+                    }else {
+                        $.$fire('loadEnd');
+                        var template = 'code : '+response.error.code
+                        template +='<br> message : '+response.error.message;
+                        var alert = $ionicPopup.alert({
+                            title:'Drive API Error !',
+                            template: template
+                        });
+                        alert.then(function(){
+                            console.log('Alerted!');
+                        });
+                    }
+                });
+            } else {
+                $.$fire('loadEnd');
+                var template = 'code : '+response.error.code
+                template +='<br> message : '+response.error.message;
+                var alert = $ionicPopup.alert({
+                    title:'Drive API Error !',
+                    template: template
+                });
+                alert.then(function(){
+                    console.log('Alerted!');
+                });
+            }
+        });
+    };
     $rootScope.$on('auth.windows',function(event,auth){
         $.authData = auth;
         windows.api('/me',function(p){

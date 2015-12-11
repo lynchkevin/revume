@@ -74,18 +74,23 @@ function($ionicPlatform,$rootScope,$window,$http,
         return isArchive;
     };
     
-    $rootScope.showLoading = function(){
+    $rootScope.showLoading = function(spinner){
+        var spinnerType = spinner || 'ripple';
         if(!$rootScope.spinnerShowing){
             $rootScope.spinnerShowing = true;
-            $ionicLoading.show({
-                template: '<ion-spinner icon="ripple"></ion-spinner>'
-            });
+            $timeout(function(){
+                $ionicLoading.show({
+                    template: '<ion-spinner icon="'+spinnerType+'"></ion-spinner>'
+                });
+            },0);
         }
     };   
     $rootScope.hideLoading = function(){
         if($rootScope.spinnerShowing){
             $rootScope.spinnerShowing = false;
-            $ionicLoading.hide();
+            $timeout(function(){
+                $ionicLoading.hide();
+            });
         }
     };
     //Give Access to History
@@ -175,6 +180,7 @@ function($ionicPlatform,$rootScope,$window,$http,
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
         authService.listen(event,toState);
     });
+
     //go to the home page after a deep link
     $rootScope.goHome = function(){
         $rootScope.deepLink = false;

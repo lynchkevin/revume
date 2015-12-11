@@ -1,6 +1,6 @@
 <ion-modal-view>
   <ion-header-bar class="bar-positive">
-    <h1 class="title">{{active.name}}</h1>
+    <h1 class="title">{{fileNavigator.active.name}}</h1>
     <div class="buttons">
       <button class="button button-clear" ng-click="fileNavigator.hide()">Close</button>
     </div>
@@ -10,7 +10,7 @@
                 class="path-scroll"
                 delegate-handle="path">
         <span ng-click="fileNavigator.active.showRoot()">
-            Path:&nbsp{{fileNavigator.active.folders.root}}
+            Path:&nbsp {{fileNavigator.active.root}}
         </span>
         <span path-to-links 
               ng-model="fileNavigator.active.folders"
@@ -26,7 +26,7 @@
                       ng-class="{'item-icon-left':file.is_dir||!file.thumb_exists,'item-thumbnail-left':!file.is_dir&&file.thumb_exists}">
                 <i ng-if="file.is_dir"
                    class="icon ion-folder positive"></i>
-                <img ng-if="file.thumb_exists"
+                <img ng-if="file.thumb_exists" style="box-shadow:5px 5px 5px #888888"
                      ng-src="{{file.thumb}}">
                 <i ng-if="!file.is_dir&&!file.thumb_exists &&!file.is_empty"
                    class="icon ion-document calm"></i>
@@ -39,12 +39,12 @@
     </div>
       <div ng-if="fileNavigator.active.name == 'Box'">
         <ion-list >
-            <ion-item ng-repeat="file in box.folders.item_collection.entries"
+            <ion-item ng-repeat="file in fileNavigator.active.folders.item_collection.entries"
                       ng-click="fileNavigator.active.select($index)"
                       ng-class="{'item-icon-left':file.type == 'folder' || file.type!='folder'}">
                 <i ng-if="file.type == 'folder'"
                    class="icon ion-folder positive"></i>
-                <img ng-if="file.thumb"
+                <img ng-if="file.thumb" style="box-shadow:5px 5px 5px #888888"
                      ng-src={{file.thumb}}>
                 <i ng-if="file.type != 'folder'&&!file.is_empty"
                    class="icon ion-document calm"></i>
@@ -55,5 +55,41 @@
             </ion-item>
         </ion-list>
       </div>
+      <div ng-if="fileNavigator.active.name == 'Google'">
+        <ion-list >
+            <ion-item ng-repeat="file in fileNavigator.active.folders.data"
+                      ng-click="fileNavigator.active.select($index)"
+                       ng-class="{'item-icon-left':file.type == 'folder' || file.type!='folder','item-thumbnail-left':file.thumbnail}">
+                <i ng-if="file.type == 'folder'"
+                   class="icon ion-folder positive"></i>
+                <img ng-if="file.thumbnail" style="box-shadow:5px 5px 5px #888888"
+                     ng-src="{{file.thumbnailLink}}">
+                <i ng-if="file.type != 'folder'&&!file.thumbnail &&!file.is_empty"
+                   class="icon ion-document calm"></i>
+                <i ng-if="file.is_empty"
+                   class="icon ion-alert assertive"></i>
+                <h3>{{file.title}}</h3>
+                <p ng-if="!file.is_empty">Type: {{file.type}}</p>
+            </ion-item>
+        </ion-list>
+      </div>
+      <div ng-if="fileNavigator.active.name == 'Microsoft'">
+        <ion-list >
+            <ion-item ng-repeat="file in fileNavigator.active.folders.data"
+                      ng-click="fileNavigator.active.select($index)"
+                      ng-class="{'item-icon-left':!file.thumbnail,'item-thumbnail-left':file.thumbnail}">
+                <i ng-if="file.type == 'folder' || file.type=='album'"
+                   class="icon ion-folder positive"></i>
+                <img ng-if="file.thumbnail" style="box-shadow:5px 5px 5px #888888"
+                     ng-src="{{file.thumbnail}}">
+                <i ng-if="file.type !='folder'&&file.type!='album'&&!file.thumbnail &&!file.is_empty"
+                   class="icon ion-document calm"></i>
+                <i ng-if="file.is_empty"
+                   class="icon ion-alert assertive"></i>
+                <h3>{{file.name}}</h3>
+                <p ng-if="!file.is_empty">Type: {{file.type}}</p>
+            </ion-item>
+        </ion-list>
+    </div>
   </ion-content>
 </ion-modal-view>

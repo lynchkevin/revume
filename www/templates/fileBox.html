@@ -1,14 +1,51 @@
 
-<div ng-controller="fileNavCtrl">
-<div class="button-bar"
-     evaporate
-     eva-model="eva.Data"
-     ng-model="eva.Inbox">
-    <a class="button button-light"
-       ng-click="fileNavigator.show('dropBox')"
-       dropbox-button> Dropbox Import</a>
-    <a class="button button-light" 
-       ng-click="fileNavigator.show('Box')"
-       box-button> Import </a>
+<div ng-controller="fileNavCtrl" resize>
+    <div class="import-header dark-bg">  
+        <span>Import From...</span>
+    </div>
+    <div class="button-bar"
+         evaporate
+         eva-model="eva.Data"
+         ng-model="eva.Inbox"
+         ng-if="elWidth>510">
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Google')"
+           google-button></a>
+        <a class="button button-light"
+           ng-click="fileNavigator.show('dropBox')"
+           dropbox-button></a>
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Box')"
+           box-button></a>
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Windows')"
+           windows-button></a>
+    </div>
+    <div class="button-bar"
+         evaporate
+         eva-model="eva.Data"
+         ng-model="eva.Inbox"
+         ng-if="elWidth<=510">
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Google')"
+           google-button></a>
+        <a class="button button-light"
+           ng-click="fileNavigator.show('dropBox')"
+           dropbox-button></a>
+    </div>
+    <div class="button-bar"
+         evaporate
+         eva-model="eva.Data"
+         ng-model="eva.Inbox"
+         ng-if="elWidth<=510">
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Box')"
+           box-button></a>
+        <a class="button button-light" 
+           ng-click="fileNavigator.show('Windows')"
+           windows-button></a>
+    </div>
 </div>
+
+
         

@@ -683,6 +683,14 @@ div.progress-value {
 .signin-margin-top{
     margin-top:0px;
 }
+.import-header{
+    text-align: center;
+    color:white;
+    line-height: 130%;
+    font-size:110%;
+    font-weight:600;
+    padding:4px;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {

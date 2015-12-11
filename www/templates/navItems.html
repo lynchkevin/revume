@@ -24,8 +24,13 @@
                     ng-if="!archiveOn()"></button>
                 </div>
             </div> 
-            <div ng-show="eva.Data.ready && modelName=='files'">
-                <file-box close-on-select="false"></file-box>
+            <div ng-show="eva.Data.ready && modelName=='files'"
+                 ng-if="!smallScreen()">
+                <file-box close-on-select="false"</file-box>
+            </div>
+            <div ng-show="eva.Data.ready && modelName=='files'"
+                 ng-if="smallScreen()">
+                <file-box close-on-select="true"</file-box>
             </div>
             <div ng-show="showAddItem" >
                 <div ng-switch on="modelName">
@@ -43,7 +48,6 @@
                                  ng-if="!device.IOS() && !device.isIPad() && !device.isAndroid() && !device.isWindowsPhone()">
                                 <p>Drop your file(s) here</p>     
                             </div>
-                                    <!--ion-spinner icon="ios" class="upload-spinner" ng-if="file.spinner" ></ion-spinner--> 
                             <ion-list ng-if="library.uploading.files.length > 0">
                                 <ion-item ng-repeat="file in library.uploading.files"
                                           class="upload-content"
