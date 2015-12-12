@@ -223,6 +223,9 @@ function callZamzar(fileName){
             } else {
                 resolve(job);
             }
+        }).catch(function(err){
+        console.log('ppt2png fails: ',err);
+        reject(err);
         });
     });
 }
@@ -577,24 +580,25 @@ library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var result = {};
     filePath = filePath.replace(/%20/g, " ");
     console.log('filePath: ',filePath,'userId: ',userId);
-    if (filePath != undefined){
-        res.send('OK - Processing file...');
-        processFile(filePath,userId).then(function(uFile){
-        result = {event: 'end',
-                  success:true,
-                  file : {name:filePath.slice(filePath.indexOf('_')+1)}, //was lastIndexOf
-                  error: ''
-                 };
-        console.log('result: ',result);
+    result.success = true; //return right away let pubsub handle events from here
+    res.send(result);
+    processFile(filePath,userId).then(function(uFile){
+    result = {event: 'end',
+              success:true,
+              file : {name:filePath.slice(filePath.indexOf('_')+1)}, //was lastIndexOf
+              error: ''
+             };
+    console.log('result: ',result);
+    channel.publish(result);
+    }).catch(function(err){
+        result = {event: 'error',
+              success:false,
+              file : {name:filePath.slice(filePath.indexOf('_')+1)}, //was lastIndexOf
+              error: err,
+             };
         channel.publish(result);
-        }).catch(function(err){
-            result.success = false;
-            result.error = err;
-            channel.publish(result);
-            console.log(err);
-        });
-    } else 
-        res.send('filePath is required');
+        console.log(err);
+    });
 });
 // uploaded files
 library.get('/library/uploadedFiles',function(req,res){

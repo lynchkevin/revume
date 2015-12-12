@@ -25,7 +25,13 @@ module.exports = function(grunt) {
           },
           buildDate : grunt.option('buildDate'),
           clientTokenPath: grunt.option('home_ip')+'/api/braintree/client_token',
-          redirectUrl:'http://localhost:'+grunt.option('port')
+          redirectUrl:'http://localhost:'+grunt.option('port'),
+          helloInitParams: {
+              dropbox:'c4uikzug99og3rh',
+              box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
+              google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
+              windows:'000000004817AFBB',
+            },
         }
       },
       development: {
@@ -40,7 +46,13 @@ module.exports = function(grunt) {
           },
           buildDate : grunt.option('buildDate'),
           clientTokenPath: grunt.option('ip')+'/api/braintree/client_token',
-          redirectUrl:'http://localhost:'+grunt.option('port')
+          redirectUrl:'http://localhost:'+grunt.option('port'),
+          helloInitParams: {
+              dropbox:'c4uikzug99og3rh',
+              box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
+              google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
+              windows:'000000004817AFBB',
+            },
         }
       },
       production: {
@@ -55,7 +67,13 @@ module.exports = function(grunt) {
           },
           buildDate : grunt.option('buildDate'),
           clientTokenPath:'https://m.revu.me/api/braintree/client_token',
-          redirectUrl:'https://m.revu.me/'
+          redirectUrl:'https://m.revu.me/',
+          helloInitParams: {
+              dropbox:'f9cdswrtfz1jsd9',
+              box:'11rseev2g1yripmmx833cp5jhiqy82v2',
+              google:'945597499290-2q1a0915fabg68368ou1v7udko2j21nc.apps.googleusercontent.com',
+              windows:'000000004C17505E',
+            }
         }
       }
     },

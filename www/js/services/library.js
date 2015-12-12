@@ -103,6 +103,17 @@ function(UploadedFiles,
                 case 'progress' : 
                     $.uploadProgress(result);
                     break;
+                case 'error' :
+                    var alert = $ionicPopup.alert({
+                        title:'File Upload Fails',
+                        template:'message: '+result.error,
+                    });
+                    alert.then(function(){
+                        $.uploadComplete(result);
+                        $.updateView();
+                        $.$fire('uploadComplete');
+                    });
+                    break;
         }
     }
     //rootscope must call pubnub.init - then we're ready
@@ -551,27 +562,35 @@ function(UploadedFiles,
                           {filePath:'@filePath'},
                         {  convertFile: {method:'GET',params:{filePath:'@filePath'}}
                         });
-        r.convertFile({filePath:encodeURI($scope.fullName),userId:$rootScope.user._id}).$promise
-        .then(function(status){
-            console.log(status);
-            var time, timeLabel;
-            if(file.size < 5000000){
-                time = Math.floor(file.size/15000);
-                timeLabel = ' seconds';
-                if(time > 60){
-                    timeLabel = ' minute(s)'
-                    time = Math.floor(time/60);
+        if($scope.fullName == undefined){
+            var alert = $ionicPopup.alert({
+                title:'File Upload Error',
+                template:'file name is missing'
+            });
+            alert.then(function(){});
+        } else {
+            r.convertFile({filePath:encodeURI($scope.fullName),userId:$rootScope.user._id}).$promise
+            .then(function(status){
+                console.log(status);
+                var time, timeLabel;
+                if(file.size < 5000000){
+                    time = Math.floor(file.size/15000);
+                    timeLabel = ' seconds';
+                    if(time > 60){
+                        timeLabel = ' minute(s)'
+                        time = Math.floor(time/60);
+                    }
+                }else{
+                    timeLabel = ' minute(s)';
+                    time = Math.floor(file.size/4000000);
                 }
-            }else{
-                timeLabel = ' minute(s)';
-                time = Math.floor(file.size/4000000);
-            }
-            file.message = 'Processing: est time: '+time+timeLabel;
-            defer.resolve(status);
-        }).catch(function(err){
-            console.log(err);
-            defer.reject(err);
-        });
+                file.message = 'Processing: est time: '+time+timeLabel;
+                defer.resolve(status);
+            }).catch(function(err){
+                console.log(err);
+                defer.reject(err);
+            });
+        }
         return defer.promise;
     };
     function indexOfFile(file){

@@ -42,26 +42,9 @@ angular.module('ngHello', [])
          hello.init(services,options);
      };
 })
-.config(['helloProvider','redirectUrl','baseUrl',
-function(helloProvider,redirectUrl,baseUrl) {
-/*
-  helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
-                      box:'11rseev2g1yripmmx833cp5jhiqy82v2',
-                      google:'945597499290-2q1a0915fabg68368ou1v7udko2j21nc.apps.googleusercontent.com'},
-                     {
-                        redirect_uri:redirectUrl,
-                    });
-*/
-    
-//debug callbacks to localhost
-    helloProvider.init({dropbox:'f9cdswrtfz1jsd9',
-                        box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
-                        google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
-                        windows:'000000004817AFBB',
-                    },
-                     {
-                        redirect_uri:redirectUrl,
-                    });
+.config(['helloProvider','helloInitParams','redirectUrl',
+function(helloProvider,helloInitParams,redirectUrl) {
+    helloProvider.init(helloInitParams,{redirect_uri:redirectUrl});
 }])
 .run(['$ionicPlatform','$rootScope','hello',
 function($ionicPlatform,$rootScope,hello) {
@@ -1353,7 +1336,8 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
                         });
                     }
                 });
-            } else {
+            } 
+            else {
                 $.$fire('loadEnd');
                 var template = 'code : '+response.error.code
                 template +='<br> message : '+response.error.message;
