@@ -1,5 +1,8 @@
 <ion-modal-view>
   <ion-header-bar class="bar-positive">
+    <button class="button icon ion-chevron-up"
+            ng-if="fileNavigator.active.toParentVisible"
+            ng-click="fileNavigator.active.toParent()"></button>
     <h1 class="title">{{fileNavigator.active.name}}</h1>
     <div class="buttons">
       <button class="button button-clear" ng-click="fileNavigator.hide()">Close</button>
@@ -9,7 +12,8 @@
     <ion-scroll direction="x" 
                 class="path-scroll"
                 delegate-handle="path">
-        <span ng-click="fileNavigator.active.showRoot()">
+        <span ng-click="fileNavigator.active.showRoot()"
+              style="cursor:pointer">
             Path:&nbsp {{fileNavigator.active.root}}
         </span>
         <span path-to-links 

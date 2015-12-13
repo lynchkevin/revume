@@ -704,10 +704,7 @@ div.progress-value {
     }
 }
 @media screen and (min-width:900px){
-    .item-checkbox{
-        padding-left:0px;
-    }
-    .checkbox input, .checkbox-icon {
+    input.centered-checkbox {
         margin-left:25%;
     }
 }
@@ -724,12 +721,10 @@ div.progress-value {
     .account-list{
         width:100%;
     }  
-    .item-checkbox{
-        padding-left:0px;
-    }
-    .checkbox input, .checkbox-icon {
+    input.centered-checkbox {
         margin-left:20%;
     }
+
 }
 @media screen and (max-width: 800px) {
     .slider-button{ 
@@ -767,7 +762,7 @@ div.progress-value {
         overflow-x:scroll;
         white-space: nowrap;
     }
-    .checkbox input, .checkbox-icon {
+    input.centered-checkbox {
         margin-left:10%;
     }
 }

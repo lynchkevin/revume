@@ -71,7 +71,7 @@ module.exports = function(grunt) {
           helloInitParams: {
               dropbox:'f9cdswrtfz1jsd9',
               box:'11rseev2g1yripmmx833cp5jhiqy82v2',
-              google:'945597499290-2q1a0915fabg68368ou1v7udko2j21nc.apps.googleusercontent.com',
+              google:'945597499290-106uaa9etsaft53ln0olrv8dbse6h9an.apps.googleusercontent.com',
               windows:'000000004C17505E',
             }
         }
@@ -278,14 +278,12 @@ module.exports = function(grunt) {
       grunt.task.run([
           'ngtemplates:RevuMe'
       ]);
-      /*
       grunt.task.run([
           'uglify:javascript'
       ]);
       grunt.task.run([
           'dev_prod_switch'
       ]);   
-      */
       grunt.task.run([
           'compress'
       ]);

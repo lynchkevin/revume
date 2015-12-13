@@ -186,7 +186,7 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                     if(part != ''){
                         breadCrumb += '/'+part;
                         if(scope.callBack !== undefined)
-                            newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+breadCrumb+"\')\">"+part+"</a>";
+                            newPart ="/<a style=\"cursor:pointer\" ng-click=\""+scope.callBack+"("+"'"+breadCrumb+"\')\">"+part+"</a>";
                         else
                             newPart = '/'+part;
                         html += newPart;
@@ -205,13 +205,13 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 
                 parts.forEach(function(part){
                     if(scope.callBack !== undefined)
-                        newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
+                        newPart ="/<a style=\"cursor:pointer\" ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
                     else
                         newPart = '/'+part.name;
                     html += newPart;
                 });
                 if(folder.id != 0){
-                    newPart = "/<a ng-click=\""+scope.callBack+"("+"'"+folder.id+"\')\">"+folder.name+"</a>";
+                    newPart = "/<a style=\"cursor:pointer\" ng-click=\""+scope.callBack+"("+"'"+folder.id+"\')\">"+folder.name+"</a>";
                     html+=newPart;
                     element[0].innerHTML = $sce.trustAsHtml(html);
                     $compile(element.contents())(scope);
@@ -230,7 +230,7 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 
                 parts.forEach(function(part){
                     if(scope.callBack !== undefined)
-                        newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
+                        newPart ="/<a style=\"cursor:pointer\" ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
                     else
                         newPart = '/'+part.name;
                     html += newPart;
@@ -248,7 +248,7 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 
                 parts.forEach(function(part){
                     if(scope.callBack !== undefined)
-                        newPart ="/<a ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
+                        newPart ="/<a style=\"cursor:pointer\" ng-click=\""+scope.callBack+"("+"'"+part.id+"\')\">"+part.name+"</a>";
                     else
                         newPart = '/'+part.name;
                     html += newPart;
@@ -538,6 +538,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
     var noop = function(){};
     $.loggedIn = false;
     $.folders = undefined;
+    $.toParentVisible = false;
 
     onEvent.attach($);
 
@@ -602,6 +603,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
                     file.type = stripOpenXmlCrap(file.type);
                 });
                 $timeout(function(){
+                    $.toParentVisible = false;
                     $.folders = folders;
                     $.folders.root = $.root; 
                     $.loadThumbs();
@@ -619,6 +621,14 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
         } else {
             doit();
         }
+    }
+    $.toParent = function(){
+        var path = $.folders.path;
+        var parentPath  = path.slice(0,path.lastIndexOf('/'));
+        if(parentPath =="" || parentPath == "/" || parentPath == undefined)
+            $.showRoot()
+        else
+            $.showFolder(parentPath);
     }
     //show the contents of a folder
     $.showFolder = function(path){
@@ -638,6 +648,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q){
                 });
             }
             $timeout(function(){
+                $.toParentVisible = true;
                 $.folders = contents
                 $.folders.root = $.root; 
                 $.loadThumbs();
@@ -725,6 +736,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
     var noop = function(){};
     $.loggedIn = false;
     $.folders = undefined;
+    $.toParentVisible = false;
     onEvent.attach($);
 
     function blobToFile(theBlob,fileName){
@@ -780,10 +792,11 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
             var endpoint = 'https://api.box.com/2.0/folders/0'
             box.api(endpoint,'get',{},function(folders){
                 $timeout(function(){
-                     $.folders = folders;
-                     $.folders.root = $.root;
-                     $.folders.path = '';
-                     $.$fire('loadEnd');
+                    $.toParentVisible = false;
+                    $.folders = folders;
+                    $.folders.root = $.root;
+                    $.folders.path = '';
+                    $.$fire('loadEnd');
                 });
             });
         }
@@ -817,7 +830,14 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
         return retVal;
     }
 
-            
+    $.toParent = function(){
+        var length = $.folders.path_collection.entries.length;
+        var idx = length-1 ;
+        if(idx >= 0)
+            $.showFolder($.folders.path_collection.entries[idx].id);
+        else
+            $.showRoot();
+    }           
         
     //show the contents of a folder
     $.showFolder = function(id){
@@ -836,6 +856,7 @@ function($rootScope,hello,$timeout,$sce,$http,onEvent,$q,baseUrl,$ionicPopup){
                 contents.item_collection.entries.push(file);
             }
             $timeout(function(){
+                $.toParentVisible = true;
                 $.folders = contents
                 $.folders.root = $.root;
                 $.$fire('loadEnd');
@@ -969,7 +990,8 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
     var noop = function(){};
     $.loggedIn = false;
     $.folders = undefined;
-
+    $.toParentVisible = false;
+    
     onEvent.attach($);
     
     function blobToFile(theBlob,fileName){
@@ -1024,9 +1046,10 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
             google.api('me/folders','get',{},function(folders){
                 $.path = [];
                 $timeout(function(){
-                     $.folders = folders;
-                     $.folders.root = $.root;
-                     $.folders.path = $.path;
+                    $.toParentVisible = false;
+                    $.folders = folders;
+                    $.folders.root = $.root;
+                    $.folders.path = $.path;
                     $.$fire('loadEnd');
                 });
             });
@@ -1060,6 +1083,13 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
             $.path = $.path.slice(0,idx+1)   
         } 
     }
+    $.toParent = function(){
+       if($.path.length<2)
+           $.showRoot();
+        else
+           $.showFolder($.path[$.path.length-2].id);
+    }
+
     //show the contents of a folder
     $.showFolder = function(path){
          $.$fire('loadStart');
@@ -1080,6 +1110,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
                 });
             }
             $timeout(function(){
+                $.toParentVisible = true;
                 $.folders = contents
                 $.folders.path = $.path;
                 $.folders.root = $.root;
@@ -1171,7 +1202,8 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
     var noop = function(){};
     $.loggedIn = false;
     $.folders = undefined;
-
+    $.toParentVisible = false;
+    
     onEvent.attach($);
 
     function blobToFile(theBlob,fileName){
@@ -1224,9 +1256,10 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
             windows.api('me/folders','get',{},function(folders){
                 $.path = [];
                 $timeout(function(){
-                     $.folders = folders;
-                     $.folders.root = $.root;
-                     $.folders.path = $.path;
+                    $.toParentVisible = false;
+                    $.folders = folders;
+                    $.folders.root = $.root;
+                    $.folders.path = $.path;
                     $.$fire('loadEnd');
                 });
             });
@@ -1261,6 +1294,12 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
             $.path = $.path.slice(0,idx+1)   
         } 
     }
+    $.toParent = function(){
+       if($.path.length<2)
+           $.showRoot();
+        else
+           $.showFolder($.path[$.path.length-2].id);
+    }
     //show the contents of a folder
     $.showFolder = function(path){
          $.$fire('loadStart');
@@ -1281,6 +1320,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
                 });
             }
             $timeout(function(){
+                $.toParentVisible = true;
                 $.folders = contents
                 $.folders.root = $.root;
                 $.folders.path = $.path;
