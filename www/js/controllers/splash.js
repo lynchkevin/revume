@@ -17,7 +17,6 @@ angular.module('RevuMe')
                              'tourService',
                              'ScriptService',
                              '$ionicSideMenuDelegate',
-                             'slideHint',
                              function ($scope,
                                         $rootScope,
                                         $timeout,
@@ -26,8 +25,7 @@ angular.module('RevuMe')
                                         $ionicNavBarDelegate,
                                         tourService,
                                         ScriptService,
-                                        $ionicSideMenuDelegate,
-                                        slideHint){
+                                        $ionicSideMenuDelegate){
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $scope.init = function(){
@@ -44,7 +42,8 @@ angular.module('RevuMe')
                     $scope.buyButton.text = 'Renew Now';
                 
         },0);
-        if(slideHint){
+        if($rootScope.firstLogin != undefined && $rootScope.firstLogin == true){
+            $rootScope.firstLogin = false;
             $ionicSideMenuDelegate.toggleLeft(true);
             $timeout(function(){
                 $ionicSideMenuDelegate.toggleLeft(false);

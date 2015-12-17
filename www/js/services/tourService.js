@@ -143,7 +143,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
         var position = {};
         var position = {};
         if($rootScope.smallScreen()){
-            position.left = '0px';
+            position.left = '20px';
             position.top = topSmall;
         }else{
             position.top = top;
@@ -167,26 +167,31 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                      );
         position = newPosition('170px','102px','275px');
         $.steps.push($.subStep(rootStep,
+                              'Schedule or Start a New Meeting with One Click.',
+                               position)
+                     );     
+        position = newPosition('230px','160px','275px');
+        $.steps.push($.subStep(rootStep,
                               'The Library Stores all your Pitch Decks.',
                                position)
                      );       
     
-        position = newPosition('230px','160px','275px');
+        position = newPosition('290px','220px','275px');
         $.steps.push($.subStep(rootStep,
                               'Teams Let You Share Pitch Decks and other items',
                                position)
                      );  
-        position = newPosition('290px','220px','275px');
+        position = newPosition('350px','280px','275px');
         $.steps.push($.subStep(rootStep,
                               'These are all the meetings you\'ve organized',
                                position)
                      );  
-        position = newPosition('350px','280px','275px');
+        position = newPosition('410px','340px','275px');
         $.steps.push($.subStep(rootStep,
                               'Here are Invitations to Meetings you can Attend',
                                position)
                      );  
-        position = newPosition('410px','340px','275px');
+        position = newPosition('470px','400px','275px');
         if(!$rootScope.isMobile || $rootScope.showArchive)
         $.steps.push($.subStep(rootStep,
                               'The Archive Holds All your Old Pitches and Meetings',
@@ -195,7 +200,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                      );  
         
         // Show them the library
-        position = newPosition('30%','30%','30px');
+        position = newPosition('47%','47%','30px');
         var state;
         if($rootScope.smallScreen())
             state = 'app.mobileLib';
@@ -216,7 +221,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                               'Combine your slides into pitch \'decks\' using \'Pitch Perfect\'. Just add a new deck, name it, and start adding the slides you need. Click (or Tap) on the slide to re-order and then Tap again on another slide. The slide will be placed in front of the slide you tap (or click).',
                                position)
                      );  
-        position = newPosition('305px','110px','275px');
+        position = newPosition('425px','110px','275px');
         $.steps.push($.subStep(libStep,
                               'On a Mobile device, slide the item left to reveal options. For Desktops, just click the options drop down. Here you can edit an item, share it with your team or create a new meeting.',
                                position)

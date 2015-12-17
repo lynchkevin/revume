@@ -214,7 +214,6 @@ function($ionicPlatform,$rootScope,$window,$http,
       //(e || $window.event).returnValue = null;
       return null;
     });
-
          
 }])
 
@@ -232,9 +231,6 @@ function($ionicPlatform,$rootScope,$window,$http,
       'menuContent': {
         templateUrl: "templates/splash.html",
         controller: 'splashCtrl',
-        resolve : {
-            slideHint: function(){return true}
-        }
       }
     }
   })
@@ -244,9 +240,6 @@ function($ionicPlatform,$rootScope,$window,$http,
       'menuContent': {
         templateUrl: "templates/splash.html",
         controller: 'splashCtrl',
-        resolve : {
-            slideHint: function(){return false}
-        }
       }
     }
   })

@@ -111,6 +111,7 @@ angular.module('RevuMe')
                         // add introductory content
                         return introContent.addIntroContent(newUser._id);
                    }).then(function(){
+                        $rootScope.firstLogin = true;
                         $state.go('app.welcome');
                    });
                    
@@ -151,6 +152,7 @@ angular.module('RevuMe')
                            // add introductory content
                             return introContent.addIntroContent(user._id);
                        }).then(function(){
+                            $rootScope.firstLogin = true;
                             $state.go('app.welcome');
                             deferred.resolve();
                        });       
