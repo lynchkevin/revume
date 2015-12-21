@@ -49,6 +49,8 @@
     <script class="pre" src="lib/hello/src/modules/google.js"></script>  
     <script class="pre" src="lib/hello/src/modules/windows.js"></script>  
       
+    <!-- screenleap -->
+      <script type="text/javascript" src="http://api.screenleap.com/js/screenleap.js"></script>
     <!--
       it's absolutely essential to add evaporate's config before including angular-evaporate module
       these options are passed directly into EvaporateJS itself
@@ -75,13 +77,16 @@
     <!-- box and dropbox module -->
     <script src="lib/fileBox.js"></script>
 
+    <!-- date and time picker -->
+    <script src="lib/ionic-timepicker/dist/ionic-timepicker.bundle.min.js"></script>
+      
     <!-- all lib modules have to be included independently as uglify only looks at js directory -->
-    <!-- env:prod -->
+    <!-- env:prod --#>
     <script src="revume.min.js"></script>
     <!-- env:prod:end -->
       
 
-    <!-- env:dev --#>
+    <!-- env:dev -->
     <script src="js/app.js"></script>    
     <script src="js/revume.templates.js"></script>
     <script src="js/config.js"></script>
@@ -122,6 +127,7 @@
     <script src="js/services/introContent.js"></script>
     <script src="js/services/scriptService.js"></script>
     <script src="js/services/braintree.js"></script>
+    <script src="js/services/screenleap.js"></script>
 
     <script src="js/controllers/presentationCtlr.js"></script>
     <script src="js/controllers/view.js"></script>  

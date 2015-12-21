@@ -21,6 +21,7 @@ var     scripts = require('./routes/scripts');
 var     braintree = require('./routes/braintree');
 var     box = require('./routes/box');
 var     signer = require('./routes/signer');
+var     screenleap = require('./routes/screenleap');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
@@ -98,6 +99,7 @@ app.use('/api',scripts);
 app.use('/api',braintree);
 app.use('/api',box);
 app.use('/api',signer);
+app.use('/api',screenleap);
 
 
 

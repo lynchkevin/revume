@@ -17,6 +17,7 @@ angular.module('RevuMe')
                              'tourService',
                              'ScriptService',
                              '$ionicSideMenuDelegate',
+                             'Screenleap',
                              function ($scope,
                                         $rootScope,
                                         $timeout,
@@ -25,7 +26,8 @@ angular.module('RevuMe')
                                         $ionicNavBarDelegate,
                                         tourService,
                                         ScriptService,
-                                        $ionicSideMenuDelegate){
+                                        $ionicSideMenuDelegate,
+                                        ScreenLeap){
 
     $scope.image = baseUrl.endpoint+'/img/splash.png'; 
     $scope.init = function(){

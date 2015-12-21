@@ -18,9 +18,11 @@ angular.module('RevuMe')
                                  'presAnalyzer',
                                  'BridgeService',
                                  '$ionicScrollDelegate',
+                                 'Screenleap',
+                                 '$ionicModal',
  function ($scope, $rootScope, $stateParams, 
            $timeout,pnFactory,$ionicSlideBoxDelegate,session, 
-           userMonitor,recorder,presAnalyzer,BridgeService,$ionicScrollDelegate) {
+           userMonitor,recorder,presAnalyzer,BridgeService,$ionicScrollDelegate,Screenleap,$ionicModal) {
     
 
     //session and decks are now resolved during the state change so we can use them directly
@@ -35,6 +37,8 @@ angular.module('RevuMe')
     $scope.name = session.name;
     $scope.presentation=$scope.session.decks[$scope.deckIdx];
     $scope.bridgeService = BridgeService;
+    $scope.screenleap = Screenleap;
+    
 
     function setInitials(){
         $scope.session.attendees.forEach(function(attendee){
@@ -66,8 +70,41 @@ angular.module('RevuMe')
         $ionicSlideBoxDelegate.update();
         if($scope.session.bridge && !$scope.bridgeService.activeBridge())
             $scope.bridgeService.startBridge($scope.session.ufId);
+        $ionicModal.fromTemplateUrl('templates/screenleap.html',{
+            scope:$scope,
+            animation:'slide-in-up',
+        }).then(function(modal){
+            $scope.instructions = modal;
+        });
+        $scope.screenSharingEnabled = !$rootScope.device.isIOS && !$rootScope.device.isAndroid 
+                                        && !$rootScope.device.isWindowsPhone && !$rootScope.isMobile;
+        $scope.isSharing = false;
+      
     }
-
+    
+     //connect to screenleap events
+    $scope.screenleap.$on('screenShareEnd',function(){
+            $scope.isSharing = false;
+            var m = {action:"screenShare",value:undefined,caller:"screenShare"};
+            $scope.channel.publish(m);  
+            $scope.catchUp();
+    });
+    $scope.screenleap.$on('downloadStarting',function(){
+        $scope.instructions.show();
+    });
+    $scope.screenleap.$on('screenShareStarted',function(){
+        $scope.instructions.hide();
+    });
+    //screenleap startup functions
+    $scope.restartDownload = function(){
+        $scope.screenleap.downloadAndStart();
+    }
+    $scope.startNative = function(){
+        $scope.screenleap.startFromClick();
+    }
+    $scope.$on('$destroy',function(){
+        $scope.instructions.remove();
+    });    
     function sendEnd(){
         var m = {action:"end"};
         recorder.record(m);
@@ -146,6 +183,9 @@ angular.module('RevuMe')
                     $scope.everyone = userMonitor.everyone;
                 },0);
                 break;
+            case 'catchup':
+                $scope.catchUp();
+                break;
         }
     };
       
@@ -166,7 +206,20 @@ angular.module('RevuMe')
         $ionicSlideBoxDelegate.slide($scope.current);
         $ionicSlideBoxDelegate.update();
     };
-      
+     
+    $scope.screenShare = function(){
+        $rootScope.showLoading();
+        $scope.screenleap.startSharing().then(function(shareSession){
+            $scope.isSharing = true;
+            $scope.shareSession = shareSession;
+            var m = {action:"screenShare",value: shareSession.viewerUrl,caller:"screenShare"};
+            $scope.channel.publish(m);  
+            $rootScope.hideLoading();
+        }).catch(function(response){
+            $scope.isSharing = false;
+            $rootScope.hideLoading();
+        });
+    }
     $scope.setSlide = function(slideNumber) {
         if(slideNumber >= $scope.presentation.slides.length-1) {
             $scope.current = $scope.presentation.slides.length-1;
@@ -189,7 +242,15 @@ angular.module('RevuMe')
         $scope.channel.publish(m);  
         $scope.$broadcast("slideChange",val);
     };
-    
+    $scope.catchUp = function(){
+        if($scope.isSharing){
+            var shareSession = $scope.shareSession;
+            var m = {action:"screenShare",value: shareSession.viewerUrl,caller:"screenShare"};
+            $scope.channel.publish(m);  
+        } else {
+            $scope.setSlide($scope.current);
+        }
+    }
     $scope.viewIdx = function() {
         return $scope.current;
     };

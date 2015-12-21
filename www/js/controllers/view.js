@@ -25,10 +25,12 @@ angular.module('RevuMe')
                            '$state',
                            '$ionicPopup',
                            '$ionicScrollDelegate',
+                           '$location',
+                           '$sce',
 function ($scope, $rootScope, $stateParams, 
            $timeout, $window, pnFactory, userMonitor, 
            session,Decks,$ionicSlideBoxDelegate,BridgeService,$q,$ionicModal,
-           authService,$state,$ionicPopup,$ionicScrollDelegate) {
+           authService,$state,$ionicPopup,$ionicScrollDelegate,$location,$sce) {
   
 
     var filename = "";
@@ -53,6 +55,15 @@ function ($scope, $rootScope, $stateParams,
             userMonitor.init(everyone);
             // subscribe and wait for presentation and slide number...
             $scope.channel.subscribe(handleMessage,handlePresence);
+            $scope.screenSharing = {visible:false};
+            //catch the user up if they are re-joining or joining late
+            var msg = {action:'catchup',
+                       status: "now",
+                       who: userName,
+                       id:$rootScope.user._id,
+                      };
+            console.log("catchup");
+            $scope.channel.publish(msg);
         });
         //modal for selecting decks to add to session
         $ionicModal.fromTemplateUrl('templates/presEndTemplate.html',{
@@ -61,6 +72,7 @@ function ($scope, $rootScope, $stateParams,
         }).then(function(modal){
             $scope.signupModal = modal;
         }); 
+
     };
     
     $scope.cleanUp = function(){
@@ -129,6 +141,18 @@ function ($scope, $rootScope, $stateParams,
                     $scope.setSlide(m.value);
                 });
                 console.log($scope.presentation.name);
+                break;
+            case "screenShare" :
+                if(m.value != undefined){
+                    if(!$scope.screenSharing.visible)
+                        $timeout(function(){
+                             $scope.screenSharing = {visible:true,url:$sce.trustAsResourceUrl(m.value)};
+                        },0);
+                }else{
+                    $timeout(function(){
+                              $scope.screenSharing = {visible:false};
+                    },0);
+                }
                 break;
             case "end" :
                 $scope.signupModal.show();

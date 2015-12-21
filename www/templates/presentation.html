@@ -1,5 +1,9 @@
 <ion-view view-title="{{name}}">
     <ion-nav-buttons side="right">
+     <button class="button icon ion-ios-monitor" 
+             ng-if="screenSharingEnabled"
+             ng-click="screenShare()">
+      </button>
       <button class="button icon ion-ios-telephone" ng-click="showDialin()">
       </button>
       <button class="button icon-left" ng-click="toggleShowUsers()">
