@@ -1,0 +1,57 @@
+<ion-modal-view view-title="{{::wizard.name}}"
+                ng-controller="wizardCtrl">  
+    <ion-content scroll="false">
+        <div class="wizard-container">
+        
+            <div class="wizard-top dark-bg">
+                <div class="centered-container dark-bg" style="padding-top:10px">
+                  <h3 style="color:white">{{::wizard.name}}</h3>
+                   <div class="text-center wizard-legend">
+                       <div class="centered-container" style="width:320px">
+                            <a ng-repeat="step in wizard.steps"
+                               ng-click="wizard.setStep($index)">
+                                <span ng-class="wizard.current == $index ? 'calm-bg selected' : 'not-selected'">
+                                    {{$index+1}}
+                                </span>
+                                {{::step.heading}}
+                           </a>
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wizard-main positive-bg ParentMarker">
+                <div class="centered-container" style="width:100%">
+                <ion-slide-box disable-scroll="false"  
+                               show-pager="false"
+                               style="position:relative">
+                    <ion-slide ng-repeat="step in wizard.steps"
+                               class="positive-bg">
+                        <div class="centered-container" parent-height>
+                            <ng-include src="step.template"></ng-include>
+
+                      </div>
+                    </ion-slide>
+                </ion-slide-box>
+                
+                </div>
+            </div>
+
+
+        </div>
+    </ion-content>
+  <ion-footer-bar class="bar-positive">
+      <div class="centered-container">
+          <button class="button button-dark"
+                  ng-click="wizard.prevStep()" 
+                  ng-disabled="wizard.current <= 0">
+              Previous 
+          </button>
+          <button class="button button-calm"
+                  ng-click="wizard.nextStep()"  
+                  ng-disabled="wizard.current>= wizard.steps.length-1">Next</button>
+      </div>
+      <button class="button button-assertive pull-right"
+              ng-click="wizard.cancel()">Cancel</button>
+  </ion-footer-bar>
+
+</ion-modal-view>

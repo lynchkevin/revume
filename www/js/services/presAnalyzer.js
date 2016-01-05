@@ -24,6 +24,15 @@ angular.module('RevuMe')
         };
     };
     
+    function setScreenShareEnd(array,endTime){
+        array.forEach(function(slide){
+            if(slide.type != undefined){
+                slide.endTime = endTime;
+                slide.duration = (endTime - slide.startTime)/1000.0;
+            }
+        });
+    }
+    
     function findUser(users, name){
         var idx = 0;
         var retVal = null;
@@ -146,8 +155,10 @@ angular.module('RevuMe')
     function report(results){
         var str = "";
         results.slides.forEach(function(slide){
-            str = "";
-            str = "slide "+slide.number+"duration :"+slide.duration;
+            if(slide.type == undefined)
+                str = "slide "+slide.number+"duration :"+slide.duration;
+            else
+                str = "ScreenSharing duration:"+slide.duration;
             slide.users.forEach(function(user){
                 str = str+ " " +user.name+" " + user.engagement;
             });
@@ -182,6 +193,17 @@ angular.module('RevuMe')
                     setEndtime(results.slides,event.timestamp);
                     results.slides.push(slide);
                     break;
+                case "screenShare" :
+                    slide = new Object();
+                    slide.type = 'ScreenSharing';
+                    slide.startTime = event.timestamp;
+                    if(msg.value != undefined){ // starting the screenShare
+                        setEndtime(results.slides,event.timestamp);
+                        results.slides.push(slide);
+                    } else { // the screenshare is ending
+                        setScreenShareEnd(results.slides,event.timestamp);
+                    }
+                    break;
                 case "join":
                 case "timeout":
                 case "leave":
@@ -215,7 +237,10 @@ angular.module('RevuMe')
         metrx.slideViews=[];
         for(var i=0;i<slides.length;i++){
             var sview = {};
-            sview.slideIndex = parseInt(slides[i].number);
+            if(slides[i].type != 'ScreenSharing')
+                sview.slideIndex = parseInt(slides[i].number);
+            else
+                sview.slideIndex = -1; //only screenshare sessions have a negative index
             sview.duration = slides[i].duration;
             sview.views=[];
             slides[i].users.forEach(function(user){

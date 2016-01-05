@@ -77,8 +77,9 @@ angular.module('RevuMe')
                               'TeamService',
                               'shareMediator',
                               'Library',
+                              'wizardService',
 function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
-           $ionicPopup,$q,$timeout,baseUrl,TeamService,shareMediator,Library) {
+           $ionicPopup,$q,$timeout,baseUrl,TeamService,shareMediator,Library,wizardService) {
     var $ = this;
     var $user = userService.user;
     var lengthOptions = [30,60,90,120];
@@ -122,8 +123,15 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         $.session = {}
         $.scope=$scope;
         // add the library to the scope
-        $.scope.library = Library;
-        Library.init($.scope);
+        // New on Dec 27 2015
+        if($.scope.library == undefined){
+            $.scope.library = Library;
+            Library.init($.scope);
+        } else {
+            Library.scope = $scope;
+        }
+        //end new
+        $.showTeams = false;
         $.session.baseUrl = baseUrl.endpoint;
         $.builderCallback = function(){};
         $.deckCallback = function(){};
@@ -142,7 +150,57 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         }).then(function(modal) {
             $.builderModal = modal;
             deferred.resolve();
-        });          
+        });         
+        $.scope.datepickerObject = {
+          titleLabel: 'Title',  //Optional
+          todayLabel: 'Today',  //Optional
+          closeLabel: 'Close',  //Optional
+          setLabel: 'Set',  //Optional
+          setButtonType : 'button-dark',  //Optional
+          todayButtonType : 'button-stable',  //Optional
+          closeButtonType : 'button-assertive',  //Optional
+          inputDate: new Date(),  //Optional
+          mondayFirst: true,  //Optional
+          templateType: 'popup', //Optional
+          showTodayButton: 'true', //Optional
+          modalHeaderColor: 'bar-positive', //Optional
+          modalFooterColor: 'bar-positive', //Optional
+          from: new Date(2012, 8, 2), //Optional
+          to: new Date(2018, 8, 25),  //Optional
+          callback: function (val) {  //Mandatory
+            if(val != undefined){
+                $.scope.datepickerObject.inputDate = val;
+                $.session.date = val;
+                $.sessionForm.$setDirty();
+            }
+          },
+          dateFormat: 'dd-MM-yyyy', //Optional
+          closeOnSelect: false, //Optional
+        };
+        $.scope.timePickerObject = {
+          inputEpochTime: ((new Date()).getHours() * 60 * 60),  //Optional
+          step: 15,  //Optional
+          format: 12,  //Optional
+          titleLabel: '12-hour Format',  //Optional
+          setLabel: 'Set',  //Optional
+          closeLabel: 'Close',  //Optional
+          setButtonType: 'button-positive',  //Optional
+          closeButtonType: 'button-stable',  //Optional
+          callback: function (val) {    //Mandatory
+            if(val!=undefined){
+                $.scope.timePickerObject.inputEpochTime = val;
+                var hours = Math.trunc(val/3600);
+                var minutes = (val-(hours*3600))/60;
+                $.session.time = $.session.date;
+                $.session.time.setHours(hours);
+                $.session.time.setMinutes(minutes);
+                $.session.time.setSeconds(0);
+                $.session.time.setMilliseconds(0);
+                $.sessionForm.$setDirty();
+            }
+          }
+        };
+        wizardService.init($.scope);
         return deferred.promise;
     };
     
@@ -177,8 +235,62 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         });
     };
     
+    $.loadDecks = function(){
+        var deferred = $q.defer();
+        $rootScope.showLoading();
+        shareMediator.getItems(Decks).then(function(decks){
+            $rootScope.hideLoading();
+            if(decks.length>0){
+                $.decks = decks;
+                $.decks.forEach(function(deck){
+                    deck.added = false;
+                });
+                // attach to the library upload complete event - in case the user uploads a file
+                $.connect();
+                deferred.resolve($.decks);
+            }else{
+                showAlert('No Decks Built Yet - Please Build one First'); 
+                deferred.resolve(undefined);
+            };
+        });
+        return deferred.promise;
+    }
+    $.connect = function(){
+        if($.ucEvent == undefined)
+            $.ucEvent = Library.$on('uploadComplete',$.processUpload);
+    }
+    $.disconnect = function(){
+        if($.ucEvent!=undefined)
+            $.ucEvent = Library.$off($.ucEvent);
+    }
     //create a new session from scratch
-    $.new = function(){
+    /*
+     $.new = function(){
+        //we need to populate the decks so the user can select one or more
+        var defer = $q.defer();
+        $.decks=[];
+        $.session.decks=[];
+        $.session.timeZone = tz.name();   
+        $.session.baseUrl = baseUrl.endpoint;
+        
+        //start the wizard
+        wizardService.run($.session)
+        .then(function(result){
+            if(result.success){
+                $.saveSession().then(function(){
+                    defer.resolve();
+                });   
+            }else{
+                defer.resolve();
+            }
+        }).catch(function(err){
+            defer.reject(err);
+            console.log(err);
+        });    
+        return defer.promise;   
+    };
+    */
+     $.new = function(){
         //we need to populate the decks so the user can select one or more
         var defer = $q.defer();
         $.decks=[];
@@ -186,6 +298,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         $.session.timeZone = tz.name();   
         $.session.baseUrl = baseUrl.endpoint;
         shareMediator.getItems(Decks).then(function(decks){
+            $rootScope.hideLoading();
             if(decks.length>0){
                 $.decks = decks;
                 $.decks.forEach(function(deck){
@@ -204,6 +317,8 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
             if($.ucEvent!=undefined)
                 $.ucEvent = Library.$off($.ucEvent);
             $.session.date = new Date();
+            $.session.time = $.session.date;
+            $.scope.timePickerObject.inputEpochTime = ($.session.time.getHours() * 3600);
             $.session.lengthOptions = lengthOptions;
             return $.show($.builderModal);
         }).then(function(){
@@ -212,6 +327,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
             $.builderModal.hide();
             defer.resolve();
         }).catch(function(err){
+            $rootScope.hideLoading();
             $.builderModal.hide();
             $.deckModal.hide();
             if($.ucEvent != undefined)
@@ -221,10 +337,12 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         });    
         return defer.promise;   
     };
+    
     //build a new session from a deck  
     $.build=function(navItem){
         var defer = $q.defer();
         $.session.decks[0] = navItem;
+        $.scope.timePickerObject.inputEpochTime = ((new Date()).getHours() * 3600);
         $.show($.builderModal).then(function(){
             return $.saveSession();
         }).then(function(){
@@ -240,6 +358,12 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
     //edit an existing session
     $.edit=function(session){
         var defer = $q.defer();
+        //add the team list - new 1/2/2016
+        TeamService.getAll($rootScope.user._id).then(function(teams){
+            $.session.teamList = teams;
+            if($.session.teamList.length >0)
+                $.session.team = $.session.teamList[0];
+        });
         //fix time and date
         var t = session.time;
         var d = session.date;
@@ -248,6 +372,8 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         session.timeZone = tz.name();
         session.baseUrl = baseUrl.endpoint;
         $.session = angular.copy(session);
+        $.scope.datepickerObject.inputDate = session.date;
+        $.scope.timePickerObject.inputEpochTime = ($.session.time.getHours() * 3600)+($.session.time.getMinutes()*60);
         $.session.attIds=[];
         $.session.lengthOptions = lengthOptions;
         $.session.attendees.forEach(function(a){
@@ -290,6 +416,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
     //sub edit decks within edit window
     $.subEdit = function(){
     //we need to populate the decks so the user can select one or more
+        $rootScope.showLoading();
         $.decks=[];
         shareMediator.getItems(Decks).then(function(decks){
             if(decks.length==0){
@@ -311,19 +438,18 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         }).then(function(modal){
                 $.deckModal = modal;  
                 // attach to the library upload complete event - in case the user uploads a file
-                if($.ucEvent == undefined)
-                    $.ucEvent = Library.$on('uploadComplete',$.processUpload);
+                $.connect();
+                $rootScope.hideLoading();
                 return $.show($.deckModal);
         }).then(function(){
             console.log('subEdit', $.defer);
             // disconnect from the upload event
-            if($.ucEvent!=undefined)
-                $.ucEvent = Library.$off($.ucEvent);
+            $.disconnect();
             $.deckModal.hide();
         }).catch(function(){
+            $rootScope.hideLoading();
             console.log('subEdit reject',$.defer);
-           if($.ucEvent!=undefined)
-                $.ucEvent = Library.$off($.ucEvent);
+            $.disconnect();
             $.deckModal.hide();
         });
     };
@@ -429,6 +555,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
             defer.reject(err);
             console.log(err);
         });
+
         return defer.promise;
     };
 

@@ -5,7 +5,7 @@
                 Meeting Detalis
             </div>
             <div class="item item-thumbnail-left item-button-right">
-                <img ng-src="{{session.decks[0].thumb}}">
+                <img ng-src="{{firesize(session.decks[0].thumb,80,80)}}">
                 <p><strong>Date:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.date | date:"MM/dd/yyyy"}}</p>  
                 <p><strong>Time:&#160&#160&#160&#160&#160&#160&#160&#160&#160&#160</strong>{{session.time | date:"h:mma"}}</p>  
                 <p><strong>Organizer:</strong>    

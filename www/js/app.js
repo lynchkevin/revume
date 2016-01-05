@@ -15,6 +15,9 @@ angular.module('RevuMe',
     'braintree-angular',
     'ngIOS9UIWebViewPatch',
     'fileBox',
+    'ionic-datepicker',
+    'ionic-timepicker',
+    'ionic-toast',
 ]
 )
 
@@ -164,6 +167,7 @@ function($ionicPlatform,$rootScope,$window,$http,
     device.isWindowsPhone = ionic.Platform.isWindowsPhone();
     device.currentPlatform = ionic.Platform.platform();
     device.currentPlatformVersion = ionic.Platform.version();
+    device.notMobileOS = !device.isIOS && !device.isIPad && !device.isAndroid && !device.isWindowsPhone;
     $rootScope.device = device;
     console.log('device is: ',$rootScope.device);
     //test to see if cordova.js is available if so - we're on a mobile device
@@ -187,9 +191,10 @@ function($ionicPlatform,$rootScope,$window,$http,
         $state.go('app.welcome');
     }
     $rootScope.newMeeting = function(stateName){
-        $state.go(stateName).then(function(){
+        if($state.current.name == 'app.newMeeting')
             $rootScope.$broadcast('Revu.Me:NewMeeting');
-        });
+        else
+            $state.go(stateName);
     }
     $rootScope.fullUrl = function(src){
         return baseUrl+src;
@@ -207,6 +212,13 @@ function($ionicPlatform,$rootScope,$window,$http,
           else
            return false;
     };
+    $rootScope.firesize = function(src,w,h){
+        if(h && w)
+            var resizeUrl = 'https://ftad3z7hfmbl.firesize.com/'+w.toString()+'x'+h.toString()+'/g_none/'+src;
+        else if (w != undefined)
+            var resizeUrl = 'https://ftad3z7hfmbl.firesize.com/'+w.toString()+'x'+'/g_none/'+src;
+        return resizeUrl;
+    }
     $window.addEventListener("beforeunload", function (e) {
         if($rootScope.mainChannel != undefined)
             $rootScope.mainChannel.unsubscribe();
@@ -602,7 +614,7 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   }) 
-      .state('app.changeCard', {
+    .state('app.changeCard', {
     url: "/changeCard",
     views: {
       'menuContent': {
@@ -611,6 +623,7 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   })
+
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
     

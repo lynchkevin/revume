@@ -1,6 +1,6 @@
   <ion-modal-view style="z-index:15">
     <ion-header-bar class="bar-dark">
-      <h1 class="title">New Meeting</h1>
+      <h1 class="title">{{sb.session.name}}</h1>
         <div class="buttons">
           <button class="button button-clear button-light" ng-click="sb.defer.pop().reject()">Close</button>
         </div>
@@ -35,15 +35,22 @@
                 <span class="input-label">Description</span>
                 <input type="text" ng-model="sb.session.description" placeholder="Description">
               </label>
-              <label class="item item-input ">
+              <label class="item item-input" ng-if="screenSize().width<900">
                 <span class="input-label">Date</span>
-                <input type="Date" name="date" date-format ng-model="sb.session.date" placeholder="Date"  required>
+<ionic-datepicker input-obj="datepickerObject">
+  <button class="button button-clear button-positive" style="min-height:30px;line-height:30px;color:black"> {{datepickerObject.inputDate | date:'MM/dd/yyyy'}}</button>
+</ionic-datepicker>
               </label>
-              <div class="row">
+              <div class="row" ng-if="screenSize().width<900">
                 <div class="col col-50">
                   <label class="item item-input">
                     <span class="input-label">Time</span>
-                    <input type="time" name="time" time-format ng-model="sb.session.time" placeholder="Time"  required>
+<ionic-timepicker input-obj="timePickerObject">
+  <button class="button button-clear button-positive overflowShow" 
+          style="min-height:30px;line-height:30px;color:black;font-weight:normal">
+    <standard-time-meridian etime='timePickerObject.inputEpochTime'></standard-time-meridian>
+  </button>
+</ionic-timepicker>
                   </label>
                 </div>
                 <div class="col col-50">
@@ -55,26 +62,37 @@
                   </label>    
                 </div>
              </div>
-            <!--
-              <div class="row">
-                <div class="col col-50">
-                <div class="item item-checkbox">
-                     <label class="checkbox">
-                       <input ng-model="sb.session.showTeams" type="checkbox">
-                     </label>
-                     Add Teams?
+              <div class="row" ng-if="screenSize().width>900">
+                <div class="col col-33">
+                    <label class="item item-input" >
+                        <span class="input-label">Date</span>
+                        <!--input type="Date" name="date" date-format ng-model="sb.session.date" placeholder="Date"  required-->
+<ionic-datepicker input-obj="datepickerObject">
+  <button class="button button-clear button-positive" style="min-height:30px;line-height:30px;color:black"> {{datepickerObject.inputDate | date:'MM/dd/yyyy'}}</button>
+</ionic-datepicker>
+                    </label>
                 </div>
-                </div>
-                <div class="col col-50">
+                <div class="col col-33">
                   <label class="item item-input">
-                    <span class="input-label">length</span>
+                    <span class="input-label">Time</span>
+                    <!--input type="time" name="time" time-format ng-model="sb.session.time" placeholder="Time"  required-->
+<ionic-timepicker input-obj="timePickerObject">
+  <button class="button button-clear button-positive overflowShow" 
+          style="min-height:30px;line-height:30px;color:black;font-weight:normal">
+    <standard-time-meridian etime='timePickerObject.inputEpochTime'></standard-time-meridian>
+  </button>
+</ionic-timepicker>
+                  </label>
+                </div>
+                <div class="col col-33">
+                  <label class="item item-input">
+                    <span class="input-label">Length</span>
                     <select ng-model="sb.session.length">
                         <option ng-repeat="l in sb.session.lengthOptions">{{l}}</option>
                     </select>
                   </label>    
                 </div>
              </div>
-            -->
                 <div class="list">
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper">
@@ -112,10 +130,9 @@
                             <select ng-model="sb.session.team" ng-options="t.name for t in sb.session.teamList">
                             </select>
                           </label> 
-                            <button class="button button-small"
+                            <button class="button button-small shove-right"
                                     ng-click="sb.addTeam()" 
-                                    style="font-size:14px"
-                                    ng-class="{'shove-right':smallScreen() == false}">
+                                    style="font-size:14px">
                               add
                             </button>
                     </div>

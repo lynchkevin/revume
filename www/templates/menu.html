@@ -28,17 +28,14 @@
         <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/settings">
         <i class='ion-gear-b menu-icon dark'></i>{{user.name}}
         </ion-item>
-        <ion-item nav-clear menu-close ng-if="smallScreen()&&!archive.menu" ng-click="newMeeting('app.mobileNewMeeting')" href="#/app/mobile/newMeeting">
-          <i class='ion-ios-monitor-outline menu-icon balanced'></i>New Meeting
-        </ion-item>
-        <ion-item nav-clear menu-close ng-if="!smallScreen()&&!archive.menu" ng-click="newMeeting('app.newMeeting')">
+        <ion-item nav-clear menu-close ng-if="!archive.menu" ng-click="newMeeting('app.newMeeting')">
           <i class='ion-ios-monitor-outline menu-icon balanced'></i>New Meeting
         </ion-item>
         <ion-item nav-clear menu-close ng-if="smallScreen()&&!archive.menu" href="#/app/mobile/library">
-          <i class='ion-ios-paper menu-icon royal'></i>Library
+          <i class='ion-ios-paper menu-icon royal'></i>Slide Library
         </ion-item>
         <ion-item nav-clear menu-close ng-if="!smallScreen()&&!archive.menu" href="#/app/library">
-          <i class='ion-ios-paper menu-icon royal'></i>Library
+          <i class='ion-ios-paper menu-icon royal'></i>Slide Library
         </ion-item>
         <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/teams">
           <i class='ion-android-contacts menu-icon positive'></i>Teams
@@ -79,7 +76,6 @@
         </ion-item>
         <!-- backdoor menu item for me -->
         <ion-item ng-if="user.email=='klynch@volerro.com' || user.batman" nav-clear menu-close href="#/app/batman">
-
         </ion-item>
       </ion-list>
     </ion-content>

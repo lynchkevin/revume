@@ -1,17 +1,25 @@
-<ion-view view-title="{{title}}">
-  <ion-content  class="slideshow-container centered-container">
+<ion-view view-title="Slide Library"
+          ng-if="navItemsShowing==false">
+  <ion-content  class="slideshow-container centered-container" overflow-scroll="false">
     <div class="revu-list-header positive-bg">
         <button class="button button-icon icon ion-chevron-left revu-list-button revu-left"
                 ng-click="slideBack()"></button>
-        {{navItems[selectedNavId].name}}
+        <div style="margin-left:10%;width:85%;overflow:hidden">
+            <p style="white-space:nowrap;margin-bottom:0px">{{navItems[selectedNavId].name}}</p>
+        </div>
+
     </div>
-        <add-template template-url="templates/slideItems.html"></add-template>
+        <ng-include src="'templates/slideItems.html'"></ng-include>
 
     </div>
   </ion-content>
-
- <ion-content slide-right="library::slide" style="background:white">
-        <add-template template-url="templates/navItems.html"></add-template>
+</ion-view>
+<ion-view view-title="Slide Library"
+          ng-if="navItemsShowing==true">
+ <ion-content slide-right="library::slide" 
+              style="background:white"
+              overflow-scroll="true">
+        <ng-include src="'templates/navItems.html'"></ng-include>
   </ion-content>  
       
     <tour-step step-name="MobileLibrary" ext="tourShow()"></tour-step>

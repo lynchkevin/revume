@@ -1,0 +1,23 @@
+<div parent-height ng-controller="datetimeCtrl">
+<div class="centered-container wizard-content">
+         <h3 style="color:white">What Date and Time?</h3>
+    <div style="display:block;width:100%;margin-top:15px">
+        <ionic-datepicker input-obj="step.datepickerObject">
+         <i class="icon ion-calendar" 
+            style="display:inline;color:white;font-size:28px;margin-right:10px"></i>
+  
+          <button class="button button-calm button-large" style="min-height:30px;line-height:30px;color:black;width:140px"> {{step.datepickerObject.inputDate | date:'MM/dd/yyyy'}}</button>
+        </ionic-datepicker>
+    </div>
+  <div style="display:block;width:100%;margin-top:15px">
+    <ionic-timepicker input-obj="step.timePickerObject">
+         <i class="icon ion-clock" 
+            style="display:inline;color:white;font-size:28px;margin-right:10px"></i>
+        <button class="button button-large button-calm overflowShow" 
+                  style="min-height:30px;line-height:30px;color:black;font-weight:normal;width:140px">
+            <standard-time-meridian etime='step.timePickerObject.inputEpochTime'></standard-time-meridian>
+        </button>
+    </ionic-timepicker>
+    </div>
+</div>
+</div>

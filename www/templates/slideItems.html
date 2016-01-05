@@ -1,5 +1,5 @@
 
-<ion-scroll elem-height="0.875" 
+<ion-scroll elem-height="0.90" 
             overflow-scroll="true">
     <div ng-repeat="slide in slides" 
          class="thumbnail" 
@@ -18,7 +18,7 @@
                        ng-show="statesReady && isEditing && slide.available " 
                        ng-click="addSlide($index)"
                        ng-cloak></i>
-                    <img ng-src="{{slide.src}}"  
+                    <img resize-width="{{slide.src}}"  
                          style="width:100%" 
                          class="rounded-corners shadow white-background"
                          ng-click="tapThumb($index)">

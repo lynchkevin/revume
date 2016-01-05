@@ -12,8 +12,10 @@ angular.module('RevuMe')
                             '$ionicPopup',
                             'SessionBuilder',
                             '$state',
+                            '$timeout',
+                            'ionicToast',
                             
-function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBuilder,$state) {
+function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBuilder,$state,$timeout,ionicToast) {
 
     $scope.titles = {};
        
@@ -29,16 +31,16 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
             }).then(function(as){
                 $scope.attSessions = as;
                 $scope.sb = SessionBuilder;
-                $scope.sb.init($scope);
+                return $scope.sb.init($scope);
+            }).then(function(){
                 $scope.bridge = {};
-                if($scope.deferNewSession){
-                    $scope.deferNewSession = false;
+                if($state.current.name == 'app.newMeeting')
                     $scope.newSession();
-                }
             }).catch(function(err){
                 console.log(err);
             });
         };
+
     };
 
     $scope.doRefresh = function(){
@@ -84,6 +86,7 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                 var _id = $scope.orgSessions[idx]._id;
                 Sess.sessions.delete({id:_id});
                 $scope.orgSessions.splice(idx,1);
+                ionicToast.show('Meeting has been deleted','top',false,2000);
             }
         });
     };
@@ -94,6 +97,7 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                 var _id = $scope.attSessions[idx]._id;
                 Sess.sessions.delete({id:_id});
                 $scope.attSessions.splice(idx,1);
+                ionicToast.show('Meeting has been deleted','top',false,2000);
             }
         });
     };
@@ -109,10 +113,12 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
             return $scope.sb.edit($scope.orgSessions[idx]);
         }).then(function(){
             $scope.doRefresh();
+            ionicToast.show('Meeting has been updated','top',false,2000);
         });
     };
     
     $scope.newSession = function(){
+        $rootScope.showLoading();
         $scope.sb.init($scope).then(function(){
             return $scope.sb.new();
         }).then(function(){
@@ -131,6 +137,9 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
         });
         Sess.archive.update({id:_id},$scope.orgSessions[idx]).$promise.then(function(){
             $scope.doRefresh();
+            var archiveText = $rootScope.archiveOn() ? 'unarchived' : 'archived';
+            var text = 'Your Meeting has been '+archiveText;
+            ionicToast.show(text,'top',false,2000);
         });
     };
     
@@ -143,6 +152,9 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
         });
         Sess.archive.update({id:_id},$scope.attSessions[idx]).$promise.then(function(){
             $scope.doRefresh();
+            var archiveText = $rootScope.archiveOn() ? 'unarchived' : 'archived';
+            var text = 'Your Meeting has been '+archiveText;
+            ionicToast.show(text,'top',false,2000);
         });
     }
         
@@ -178,13 +190,16 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
         $scope.init();
     });
     
-    $scope.$on('Revu.Me:NewMeeting',function(event){
-        if($scope.sb)
-            $scope.newSession();
-        else
-            $scope.deferNewSession = true;
-    });    
-        
+    //catch when we have hit new meeting from the main menu
+    $scope.$on('$stateChangeSuccess',function(event,toState,toParams,fromState,fromParams){
+        if(toState.name == 'app.newMeeting' && $scope.sb != undefined)
+            $timeout(function(){
+                $scope.newSession();
+            },1000);
+    });
+    $scope.$on('Revu.Me:NewMeeting',function(){
+        $scope.newSession();
+    });
     $scope.$on('Revu.Me:Archive',function(event){
         //close the delete button
         if($ionicListDelegate.$getByHandle('att').showDelete())
@@ -216,12 +231,15 @@ function($scope, $rootScope, Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBu
                             'BridgeService',
                             '$timeout',
                             'SessionBuilder',
+                            'ionicToast',
+                            'baseUrl',
 function($scope,$rootScope, $stateParams,Sess,session, Decks,
-          analyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout,SessionBuilder) {
+          presAnalyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout,SessionBuilder,ionicToast,baseUrl) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
     $scope.session = session;
+    $scope.baseUrl = baseUrl;
     
     $scope.init = function(){
         if(session._id != undefined){
@@ -231,26 +249,31 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
             $scope.activeMeeting = false;
             $scope.bridgeService.findBridge($scope.session.ufId)
             $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
-            if($scope.session.decks.length>0){
-                var sid = $scope.session._id;
-                $scope.deckIdx = 0;
-                $scope.reportsEnabled = [];
-                for(var i=0; i< $scope.session.decks.length;i++){
-                    var did = $scope.session.decks[i]._id;
-                    analyzer.get(sid,did).then(function(results){
-                        if(results.length>0)
-                            $scope.reportsEnabled.push(true);
-                        else
-                            $scope.reportsEnabled.push(false);
-                    }).catch(function(err){console.log(err)});
-                }
-            }
+            $scope.loadReports();
         }   
     };
     
+    $scope.loadReports = function(){
+        if($scope.session.decks.length>0){
+            var sid = $scope.session._id;
+            $scope.deckIdx = 0;
+            $scope.reportsEnabled = [];
+            for(var i=0; i< $scope.session.decks.length;i++){
+                var did = $scope.session.decks[i]._id;
+                presAnalyzer.get(sid,did).then(function(results){
+                    if(results.length>0)
+                        $scope.reportsEnabled.push(true);
+                    else
+                        $scope.reportsEnabled.push(false);
+                }).catch(function(err){console.log(err)});
+            }
+        }
+    }
+        
     $scope.editSession = function(){
         $scope.sb.edit($scope.session)
         .then(function(updated){
+            ionicToast.show('Your meeting has been updated','top',false,2000);
             $scope.session = updated;
         });
     }
@@ -302,7 +325,7 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
         if($scope.session.decks.length>0){
             var sid = $scope.session._id;
             var did = $scope.session.decks[idx]._id;
-            analyzer.get(sid,did).then(function(results){
+            presAnalyzer.get(sid,did).then(function(results){
                 if(results.length>0){
                     Decks.get({id:did}).$promise.then(function(deck){
                     if(deck._id != undefined){
@@ -341,15 +364,22 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     $scope.endMeeting = function(){
         $scope.activeMeeting = false;
         $scope.bridgeService.endMeeting();
+        $scope.loadReports();
         if($scope.bridgeService.activeBridge())
             $scope.bridgeService.endBridge($scope.session.ufId);
     };
     $scope.setLeaveBehind = function(){
         console.log($scope.session.leaveBehind);
         Sess.leaveBehind.update({id:$scope.session._id},$scope.session);
+        if($scope.session.leaveBehind == true)
+            ionicToast.show('Your Attendees Can View Your Presentation','top',false,2000);
+        else
+            ionicToast.show('You\'ve Revoked Viewing Rights for Attendees','top',false,2000);
     };
     $scope.resendInvites = function(){
         Sess.invite.update({id:$scope.session._id});
+        ionicToast.show('Invitations have been re-sent','top',false,2000);
+        
     };
     $scope.$on('$destroy', function() {
         $scope.modal.remove();

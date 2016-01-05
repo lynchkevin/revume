@@ -24,19 +24,24 @@ angular.module('RevuMe')
                              'shareMediator',
                              'slideShow',
                              '$q',
+                             'ionicToast',
 function ($scope,$rootScope,$state,
            $window,$timeout,$resource,Library,
            $ionicScrollDelegate,$ionicListDelegate,
            $ionicPopup,SessionBuilder,baseUrl,
-           shareMediator,slideShow,$q) {
+           shareMediator,slideShow,$q,ionicToast) {
       
     $scope.w = angular.element($window);
     
     
     $scope.init = function(){
+        $scope.updating = false;
         $scope.scrollDelegate = $ionicScrollDelegate;
         SessionBuilder.init($scope);
-        $scope.title = "Slide Library";
+        $timeout(function(){
+            $scope.title = "Slide Library";
+            $scope.navItemsShowing = true;
+        },0);
         $scope.library = Library;
         Library.init($scope);
         $scope.baseUrl = baseUrl.endpoint;
@@ -71,9 +76,11 @@ function ($scope,$rootScope,$state,
 
         
     $scope.slideOver=function(){
+        $scope.navItemsShowing = false;
         $scope.$broadcast("library::slide");
     }
     $scope.slideBack = function(){
+        $scope.navItemsShowing = true;
         $scope.$broadcast("!library::slide");        
     }
     $scope.editButton = function($index){
@@ -86,6 +93,7 @@ function ($scope,$rootScope,$state,
             return $scope.sb.build(navItem);
         }).then(function(){
             $scope.slideBack();
+            ionicToast.show('A New Meeting has been Created','top',false,2000);
         }).catch(function(err){
             $scope.slideBack();
         });
@@ -178,10 +186,12 @@ function ($scope,$rootScope,$state,
                 Library.setModel($scope,Library.categories);
                 break;
         }
+        $scope.updating = true;
         Library.updateModel($scope).then(function(){
             fixSharedTeams($scope);
             $rootScope.hideLoading()
             $timeout(function(){
+                $scope.updating = false;
                 $ionicScrollDelegate.scrollTop();
             },0);
         });
@@ -217,6 +227,7 @@ function ($scope,$rootScope,$state,
           if(res){
               Library.removeNavItem($scope, $index).then(function(){
                 Library.updateView();
+                ionicToast.show('Your item has been deleted','top',false,2000);
               });
           }
       });
@@ -264,26 +275,29 @@ function ($scope,$rootScope,$state,
         console.log('Sharing status is :',$scope.navItems[$scope.selectedNavId].sharedTeams);
         Library.shareNavItem($scope).then(function(){
             $scope.shareModal.hide();
+            ionicToast.show('Your item has been shared','top',false,2000);
         });
         
     }
     function reAspect(){
-      if($rootScope.smallScreen())
-          if($state.current.name == 'app.library')
-            $state.go('app.mobileLib');
-      $scope.width = verge.viewportW();
-      if($scope.width <= 1100){
-          $timeout(function(){
-          $scope.navClass="col col-50";
-          $scope.thumbClass="col col-50";
-          },0);
-      }else{
-          $timeout(function(){
-          $scope.navClass="col col-33";
-          $scope.thumbClass="col col-67";
-          },0);
-      };
-      $ionicScrollDelegate.scrollTop();
+      if($state.current.name == 'app.library' || $state.current.name =='app.mobileLib'){
+          if($rootScope.smallScreen())
+              if($state.current.name == 'app.library')
+                $state.go('app.mobileLib');
+          $scope.width = verge.viewportW();
+          if($scope.width <= 1100){
+              $timeout(function(){
+              $scope.navClass="col col-50";
+              $scope.thumbClass="col col-50";
+              },0);
+          }else{
+              $timeout(function(){
+              $scope.navClass="col col-33";
+              $scope.thumbClass="col col-67";
+              },0);
+          };
+          $ionicScrollDelegate.scrollTop();
+      }
     };
     
     //handle tap and re-order events
@@ -317,6 +331,7 @@ function ($scope,$rootScope,$state,
         $scope.navItems[index].isArchived = true;
         Library.setArchive($scope,index).then(function(){
             Library.updateView();
+            ionicToast.show('Your item has been achived','top',false,2000);
         });
     };
     
@@ -327,6 +342,7 @@ function ($scope,$rootScope,$state,
         $scope.navItems[index].isArchived = false;
         Library.setArchive($scope,index).then(function(){
             Library.updateView();
+            ionicToast.show('Your item has been unachived','top',false,2000);
         });
     };
  
@@ -461,7 +477,8 @@ function ($scope,$rootScope,$state,
             if($state.current.name == 'app.library')
                 setTimeout(function(){
                     Library.init($scope);
-                    $scope.setModel($scope.modelName);
+                    if (!$scope.updating)
+                        $scope.setModel($scope.modelName);
                 },0);  
         }
     });

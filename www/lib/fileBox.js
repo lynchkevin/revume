@@ -15,6 +15,7 @@ fileBox.js - A self Contained Module to Interface with Box and Dropbox
                             that is difficult to read in the browser, so we proxy it in node.
         - 'GoogleService    - service that talks to Google Drive api
         - 'WindowsService   - service that talks to MS OneDrive
+        - SalesforceService - service that talks to Salesforce
         - 'onEvent'         - a service that allows any other service to provide subscribable events for callbacks
         - 'Evaporate'       - a service that interfaces with the evaporate upload module
         
@@ -290,14 +291,6 @@ function($rootScope,$scope, FileNav){
         FileNav.attach($scope);
     });
 }])
-.controller('signInCtrl',['$scope','DropboxService','BoxService', function($scope,DropboxService,BoxService){
-    $scope.getDropboxUser = function(){
-        DropboxService.getUser();
-    }
-    $scope.getBoxUser = function(){
-        BoxService.getUser();
-    }
-}])
 .service('FileNav',['$state',
                     '$timeout',
                     'baseUrl',
@@ -467,7 +460,7 @@ function($rootScope,$scope, FileNav){
         }
         return undefined;
     }   
-    //attach thise functionality to the client
+    //attach this functionality to the client
     $.attach = function(client){
         client.$on = on;
         client.$fire = fire;
@@ -1404,27 +1397,151 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http){
     });
                     
 }])
+.service('SalesforceService',['$rootScope',
+                           'hello',
+                           '$timeout',
+                           '$sce',
+                           'onEvent',
+                           '$q',
+                           '$ionicPopup',
+                           '$http',
+                           'baseUrl',
+function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
+    var $ = this;
+    $.name = 'Salesforce'; //only used for filenavigator window
+    $.root = 'files'; //specify the name of the root directory
+    //windows doesnt have the concept of a path so we need to create one
+    $.path = [];
+    
+    var baseRoute = baseUrl.endpoint+'/api/sfdc/';
+    $.routes = {
+        auth: baseRoute+'authData',
+        query: baseRoute+'query',
+    };
+
+    
+    //just in case we are instantiated after the auth broadcast from rootscope
+    if($rootScope.hasOwnProperty('sfdc'))
+        $.authData = $rootScope['sfdc'];
+    
+    var sfdc = hello('sfdc');
+    var encodedScope= encodeURIComponent('api id full web refresh_token');
+    var options = {scope:encodedScope,force:true};
+    var noop = function(){};
+    $.loggedIn = false;
+    
+    onEvent.attach($);
+
+    //get the user information
+    $.getUser = function(){
+        var deferred = $q.defer();
+        function userFromSalesforce(u){
+            var user = {};
+            user.firstName = u.first_name;
+            user.lastName = u.last_name;
+            user.email = u.email;
+            user.accountId = u.user_id;
+            return user;
+        }
+        if(!$.loggedIn){
+            sfdc.login(options).then(function(data){
+                $.authData = data.authResponse;
+                //get the user information
+               return $http.post($.routes.auth,$.authData);
+            }).then(function(response){
+                if(response.data.error == undefined){
+                    var user = userFromSalesforce(response.data);
+                    deferred.resolve(user);
+                } else
+                    deferred.reject(response.data.error);
+            });
+        } else {
+            $http.post($.routes.auth,$.authData).then(function(response){
+                if(response.data.error == undefined){
+                    var user = userFromSalesforce(response.data);
+                    deferred.resolve(user);
+                } else
+                    deferred.reject(response.data.error);
+            });
+        }
+        return deferred.promise;
+    }
+    $.query = function(sql){
+        var deferred = $q.defer();
+        if(!$.loggedIn){
+            sfdc.login(options).then(function(data){
+                $.authData = data.authResponse;
+                //get the user information
+               return $http.post($.routes.auth,$.authData);
+            }).then(function(response){
+                var options = {params:{'sql':encodeURIComponent(sql)}}
+                return $http.get($.routes.query,options);
+            }).then(function(response){
+                if(response.data.error == undefined){
+                    deferred.resolve(response.data);
+                } else
+                    deferred.reject(response.data.error);
+            });
+        } else {
+            var options = {params:{'sql':sql}}
+            $http.get($.routes.query,options).then(function(response){
+                if(response.data.error == undefined){
+                    deferred.resolve(response.data);
+                } else
+                    deferred.reject(response.data.error);
+            });
+        }   
+        return deferred.promise;
+    }
+    
+    $.getInvitees = function(){
+    }
+        
+    
+    $rootScope.$on('auth.sfdc',function(event,auth){
+        $.authData = auth;
+        $http.post($.routes.auth,$.authData)
+        .then(function(response){
+            $.loggedIn = true;
+            $.userInfo = response;
+            $.$fire('auth');
+            console.log('/api/sfdc/authData success: ',response);
+        }).catch(function(response){
+            console.log('/api/sfdc/authData error: ',response);
+        });
+    });
+                    
+}])
 .service('SigninPartners',['authService',
                            'GoogleService',
                            'WindowsService',
                            'DropboxService',
                            'BoxService',
-function(authService,GoogleService,WindowsService,DropboxService,BoxService){
+                           'SalesforceService',
+function(authService,GoogleService,WindowsService,DropboxService,BoxService,SalesforceService){
     
     var $ = this;
     
     $.network = {
         Google : {
             getUser : GoogleService.getUser,
+            helloService : 'google',
         },
         Windows : {
             getUser : WindowsService.getUser,
+            helloService:'windows',
         },
         Dropbox : {
             getUser : DropboxService.getUser,
+            helloService:'dropbox',
         },
         Box : {
             getUser : BoxService.getUser,
+            helloService:'box',
+        },
+        Salesforce: {
+            getUser : SalesforceService.getUser,
+            helloService:'sfdc',
         },
         authService : authService,
     };

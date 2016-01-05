@@ -336,6 +336,7 @@
     color:white;
     font-weight: 600;
     position:relative;
+    width:100%;
 }
 .sub-title{
     position: absolute;
@@ -668,6 +669,10 @@ div.progress-value {
     background-color:rgb(19,85,189);
     border-color:rgb(19,85,189);
 }
+.button-signin.sfdc{
+    background-color:rgb(0,152,222);
+    border-color:rgb(0,152,222);
+}
 .button.button-signin.box img{
     position:absolute;
     width:32px;
@@ -691,6 +696,81 @@ div.progress-value {
     font-weight:600;
     padding:4px;
 }
+.button strong{
+    font-weight:normal;
+}
+.wizard-legend{
+    margin-top:20px;
+    margin-bottom:50px
+}
+.wizard-legend a {
+    color:white;
+    display:inline-block;
+    font-size:11px;
+    width:33%;
+    text-align:center;
+    text-transform:uppercase;
+}
+.wizard-legend a:hover {
+    text-decoration: none;
+}
+.wizard-legend a span {
+    color:white;
+    display:block;
+    height:30px;
+    margin:0 auto 10px;
+    padding-top:5px;
+    width:30px;
+    border-radius:50%;
+    font-weight:600;
+}
+
+.selected {
+    color:black !important;
+}
+
+.not-selected {
+    background-color:#757575;
+}
+
+.wizard-container {
+   display: -webkit-flex !important;
+   display: flex !important;
+   -webkit-flex-direction: column !important;
+   flex-direction: column !important;
+   height:100%;
+}
+.wizard-top {
+    flex: 1 0 0 !important;
+    -webkit-flex: 1 0 0 !important;
+}
+.wizard-main {
+    flex: 3 0 0 !important;
+    -webkit-flex: 3 0 0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    display: -webkit-flex !important;
+    -webkit-flex-direction: column !important;
+}
+.wizard-content {
+    width:300px;
+    position:relative;
+    top:50%;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+}
+.fill-height{
+    position:absolute;
+    top:0;
+    bottom:0;
+}
+.button.button-calm{
+    color:black;
+}
+.lastFile{
+    padding-bottom:65px;
+}
 <!-- MEDIA QUERIES --------->
 
 @media screen and (max-width: 1100px) {
@@ -701,6 +781,11 @@ div.progress-value {
 @media screen and (max-width: 1100px) {
     .account-list{
         width:90%;
+    }
+}
+@media screen and (max-width: 1050px) {
+    .shove-right{
+        margin-right:45%;
     }
 }
 @media screen and (min-width:900px){
@@ -724,7 +809,9 @@ div.progress-value {
     input.centered-checkbox {
         margin-left:20%;
     }
-
+    .shove-right{
+        margin-right:30%;
+    }
 }
 @media screen and (max-width: 800px) {
     .slider-button{ 
@@ -745,7 +832,6 @@ div.progress-value {
     .user-status-bar{
         margin-left:-3.5%;
     }
-    
 }
 @media screen and (max-width: 630px) {
     .user-status-bar{
@@ -791,6 +877,9 @@ div.progress-value {
         flex:none;
         max-width: 100%;
         padding:0px
+    }
+    .shove-right{
+        margin-right:0;
     }
 }
 @media screen and (max-width:320px){

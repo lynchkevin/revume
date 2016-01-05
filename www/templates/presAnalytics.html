@@ -12,13 +12,20 @@
                     ng-repeat="metric in session.decks[deckIdx].metrics" >
                     {{metric.eventDate| date:"EEEE MM/dd/yyyy  h:mma"}}
         <div class="list card" ng-repeat="sv in metric.slideViews">
-            <div class="item item-avatar slide-report-header">
+            <div class="item item-avatar slide-report-header"
+                 ng-if="sv.slideIndex>=0">
                     <img ng-if="session.decks[deckIdx].slides[sv.slideIndex].type == 'img'"
                          ng-src="{{session.decks[deckIdx].slides[sv.slideIndex].src}}" class="no-corners">
                     <img ng-if="session.decks[deckIdx].slides[sv.slideIndex].type == 'video'"
                          ng-src="{{session.decks[deckIdx].slides[sv.slideIndex].poster}}" class="no-corners">
                 <h2>Slide Number {{sv.slideIndex+1}}</h2>
                 <p>Slide Duration: {{sv.duration | number:2}}(sec)</p>
+            </div>
+            <div class="item item-avatar slide-report-header"
+                 ng-if="sv.slideIndex<0">
+                    <img ng-src="{{baseUrl.endpoint}}/img/screenshare.png" class="no-corners">
+                <h2>Screen Sharing</h2>
+                <p>Duration: {{sv.duration | number:2}}(sec)</p>
             </div>
         <div class="item" >
             <div class="row">

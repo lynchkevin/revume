@@ -20,6 +20,7 @@ angular.module('RevuMe')
                               '$state',
                               '$filter',
                               '$q',
+                              'ionicToast',
                              function ( $scope,
                                         $rootScope,
                                         Braintree,
@@ -31,7 +32,8 @@ angular.module('RevuMe')
                                         userService,
                                         $state,
                                         $filter,
-                                        $q) {
+                                        $q,
+                                        ionicToast) {
     // Set up ionic components
     $scope.sd = $ionicScrollDelegate;
     $scope.User = userService.user;
@@ -127,6 +129,7 @@ angular.module('RevuMe')
                         ScriptService.update($scope.script._id,$scope.script);
                         Braintree.updateBTScript($scope.script);
                         $scope.order.hint = 'Monthly Billing Starts '+dateString;
+                        ionicToast.show('Your account has been updated','top',false,2000);
                     } else
                         $scope.order.type = 'Annually';
                 });
@@ -140,6 +143,7 @@ angular.module('RevuMe')
                         ScriptService.update($scope.script._id,$scope.script);
                         Braintree.updateBTScript($scope.script);
                         $scope.order.hint = 'Annual Plan Reinstated';
+                        ionicToast.show('Your account has been updated','top',false,2000);
                     } else
                         $scope.updateOrderSize();
                 });
@@ -164,6 +168,7 @@ angular.module('RevuMe')
                     return ScriptService.update(script._id,script);
                 }).then(function(){
                     deferred.resolve();
+                    ionicToast.show('Your account has been updated','top',false,2000);
                 }).catch(function(err){
                     deferred.reject(err);
                 });
@@ -195,12 +200,14 @@ angular.module('RevuMe')
                                 break;
             case 'Annually' :   $scope.order.hint = 'You Save $'+saveStr+'!';
         }
+       ionicToast.show('Your account has been updated','top',false,2000);
     }
     $scope.renewChange = function(){
         $scope.script.autoRenew = !$scope.order.stopRenew;
         ScriptService.update($scope.script._id,$scope.script);
         Braintree.updateBTScript($scope.script);
         setRenewMessage($scope.script);
+       ionicToast.show('Your account has been updated','top',false,2000);
     }
     $scope.checkout = function(){
         //process credit card

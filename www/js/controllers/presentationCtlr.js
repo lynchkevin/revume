@@ -86,6 +86,7 @@ angular.module('RevuMe')
     $scope.screenleap.$on('screenShareEnd',function(){
             $scope.isSharing = false;
             var m = {action:"screenShare",value:undefined,caller:"screenShare"};
+            recorder.record(m);
             $scope.channel.publish(m);  
             $scope.catchUp();
     });
@@ -213,6 +214,7 @@ angular.module('RevuMe')
             $scope.isSharing = true;
             $scope.shareSession = shareSession;
             var m = {action:"screenShare",value: shareSession.viewerUrl,caller:"screenShare"};
+            recorder.record(m);
             $scope.channel.publish(m);  
             $rootScope.hideLoading();
         }).catch(function(response){

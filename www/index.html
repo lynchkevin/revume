@@ -10,7 +10,6 @@
    <!-- <link href="css/ionic.app.css" rel="stylesheet">   -->
       <link href="lib/ionic/css/app.css" rel="stylesheet"> 
       <link href="css/style.css" rel="stylesheet"> 
-      <link href="lib/pickaday/pikaday.css" rel="stylesheet">
 
       
     <!-- ionic/angularjs js -->
@@ -38,9 +37,7 @@
 
     <!-- angular full-screen -->
     <script src="lib/angular-fullscreen.js"></script>
-      
-    <!-- datepicker for firefox and safari -->
-    <script src="lib/pickaday/pikaday.js"></script>
+
       
     <!-- oath  and ngStorage-->
     <script src="lib/ngStorage.js"></script>
@@ -48,9 +45,16 @@
     <script class="pre" src="lib/hello/src/modules/box.js"></script>
     <script class="pre" src="lib/hello/src/modules/google.js"></script>  
     <script class="pre" src="lib/hello/src/modules/windows.js"></script>  
+    <script class="pre" src="lib/hello/src/modules/sfdc.js"></script>
       
     <!-- screenleap -->
-      <script type="text/javascript" src="http://api.screenleap.com/js/screenleap.js"></script>
+      <script type="text/javascript" src="https://api.screenleap.com/js/screenleap.js"></script>
+
+    <!--datepicker -->
+      <script type="text/javascript" src="lib/ionic-datepicker.bundle.min.js"></script>
+      <script type="text/javascript" src="lib/ionic-timepicker.bundle.min.js"></script>
+      <script type="text/javascript" src="lib/ionic-toast.bundle.min.js"></script>
+      
     <!--
       it's absolutely essential to add evaporate's config before including angular-evaporate module
       these options are passed directly into EvaporateJS itself
@@ -77,8 +81,7 @@
     <!-- box and dropbox module -->
     <script src="lib/fileBox.js"></script>
 
-    <!-- date and time picker -->
-    <script src="lib/ionic-timepicker/dist/ionic-timepicker.bundle.min.js"></script>
+    
       
     <!-- all lib modules have to be included independently as uglify only looks at js directory -->
     <!-- env:prod --#>
@@ -108,7 +111,10 @@
     <script src="js/directives/datePicker.js"></script>
     <script src="js/directives/dateTimeFormatter.js"></script>
     <script src="js/directives/portHeight.js"></script>
-    
+    <script src="js/directives/standardTimeMeridian.js"></script>
+    <script src="js/directives/parentHeight.js"></script>
+    <script src="js/directives/resizeWidth.js"></script>
+      
     <script src="js/services/pnFactory.js"></script>
     <script src="js/services/userService.js"></script>
     <script src="js/services/recorder.js"></script>
@@ -128,6 +134,7 @@
     <script src="js/services/scriptService.js"></script>
     <script src="js/services/braintree.js"></script>
     <script src="js/services/screenleap.js"></script>
+    <script src="js/services/wizard.js"></script>
 
     <script src="js/controllers/presentationCtlr.js"></script>
     <script src="js/controllers/view.js"></script>  
@@ -145,6 +152,7 @@
     <script src="js/controllers/myAccount.js"></script>
     <script src="js/controllers/payment.js"></script>
     <script src="js/controllers/changeCard.js"></script>
+
     <!-- env:dev:end -->
   </head>
 

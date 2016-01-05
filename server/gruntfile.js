@@ -31,6 +31,8 @@ module.exports = function(grunt) {
               box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
               google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
               windows:'000000004817AFBB',
+              sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
+
             },
         }
       },
@@ -52,6 +54,7 @@ module.exports = function(grunt) {
               box:'fn4p272m1a8qh2e9izqkpryhvedhlz2z',
               google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
               windows:'000000004817AFBB',
+              sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
             },
         }
       },

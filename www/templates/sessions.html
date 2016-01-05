@@ -11,7 +11,8 @@
            <p class="sub-title"
                ng-if="smallScreen()">(swipe left to edit)</p>    
             <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
-                    ng-click="newSession()">
+                    ng-click="newSession()"
+                    ng-if="!archiveOn()">
             </button>
         </div>
 
@@ -30,7 +31,7 @@
             <ion-delete-button class="ion-minus-circled" style="color:#ffe900" 
                                ng-click="markArchive($index)">
               </ion-delete-button>
-              <img ng-src="{{session.decks[0].thumb}}">
+              <img ng-src="{{firesize(session.decks[0].thumb,80,80)}}">
               <h2>{{session.name}}</h2>
               <p>{{session.date | date:"MM/dd/yyyy"}} {{session.time | date:"h:mma"}}</p>
               <p>Total Attendees: {{session.attendees.length}}</p>

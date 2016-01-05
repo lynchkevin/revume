@@ -122,11 +122,11 @@ angular.module('RevuMe')
        function partnerSignin(networkName,user){
             var deferred = $q.defer();
             if(!user || !user.email){
-                var titleStr = networkName + 'Authentication Failed!';
+                var titleStr = networkName + ' Authentication Failed!';
                 var alert = $ionicPopup.alert({
                     title:titleStr,
                     template:'Please Try Again',
-                });
+                }).then(function(){});
             }else{
                 //check if the user exists
                 authService.checkExists(user.email).then(function(usr){
@@ -172,6 +172,15 @@ angular.module('RevuMe')
                     return partnerSignin(partnerName,user);
                 }).then(function(){
                     $scope.network.authService.hideSignup(partnerName);
+                }).catch(function(error){
+                    $scope.network.authService.hideSignup(undefined);
+                    var titleStr = partnerName + ' Authentication Failed!';
+                    $ionicPopup.alert({
+                        title:titleStr,
+                        template:'Please Try Again',
+                    }).then(function(){
+                    
+                    });
                 });
             };
         }

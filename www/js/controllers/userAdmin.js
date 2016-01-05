@@ -12,10 +12,12 @@ angular.module('RevuMe')
                              '$rootScope',
                              'ScriptService',
                              'Users',
+                             'ionicToast',
                              function ($scope,
                                         $rootScope,
                                         ScriptService,
-                                        Users
+                                        Users,
+                                        ionicToast
                                         ){
     $scope.revume = {};
     $scope.revume.scriptTypes = ScriptService.scriptTypes;
@@ -32,6 +34,8 @@ angular.module('RevuMe')
                     user.script = ScriptService.newScript(type,members);
                     ScriptService.save(user.script).then(function(script){
                         user.script._id = script._id;
+                        var text = 'User: '+user.firstName+' '+user.lastName+' new subscription created';
+                        ionicToast.show(text,'top',false,2000);
                         console.log('User: ',user.firstName+' '+user.lastName,' new subscription created');
                     });
                 }

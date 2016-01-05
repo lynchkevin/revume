@@ -8,8 +8,8 @@
  * Controller of the barebonesApp
  */
 angular.module('RevuMe')
-  .controller('settingsCtrl', ['$scope', '$rootScope','$state', '$cookieStore',
-                             function ($scope,$rootScope,$state,$cookieStore) {
+  .controller('settingsCtrl', ['$scope', '$rootScope','$state', '$cookieStore','hello','SigninPartners',
+                             function ($scope,$rootScope,$state,$cookieStore,hello,SigninPartners) {
 
     $scope.myAccount = function(){
         $state.go('app.myAccount');
@@ -17,6 +17,13 @@ angular.module('RevuMe')
     $scope.logOut = function(){
         $cookieStore.remove('user');
         $rootScope.user._id = undefined;
+        if($rootScope.user.network != undefined){
+            var networkName = $rootScope.user.network;
+            if(SigninPartners.network.hasOwnProperty(networkName)){
+                var service = SigninPartners.network[networkName].helloService;
+                hello.logout(service,{force:true});
+            }
+        }
         $state.go('app.welcome');
     };
     $scope.changePassword = function(){

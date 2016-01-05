@@ -1,12 +1,5 @@
-<ion-modal-view>
-    <ion-header-bar class="bar-calm"> <h1 class="title">  Add a Deck </h1> 
-    <div class="buttons">
-      <button class="button button-clear button-light" 
-              style="color:black"
-              ng-click="sb.defer.pop().reject('cancel')">Close</button>
-    </div>
-    </ion-header-bar> 
-    <ion-content>
+<div parent-height ng-controller="sharedContentCtrl">
+<ion-content>
         <file-box close-on-select="true"></file-box>
         <div ng-show="eva.Data.ready">
             <div class="flow-drop-zone centered-container" 
@@ -36,9 +29,9 @@
                 </ion-item>
             </ion-list>
         </div>
-        <ion-list >
+        <ion-list style="margin-bottom:56px">
             <ion-item ng-repeat="deck in sb.decks" class="item-thumbnail-left item-button-right" >
-                <img ng-src="{{deck.thumb}}" alt="New" ng-class="{'alt':deck.thumb==undefined}">
+                <img ng-src="{{firesize(deck.thumb,80,80)}}" alt="New" ng-class="{'alt':deck.thumb==undefined}">
                 <h2>{{deck.name}} <span ng-show="deck.added" class="add-color heavy">-Added-</span></h2>
                 <p>{{deck.user.firstName}} {{deck.user.lastName}}</p>
                 <p>{{deck.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
@@ -54,16 +47,4 @@
         </ion-list>
 
     </ion-content>
-    <ion-footer-bar>
-        <div class="centered-container">
-          <button ng-disabled="sb.session.decks.length==0"
-                  class="button button-positive button-calm"
-                  ng-click="sb.defer.pop().resolve()">
-              Ok
-          </button>
-          <button class="button button-stable" ng-click="sb.defer.pop().reject('cancel')">
-              Cancel
-          </button>
-        </div>
-    </ion-footer-bar>
-</ion-modal-view>
+</div>

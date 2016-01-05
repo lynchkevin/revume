@@ -55,7 +55,7 @@
             </div>
               <div class="item item-thumbnail-left item-button-right" 
                    ng-repeat="deck in session.decks" >
-                  <img ng-src="{{deck.thumb}}">
+                  <img ng-src="{{firesize(deck.thumb,80,80)}}">
                   <h2>{{deck.name}}</h2>
                   <p> {{deck.slides.length}} total slides</p>
                     <div class="buttons session-item-button">

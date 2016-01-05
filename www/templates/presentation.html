@@ -1,10 +1,21 @@
 <ion-view view-title="{{name}}">
     <ion-nav-buttons side="right">
-     <button class="button icon ion-ios-monitor" 
-             ng-if="screenSharingEnabled"
+     <button class="button icon-left ion-ios-monitor"
+             ng-if="screenSharingEnabled && screenSize().width>800"
+             ng-click="screenShare()">ScreenShare
+      </button>
+     <button class="button icon ion-ios-monitor"
+             ng-if="screenSharingEnabled && screenSize().width<=800"
              ng-click="screenShare()">
       </button>
-      <button class="button icon ion-ios-telephone" ng-click="showDialin()">
+      <button class="button icon ion-ios-telephone" 
+              ng-click="showDialin()"
+              ng-if="screenSize().width<=800">
+      </button>
+      <button class="button icon-left ion-ios-telephone" 
+              ng-click="showDialin()"
+              ng-if="screenSize().width>800">
+      Dial In
       </button>
       <button class="button icon-left" ng-click="toggleShowUsers()">
         <i class="icon ion-person-stalker" ></i>

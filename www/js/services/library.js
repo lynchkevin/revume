@@ -282,7 +282,7 @@ function(UploadedFiles,
             $rootScope.hideLoading();
         return defer.promise;
     };
-    
+            
     $.updateModel = function($scope){
         var deferred = $q.defer();
         if($.model != $scope.model) console.log("model error in Library service");
@@ -402,6 +402,8 @@ function(UploadedFiles,
     function setEditStates($scope){
         for(var i=0; i<$scope.navItems.length; i++){
             var item = $scope.navItems[i];
+            //added 1/1/16 add an index to the slides so we can use collection repeat
+            item.index = i;
             item.beingEdited = false;
             if($scope.isEditing)
                 if($scope.model == collection.model)

@@ -7,6 +7,12 @@
         <!--div ng-class="{'col col-10':screenSize().width<800, 'col col5':screenSize().width>800}"-->
         <div ng-class="screenSize().width<800 ? '' : 'col col-40'">
             <div class="row centered-container">
+                <button class="button icon-left ion-social-google button-signin sfdc"
+                        ng-click="signInWith('Salesforce')">
+                    Sign-in with Salesforce
+                </button>
+            </div>
+            <div class="row centered-container">
                 <button class="button icon-left ion-social-google button-signin google"
                         ng-click="signInWith('Google')">
                     Sign-in with Google

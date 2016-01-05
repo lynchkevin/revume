@@ -2,18 +2,12 @@
 <ion-view view-title="{{title}}"
           ng-cloak>
 
-        <ion-nav-buttons side="right" >
-        <div ng-controller="signInCtrl">
-        </ion-nav-buttons>
-
-
-
-  <ion-content      has-bouncing="false"
-                    ng-class="{'slideshow-container':!archiveOn(),'archive-container':archiveOn()}">
+  <ion-content  has-bouncing="false"
+                ng-class="{'slideshow-container':!archiveOn(),'archive-container':archiveOn()}">
 
     <div class="row " style="padding:0px 5px 0px 0px;">
         <div class="{{navClass}}" style="padding:0px 5px 0px 0px;">
-            <add-template template-url="templates/navItems.html"></add-template>
+            <ng-include src="'templates/navItems.html'"></ng-include>
         </div>
         <div class="{{thumbClass}}">
              <add-template template-url="templates/slideItems.html"></add-template>

@@ -206,29 +206,33 @@ function (Auth,Users,pnFactory,$q,$ionicPopup,
                 var result = {success:true};
                 defer.resolve(result);
             }else {
-                if(user.resetPassword){
-                     var result = {success:false,reason:'resetPassword',user:user};
-                     defer.resolve(result);
+                if(user == undefined){
+                    defer.resolve({success:false,reason:'authentication failed'});
                 } else {
-                var credentials = {};
-                credentials.email = user.email;
-                credentials.password = user.password;
-                $.authenticate(credentials).then(function(result){    
-                      if(result.success){
-                          //authenticated
-                          result.user.authData = result.user.password;
-                          defer.resolve(result);
-                      }else{
-                            var alert = $ionicPopup.alert({
-                                title:'Authentication Failed',
-                                template:result.reason,
-                            });
-                            alert.then(function(){
-                                var result= {success:false,reason:'authentication failed'};
-                                defer.resolve(result);
-                            });
-                      }
-                  });  
+                    if(user.resetPassword){
+                         var result = {success:false,reason:'resetPassword',user:user};
+                         defer.resolve(result);
+                    } else {
+                    var credentials = {};
+                    credentials.email = user.email;
+                    credentials.password = user.password;
+                    $.authenticate(credentials).then(function(result){    
+                          if(result.success){
+                              //authenticated
+                              result.user.authData = result.user.password;
+                              defer.resolve(result);
+                          }else{
+                                var alert = $ionicPopup.alert({
+                                    title:'Authentication Failed',
+                                    template:result.reason,
+                                });
+                                alert.then(function(){
+                                    var result= {success:false,reason:'authentication failed'};
+                                    defer.resolve(result);
+                                });
+                          }
+                      });  
+                    }
                 }
             }
           });

@@ -12,7 +12,8 @@ angular.module('RevuMe')
                             '$ionicPopup',
                             '$ionicModal',
                             '$state',
-function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPopup,$ionicModal,$state) {
+                            'ionicToast',
+function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPopup,$ionicModal,$state,ionicToast) {
     
     //set edit team name if passed in
     switch($state.current.name){
@@ -98,6 +99,7 @@ function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPo
             teamService.save(team).then(function(){
                 return teamService.refreshTeams($scope);
             }).then(function(){
+                ionicToast.show('New Team Created','top',false,2000);
                 if($scope.forms.teamForm != undefined)
                     $scope.forms.teamForm.$setPristine();
             }).catch(function(err){
@@ -130,6 +132,7 @@ function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPo
                 var _id = $scope.teams[idx]._id;
                 teamService.delete(_id).then(function(){
                     $scope.teams.splice(idx,1);
+                    ionicToast.show('Team Deleted','top',false,2000);
                 }).catch(function(err){
                     console.log(err);
                 });
@@ -156,6 +159,7 @@ function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPo
             return teamService.refreshTeams($scope);
         }).then(function(){
             $scope.forms.teamForm.$setPristine();
+            ionicToast.show('Your Team has been updated','top',false,2000);
         }).catch(function(err){
             console.log(err);
         });
