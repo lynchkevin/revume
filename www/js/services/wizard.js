@@ -13,8 +13,21 @@ function($scope,wizardService){
     var $ = $scope.step;
     $.date = new Date();
     $.time = $.date;
+    $.name = '';
+    $.description = '';
+    
+    //connect to the wizard step so we can send valid signal
     $.idx = wizardService.findStep("templates/datetime.html");
-
+    $.wizardStep = wizardService.steps[$.idx];
+    //set the session date and time in case they pick the default
+    wizardService.session.date = $.date;
+    var hours = $.date.getHours();
+    $.time.setHours(hours);
+    $.time.setMinutes(0);
+    $.time.setSeconds(0);
+    $.time.setMilliseconds(0);
+    wizardService.session.time = $.time;
+    
     $.datepickerObject = {
         titleLabel: 'Title',  //Optional
         todayLabel: 'Today',  //Optional
@@ -66,26 +79,284 @@ function($scope,wizardService){
         }
     };
     $.timePickerObject.inputEpochTime = ($.time.getHours() * 3600);
+    function checkValid(){
+        if($.name != '' && $.description != '')
+            $.wizardStep.valid = true;
+        else
+            $.wizardStep.valid = false;
+    }
+    $.changeName = function(){
+        wizardService.session.name = $.name;
+        checkValid();
+    }
+    $.changeDescription = function(){
+        wizardService.session.description = $.description;
+        checkValid();
+    }
+    $.changeBridge = function(){
+        wizardService.session.bridge = $.bridge;
+    }
 }]) 
+//controller for salesforce modal to select attendees
+.controller('sfdcCtrl',['$rootScope',
+                        '$scope',
+                        'wizardService',
+                        'SalesforceService',
+                        'ionicToast',
+                        '$timeout',
+                        '$q',
+                        'baseUrl',
+                        '$ionicPopup',
+function($rootScope,
+          $scope,
+          wizardService,
+          SalesforceService,
+          ionicToast,
+          $timeout,
+          $q,
+          baseUrl,
+          $ionicPopup){
+    $scope.sfdc = {};
+    
+    //shorthand
+    var $ = $scope.sfdc;
+    $.banner = baseUrl.endpoint+'/img/sfdcBanner.png';
+    // get our step from the wizard
+    var idx = wizardService.findStep('templates/attendees.html');
+    $scope.step = wizardService.steps[idx];
+    
+    // setup the sObjects for Salesforce
+    $scope.sObjects = [{
+            name : 'Account',
+            query: {
+                base: 'Select (Select Name, Email, Account.Name from Contacts @person) from Account @owner @company',
+                where:{
+                    company:"AND Name Like '@company%'",
+                    person:"Where Name Like '@person%'",
+                },
+            }, 
+            processResults : function(results){
+                var records = results.records;
+                var items = [];
+                if(records.length>0){
+                    records.forEach(function(record){
+                        if(record.Contacts != undefined){
+                            record.Contacts.records.forEach(function(Contact){
+                                var u = {};
+                                u.Name = Contact.Name;
+                                u.Email = Contact.Email;
+                                u.Company = Contact.Account.Name;
+                                items.push(u);
+                            });
+                        }
+                    });
+                }
+                return items;
+            },
+        },
+        {
+            name : 'Contact',
+            query: {
+                base:"Select Name, Email, Account.Name from Contact @owner @company @person",
+                where : {
+                    company:"AND Account.Name Like '@company%'",
+                    person: "AND Name Like '@person%'"
+                },
+            },
+            processResults : function(results){
+                return results.records;
+            },
+        },
+        {
+            name : 'Lead',
+            query: {
+                base: "Select Name, Email, Company from Lead @owner @company @person",
+                where: {
+                    company:"AND Company LIKE '@company%'",
+                    person:"AND Name Like '@person%'",
+                },
+            },
+            processResults : function(results){
+                return results.records;
+            },
+        },
+        {
+            name : 'Opportunity',
+            query: {
+                base: 'Select Account.Name,(Select Contact.Name, Contact.Email from OpportunityContactRoles @person) from Opportunity @owner @company',
+                where:{
+                    company:"AND Account.Name Like '@company%'",
+                    person:"Where Contact.Name Like '@person%'",
+                },
+            },
+            processResults : function(results){
+                var records = results.records;
+                var items = [];
+                var accountName ='';
+                if(records.length>0){
+                    records.forEach(function(record){
+                        accountName = record.Account.Name;
+                        var ocr = record.OpportunityContactRoles;
+                        if(ocr != undefined){
+                            ocr.records.forEach(function(cr){
+                                var u = {};
+                                u.Name= cr.Contact.Name;
+                                u.Email = cr.Contact.Email;
+                                u.Company = accountName;
+                                items.push(u);
+                            });
+                        }
+                    });
+                }
+                return items;
+            },
+        },
+    ];
+    //default to contacts
+    $.object = $scope.sObjects[1]; 
+
+            
+    //initalize the models
+    $scope.init = function(){
+        $.people = [];
+        $.company = '';
+        $.person ='';
+        // get our step from the wizard
+        var idx = wizardService.findStep('templates/attendees.html');
+        $scope.step = wizardService.steps[idx];
+        $scope.step.attendees = [];
+    }
+    
+    function buildQuery(){
+        var sObj = $.object;
+        var ownerQs = 'Where owner.Name='+"'"+$scope.nativeUser+"'";
+        var companyQs = '';
+        var personQs = '';
+        var qs = '';
+        if($.company != '')
+            companyQs = sObj.query.where.company.replace('@company',$.company);
+        if($.person != '')
+            personQs = sObj.query.where.person.replace('@person',$.person);
+        var qs = sObj.query.base
+        .replace('@owner',ownerQs)
+        .replace('@company',companyQs)
+        .replace('@person',personQs);
+        return qs
+    }
+        
+    $scope.query = function(){
+        var qs = buildQuery();
+        qs = encodeURIComponent(qs);
+        SalesforceService.query(qs)
+        .then(function(results){
+            $timeout(function(){
+                $.people = $.object.processResults(results);
+            },0);
+        }).catch(function(error){
+            console.log(error);
+            var template = 'code : '+error.code
+            template +='<br> message : '+error.message;
+            var alert = $ionicPopup.alert({
+                title:'Salesforce API Error!',
+                template: template
+            });
+            alert.then(function(){
+                console.log('Alerted!');
+            });
+        });
+    }
+    // add an attendee to the step
+    $.changeAttendee = function(index){
+        if($.people[index].included){
+            var user = $.people[index]
+            var names = user.Name.split(' ');
+            var u = {}
+            u.firstName = names[0];
+            u.lastName = names[1];
+            u.email = user.Email;
+            $scope.step.attendees.push(u);
+            var msg = $.people[index].Name+' has been added';
+            ionicToast.show(msg,'top',false,2000);
+        }else {
+            var user = $.people[index]
+            var idx =0;
+            var found = -1
+            $scope.step.attendees.forEach(function(a){
+                if(a.email == user.Email)
+                    found = idx;
+                idx++;
+            });
+            if(found>=0){
+                $scope.step.attendees.splice(found,1);
+                var msg = user.Name+' has been removed';
+                ionicToast.show(msg,'top',false,2000);
+            }
+        }       
+    }
+    //change events
+    $.changePerson = function(){
+        $scope.query();
+    }
+    $.changeCompany = function(){
+        $scope.query();
+    }
+    $.changeObject = function(){
+        $scope.init();
+    }
+    $scope.$on('Revu.Me:SFDCShow',function(){
+        SalesforceService.getNativeUser().then(function(nativeUser){
+            $scope.nativeUser = nativeUser;
+            $scope.init();
+        });
+    });
+}])
+    
+
 //controller for step2 set attendees
-.controller('attendeesCtrl',['$rootScope','$scope','wizardService','SalesforceService','TeamService','ionicToast',
-function($rootScope,$scope,wizardService,SalesforceService,TeamService,ionicToast){
+.controller('attendeesCtrl',['$rootScope',
+                             '$scope',
+                             '$ionicModal',
+                             'wizardService',
+                             'TeamService',
+                             'SessionBuilder',
+                             'ionicToast',
+                             '$ionicPopup',
+                             '$timeout',
+                             'baseUrl',
+function($rootScope,
+        $scope,
+        $ionicModal,
+        wizardService,
+        TeamService,
+        SessionBuilder,
+        ionicToast,
+        $ionicPopup,
+        $timeout,
+        baseUrl){
     //get the teams from the team service
     TeamService.getAll($rootScope.user._id).then(function(teams){
         $scope.teams = teams;
     });
-    //get the salesforce service
-    $scope.sfdc = SalesforceService;
+    //Session Builder
+    $scope.sb = SessionBuilder;
     //the step is the primary object
     $scope.step = {};
     var $ = $scope.step;
     $.idx = wizardService.findStep('templates/attendees.html');
+    $.wizardStep = wizardService.steps[$.idx];
+    
     //helper function to build event names
     function eventName(event){
         var evt = 'step'+$.idx.toString()+'.'+event;
         return evt;
     }
-    
+    //create the sfdc modal to select attendees from salesforce
+    $ionicModal.fromTemplateUrl('templates/sfdcAttendee.html',{
+        scope: $scope,
+        animation:'slide-in-up'
+    }).then(function(modal){
+        $.sfdcModal = modal;
+    });
     $.attendees = [];
     $.showDelete = false;
     $.showAdd=false;
@@ -101,12 +372,22 @@ function($rootScope,$scope,wizardService,SalesforceService,TeamService,ionicToas
     //Salesforce view
     view = new Object();
     $.showSalesforce = function(){
-        $scope.sfdc.query("Select name from Account where owner.firstname='Kevin' AND Owner.lastname='Lynch'")
-        .then(function(items){
-            $.sfdcItems= items.records;
+        $.sfdcModal.show().then(function(){
+            $rootScope.$broadcast('Revu.Me:SFDCShow');
         });
     }
-    view.name = 'Salesforce';
+    $.hideSalesforce = function(){
+        //get attendees that the modal stashed in the service
+        var attendees = wizardService.steps[$.idx].attendees;
+        attendees.forEach(function(a){
+            $.attendees.push(a);
+        });
+        $.sfdcModal.hide();
+        $.setView(0);
+        checkValid();
+    }
+    view.name = '';
+    view.img = baseUrl.endpoint+'/img/salesforce.png';
     view.cb = $.showSalesforce;
     $.views.push(view);
     $.setView = function(viewIdx){
@@ -136,31 +417,109 @@ function($rootScope,$scope,wizardService,SalesforceService,TeamService,ionicToas
             $.attendees = copy.slice(0);
             var msg = team.members.length.toString()+' Members Removed';
             ionicToast.show(msg,'top',false,2000);
-        }    
+        }   
+        checkValid();
+    }
+    function checkValid(){
+        if($.attendees.length>0)
+            $.wizardStep.valid = true;
+        else
+            $.wizardStep.valid=false;
+        wizardService.session.attendees = $.attendees.slice(0);
     }
     $.delUser = function(idx){
         $.attendees.splice(idx,1);
+        checkValid();
     }
     $.addUser = function(){
         var user = {};
         user.firstName = this.firstName;
         user.lastName = this.lastName;
-        user.email = this.email;
+        user.email = this.email.toLowerCase();
         $.attendees.push(user);
         var msg = $.firstName+' '+$.lastName+' has been added';
         ionicToast.show(msg,'top',false,2000);
         $.firstName = $.lastName = $.email = '';
+        checkValid();
     }
     $.toggleShowDelete=function(){
         $.showDelete = !$.showDelete;
     }
-    $.toggleShowAdd = function(){
-        $.showAdd = !$.showAdd;
+    $.addUserPopup = function(){
+        function validateEmail(email) {
+            var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        }
+    //build an instance of the add user popup
+        $.message = '';
+        $.firstName = $.lastName = $.email = '';
+        $.addMultiple = false;
+        $ionicPopup.show({
+            scope: $scope,
+            title: 'Add New Invitee',
+            templateUrl: "templates/addUserPopup.html",
+            buttons: [
+              { text: 'Close',
+                type: 'button-assertive'},
+              {
+                text: '<b>Add</b>',
+                type: 'button-calm',
+                onTap: function(e) {
+                    if($.firstName == '' || $.lastName == '' || $.email == ''){
+                        $.message = 'Please Complete the Form!'
+                        $timeout(function(){
+                            $.message = ''
+                        },2000);
+                        e.preventDefault();
+                    }
+                    else if($.firstName == undefined || $.lastName == undefined || $.email == undefined){
+                        $.message = 'Please Complete the Form!'
+                        $timeout(function(){
+                            $.message = ''
+                        },2000);
+                        e.preventDefault(); 
+                    } else {
+                        if(validateEmail($.email)){
+                            if($.addMultiple){
+                                $.addUser();
+                                e.preventDefault();
+                            }
+                            else
+                                return true;
+                        }else{
+                            $.message = 'Invalid Email!'
+                            $timeout(function(){
+                                $.message = ''
+                            },2000);
+                            e.preventDefault(); 
+                        }
+                    }
+                }
+              }
+            ]
+        }).then(function(result){
+            if(result === true)
+                $.addUser();
+        });
     }
 
     $scope.enter = wizardService.$on(eventName('enter'),function(){
         $.showAdd=$.showDelete=false;
         $.setView(0);
+    });
+    $scope.exit = wizardService.$on(eventName('exit'), function(){
+        
+       $.attendees.forEach(function(a){ //we're disappearing add the attendees to the session
+            console.log(a);
+           
+            //start from scratch
+            $scope.sb.session.attendees = [];
+            $scope.sb.session.attIds = [];
+           
+            $scope.sb.addAttendee(a);
+            
+        });
+        
     });
     $scope.start = wizardService.$on('start',function(){
         $scope.teams.forEach(function(team){
@@ -170,6 +529,7 @@ function($rootScope,$scope,wizardService,SalesforceService,TeamService,ionicToas
     });
     $scope.$on('$destroy',function(){
         wizardService.$off($scope.enter);
+        wizardService.$off($scope.exit);
         wizardService.$off($scope.start);
     });
 }])
@@ -178,6 +538,7 @@ function($rootScope,$scope,wizardService,SessionBuilder,Library){
     $scope.step = {};
     var $ = $scope.step;
     $.idx = wizardService.findStep('templates/sharedContent.html');
+    $.wizardStep = wizardService.steps[$.idx];
     $scope.sb = SessionBuilder;
     $scope.library = Library;
     
@@ -198,6 +559,20 @@ function($rootScope,$scope,wizardService,SessionBuilder,Library){
             $scope.sb.connect();
          }
      });
+     function checkValid(){
+         if($scope.sb.session.decks.length>0)
+             $.wizardStep.valid = true;
+         else
+             $.wizardStep.valid = false;
+     }
+     $.addDeck = function(index){
+         $scope.sb.addDeck(index);
+         checkValid();
+     }
+     $.delDeck = function(index){
+         $scope.sb.delDeck(index);
+         checkValid();
+     }
      $scope.exit = wizardService.$on(eventName('exit'), function(){
         $scope.sb.disconnect(); //we're disappearing so stop listening for uploads
     });
@@ -205,10 +580,6 @@ function($rootScope,$scope,wizardService,SessionBuilder,Library){
         wizardService.$off($scope.enter);
         wizardService.$off($scope.exit);
     });
-}])
-//salesforce popup controller
-.controller('sfdcCtrl',['$rootScope','$scope','wizardService','SalesforceService','TeamService','ionicToast',
-function($rootScope,$scope,wizardService,SalesforceService,TeamService,ionicToast){
 }])
 //controller for the wizard modal view (template)      
 .controller('wizardCtrl',['$rootScope','$scope','wizardService',
@@ -236,7 +607,8 @@ function($rootScope,$scope, wizardService){
     // each step has a template and a controller
     $.steps = [];
     $.current = 0;
-    
+
+     
     // enable events for this service
     onEvent.attach($);
     // initialize the wizard with the calling scope
@@ -262,8 +634,9 @@ function($rootScope,$scope, wizardService){
     }
     // navigation controls
     $.complete = function(){
-        $.wizardModel.hide();
+        $.wizardModal.hide();
         $.$fire('end');
+        $.showSummary = false;
         if($.wizardModal != undefined)
            $.wizardModal.remove();
         if($.deferred != undefined)
@@ -272,6 +645,7 @@ function($rootScope,$scope, wizardService){
     $.cancel = function(){
         $.wizardModal.hide();
         $.$fire('end');
+        $.showSummary = false;
         if($.wizardModal != undefined)
            $.wizardModal.remove();
         if($.deferred != undefined)
@@ -282,6 +656,7 @@ function($rootScope,$scope, wizardService){
         $.setStep(++c);
         $ionicSlideBoxDelegate.slide($.current);
         $ionicSlideBoxDelegate.update();
+
     }
     
     $.prevStep = function() {
@@ -295,27 +670,53 @@ function($rootScope,$scope, wizardService){
         return 'step'+stepNumber.toString()+'.'+event;
     }
     $.setStep = function(stepNumber) {
-        if(stepNumber >= $.steps.length-1) 
-            stepNumber = $.steps.length-1;
-        else if(stepNumber <= 0) 
-            stepNumber = 0;
-        //fire onExit for current step
-        var c = $.current;
-        var n = stepNumber;
-        // fire onExit for current step
-        $.$fire(eventName(c,'exit'));
-        // fire onEnter for next Step
-        $.$fire(eventName(n,'enter'));
-        $.current = stepNumber;
-        $.nextEnabled = true;
-        $.prevEnabled = true;
-        $ionicSlideBoxDelegate.slide($.current);
+        $.showSummary = false;
+        if(stepNumber >= $.steps.length){ //this is the summary view (a hidden step)
+            $.showSummary = true;
+            // fire exit on the last step
+            $.$fire(eventName($.current,'exit'));
+            $.current = stepNumber;
+            $.nextEnabled = true;
+            $.prevEnabled = true;
+        } else { // dont go to step if it is not valid
+            if(stepNumber <= 0)
+                stepNumber = 0;
+            //if showing summary let them go back
+            if($.current >= $.steps.length && stepNumber <= $.steps.length){
+                //fire onExit for current step
+                var c = $.current;
+                var n = stepNumber;
+                // fire onEnter for next Step
+                $.$fire(eventName(n,'enter'));
+                $.current = stepNumber;
+                $.nextEnabled = true;
+                $.prevEnabled = true;
+                $ionicSlideBoxDelegate.slide($.current);
+            // otherwise we're a normal step so handle accordingly
+            } else if($.steps[$.current].valid == true || stepNumber <= $.current){
+                //fire onExit for current step
+                var c = $.current;
+                var n = stepNumber;
+                // fire onExit for current step
+                $.$fire(eventName(c,'exit'));
+                // fire onEnter for next Step
+                $.$fire(eventName(n,'enter'));
+                $.current = stepNumber;
+                $.nextEnabled = true;
+                $.prevEnabled = true;
+                $ionicSlideBoxDelegate.slide($.current);
+            }
+        } 
     };
     //biuld the wizard steps
     $.buildSteps = function(){
-        if($.steps.length>0)
+        $.showSummary = false;
+        if($.steps.length>0){
             $.$fire('start');
-        else {
+             $.steps.forEach(function(s){
+                 s.valid = false;
+             });
+        }else {
             $.steps = [];
             // Step 1 is Meeting Name and Time
             var step = {};
@@ -334,6 +735,9 @@ function($rootScope,$scope, wizardService){
              step.heading = 'Shared Content';
              step.template = 'templates/sharedContent.html';
              $.steps.push(step);
+             $.steps.forEach(function(s){
+                 s.valid = false;
+             });
         }
     } 
     $.findStep = function(template){

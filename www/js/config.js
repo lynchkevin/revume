@@ -4,7 +4,7 @@
 
 .constant('baseUrl', {name:'development',endpoint:'http://10.1.10.216:9000',volerro:'https://rb.volerro.com'})
 
-.constant('buildDate', 'Tue Jan 05 2016 10:00:45 GMT-0600 (CST)')
+.constant('buildDate', 'Tue Jan 12 2016 11:02:40 GMT-0600 (CST)')
 
 .constant('clientTokenPath', 'http://10.1.10.216:9000/api/braintree/client_token')
 

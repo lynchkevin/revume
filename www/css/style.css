@@ -7,7 +7,9 @@
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
-
+html {
+    height:100%;
+}
 @font-face {
     font-family: Cony-Regular;
     src: url(../lib/cony/ConyRegular.otf);
@@ -732,7 +734,7 @@ div.progress-value {
 .not-selected {
     background-color:#757575;
 }
-
+/*
 .wizard-container {
    display: -webkit-flex !important;
    display: flex !important;
@@ -740,25 +742,38 @@ div.progress-value {
    flex-direction: column !important;
    height:100%;
 }
+*/
+.wizard-container {
+    position:relative;
+    height:100%;
+}
+.wizard-top {
+    height:125px;
+}
+.wizard-main{
+    position:absolute;
+    top:125px;
+    width:100%;
+    height:100%;
+}
+/*
 .wizard-top {
     flex: 1 0 0 !important;
     -webkit-flex: 1 0 0 !important;
 }
 .wizard-main {
     flex: 3 0 0 !important;
-    -webkit-flex: 3 0 0 !important;
+    -webkit-flex: 2 0 0 !important;
     display:flex !important;
     flex-direction:column !important;
     display: -webkit-flex !important;
     -webkit-flex-direction: column !important;
 }
+*/
 .wizard-content {
     width:300px;
     position:relative;
-    top:50%;
-    transform: translateY(-50%);
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
+    margin-top:15px;
 }
 .fill-height{
     position:absolute;
@@ -770,6 +785,12 @@ div.progress-value {
 }
 .lastFile{
     padding-bottom:65px;
+}
+.no-padding{
+    padding:0px;
+}
+.sfdcBanner {
+    width:80%;
 }
 <!-- MEDIA QUERIES --------->
 
@@ -791,6 +812,12 @@ div.progress-value {
 @media screen and (min-width:900px){
     input.centered-checkbox {
         margin-left:25%;
+    }
+}
+@media screen and (min-width:680px){
+    .modal {
+        top:10% !important;
+        height:80% !important;
     }
 }
 @media screen and (max-width: 900px) {
@@ -831,6 +858,9 @@ div.progress-value {
 @media screen and (max-width: 670px) {
     .user-status-bar{
         margin-left:-3.5%;
+    }
+    .sfdcBanner{
+        width:100%;
     }
 }
 @media screen and (max-width: 630px) {

@@ -1,0 +1,76 @@
+<ion-modal-view >  
+    <ion-content ng-controller="sfdcCtrl" class="ParentMarker">
+    <div class="centered-container"
+         style="width:100%;height:44px;background-color:rgb(10,154,215);">
+        <div class="row no-padding centered-container sfdcBanner">
+            <div class="col no-padding">
+                <img ng-src={{sfdc.banner}}>
+            </div>
+            <div class="col  no-padding">
+                <div style="display:table-cell;height:44px;vertical-align:middle">
+                    <select ng-model="sfdc.object"
+                            ng-change="sfdc.changeObject()"
+                            ng-options="object.name for object in sObjects"
+                            style="display:inline;margin-left:8px;width:150px;-webkit-appearance:menulist-button;height:25px;border-style:none">
+                    </select>                     
+                </div>
+            </div>
+
+        </div>
+    </div>
+        <div class="row">
+
+        <div class="col col-50">
+            <label class="item item-input" >
+              <i class="icon ion-search placeholder-icon"></i>
+              <input ng-model="sfdc.person"
+                     ng-change="sfdc.changePerson()"
+                     type="search" 
+                     placeholder="Person"
+                     style="height:24px">
+            </label>  
+        </div>  
+        <div class="col col-50">
+            <label class="item item-input" >
+              <i class="icon ion-search placeholder-icon"></i>
+              <input ng-model="sfdc.company"
+                     ng-change="sfdc.changeCompany()"
+                     type="search" 
+                     placeholder="Company"
+                     style="height:24px">
+            </label>  
+        </div> 
+        </div>
+        <!-- users from leads,accounts,contacts,opportunities-->
+            <ion-scroll parent-height top=110>
+                <ion-list>
+                    <ion-item ng-repeat="user in sfdc.people" class="item-checkbox" >
+                        <label class="checkbox">
+                            <input ng-model="user.included" 
+                                   ng-change="sfdc.changeAttendee($index)"
+                                   type="checkbox">
+                        </label
+                            <h2 ng-if="user.Name"> {{::user.Name}} </h2>
+                            <p ng-if="user.Email">{{::user.Email}}</p>
+                            <h2 ng-if="user.Contact.Name"> {{::user.Contact.Name}} </h2>
+                            <p ng-if="user.Contact.Email">{{::user.Contact.Email}}</p>
+                            <p ng-if="user.Account.Name!=undefined">
+                                {{::user.Account.Name}}
+                            </p>
+                            <p ng-if="user.Company !=undefined">
+                                {{::user.Company}}
+                            </p>
+                    </ion-item>
+                </ion-list>
+            </ion-scroll>
+    </ion-content>
+  <ion-footer-bar class="bar-positive">
+      <div class="centered-container">
+          <button class="button button-calm"
+                  ng-click="step.hideSalesforce()">
+              Close
+          </button>
+      </div>
+  </ion-footer-bar>
+
+</ion-modal-view>

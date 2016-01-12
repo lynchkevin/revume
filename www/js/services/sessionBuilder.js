@@ -264,7 +264,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
             $.ucEvent = Library.$off($.ucEvent);
     }
     //create a new session from scratch
-    /*
+    
      $.new = function(){
         //we need to populate the decks so the user can select one or more
         var defer = $q.defer();
@@ -289,7 +289,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         });    
         return defer.promise;   
     };
-    */
+    /*
      $.new = function(){
         //we need to populate the decks so the user can select one or more
         var defer = $q.defer();
@@ -337,7 +337,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         });    
         return defer.promise;   
     };
-    
+    */
     //build a new session from a deck  
     $.build=function(navItem){
         var defer = $q.defer();
@@ -468,13 +468,16 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
         }catch(e){};
     };
     //add an attendee to the session    
-    $.addAttendee = function(){
+    $.addAttendee = function(a){
         var attendee = new Object();
         var _id = -1;
-        var names = $.session.formname.split(' ');
-        attendee.firstName = names[0];
-        attendee.lastName = names[1];
-        attendee.email = $.session.formemail;
+        if(a == undefined){
+            var names = $.session.formname.split(' ');
+            attendee.firstName = names[0];
+            attendee.lastName = names[1];
+            attendee.email = $.session.formemail;
+        }else
+            attendee = a;
         $user.byEmail.get({email:attendee.email}).$promise.then(function(user){
             if(user._id == undefined){
                 var usr = new $user.byId;

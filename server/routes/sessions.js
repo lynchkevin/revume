@@ -8,12 +8,13 @@ var iCalEvent = require('icalevent');
 var icalToolkit = require('ical-toolkit');
 var nodemailer = require('nodemailer');
 var signer = require('../lib/cfSigner');
-var volerroSender = 'invitation@volerro.com';
+var volerroSender = 'invitation@revu.me';
+var pw = process.env.INVITATION_PW;
 var transporter = nodemailer.createTransport({
     service:'gmail',
     auth:{
         user: volerroSender,
-        pass: 'v5nHZ7N4' 
+        pass: pw
     }
 });
 
@@ -61,6 +62,39 @@ function endDate(meeting){
     return fullEnd;
 };
 
+function initTkInvite(meeting,inputUrl,organizer,attendees,descText){
+    var invite = icalToolkit.createIcsFileBuilder(); 
+    
+    invite.spacers = true;
+    invite.NEWLINE_CHAR = '\r\n';
+    invite.throError = false;
+    invite.ignorTZIDMismatch=true;
+    
+    invite.calname = meeting.name;
+    invite.timezone = meeting.timeZone;
+    invite.tzid = meeting.timeZone;
+    invite.method = 'REQUEST';
+    invite.events.push({
+        start: startDate(meeting),
+        end:endDate(meeting),
+        transp: 'OPAQUE',
+        summary: meeting.description,
+        additionalTags: {
+            'confID' : meeting.ufId
+        },
+        organizer:organizer,
+        attendees:attendees,
+        uid: meeting.ufId,
+        sequence: null,
+        location:meeting.bridgeNumber+',,,'+meeting.ufId.replace(/-/g,'')+"#\n\n",
+        description:descText,
+        method: 'PUBLISH',
+        status: 'CONFIRMED',
+       // url:inputUrl,
+    });
+    return invite;
+}
+/* version prior to 1/5/2016
 function initTkInvite(meeting,inputUrl,organizer,attendees){
     var invite = icalToolkit.createIcsFileBuilder(); 
     invite.spacers = true;
@@ -92,29 +126,7 @@ function initTkInvite(meeting,inputUrl,organizer,attendees){
     });
     return invite;
 }
-/*
-function initInvite(meeting){
-    console.log('initInvite: meeting is - \n',meeting);
-    var fullStart = startDate(meeting);
-    var fullEnd = endDate(meeting);
-    var idStr = "confID :"+meeting.ufId;
-    // now build the invite
-    var invite = new iCalEvent({
-        uid : meeting._id,
-        offset: meeting.offset,
-        method: 'request',
-        status: 'confirmed',
-        start: fullStart,
-        end: fullEnd,
-        timezone:meeting.timeZone,
-        summary:meeting.name,
-        description:idStr,
-        location:meeting.bridgeNumber,
-    });
-    console.log('initInvite: invite is - \n',invite); 
-    return invite;
-};
-*/   
+*/  
 function composeOrgMessage(meeting,update){
         var fullStart = startDate(meeting);
         var orgUrlString = meeting.baseUrl+'/#/app/sessions/'+meeting._id;
@@ -147,7 +159,27 @@ function composeOrgMessage(meeting,update){
         orgMessage = orgMessage.concat("\n\n");
         return orgMessage;
 };
+function composeOrgInvite(meeting){
+        var fullStart = startDate(meeting);
+        var orgUrlString = meeting.baseUrl+'/#/app/sessions/'+meeting._id;
+        var orgMessage = "";
+    
+        var dateStr = meeting.time;
+        var attString = "";
+        //add the organizer id to the url
+        orgUrlString +='?uid='+meeting.organizer._id;    
 
+        //build the message for the organizer
+        orgMessage = orgMessage.concat("Meeting Name: "+meeting.name+"\n");
+        orgMessage = orgMessage.concat("When: "+dateStr+"\n");
+        orgMessage = orgMessage.concat("Where: "+orgUrlString+"\n\n");
+        if(meeting.bridge){
+            orgMessage = orgMessage.concat("Dial in: "+meeting.bridgeNumber+"\n");
+            orgMessage = orgMessage.concat("Conf Id: "+meeting.ufId+"\n");
+            orgMessage = orgMessage.concat("Auto Dial: "+meeting.bridgeNumber+',,,'+meeting.ufId.replace(/-/g,'')+"#\n\n");
+        }
+        return orgMessage;
+};
 function composeAttMessage(meeting,update,userId){
         var fullStart = startDate(meeting);
         var attUrlString = meeting.baseUrl+'/#/app/attsessions/'+meeting._id+'?uid='+userId;
@@ -178,6 +210,26 @@ function composeAttMessage(meeting,update,userId){
         attMessage = attMessage.concat("Attendees: \n\n");
         attMessage = attMessage.concat(attString+"\n");
         attMessage = attMessage.concat("\n\n");
+        return attMessage;
+};
+function composeAttInvite(meeting,userId){
+        var fullStart = startDate(meeting);
+        var attUrlString = meeting.baseUrl+'/#/app/attsessions/'+meeting._id+'?uid='+userId;
+        var attMessage = "";
+
+        var dateStr = meeting.time;
+
+        //build the message 
+        var oName = meeting.organizer.firstName+" "+meeting.organizer.lastName;
+        attMessage = attMessage.concat("Meeting Organizer: "+oName+"\n");
+        attMessage = attMessage.concat("Meeting Name: "+meeting.name+"\n");
+        attMessage = attMessage.concat("When: "+dateStr+"\n");
+        attMessage = attMessage.concat("Where: "+attUrlString+"\n\n");
+        if(meeting.bridge){
+            attMessage = attMessage.concat("Dial in: "+meeting.bridgeNumber+"\n");
+            attMessage = attMessage.concat("Conf Id: "+meeting.ufId+"\n");
+            attMessage = attMessage.concat("Auto Dial: "+meeting.bridgeNumber+',,,'+meeting.ufId.replace(/-/g,'')+"#\n\n");
+        }
         return attMessage;
 };
 /* depricated code
@@ -260,6 +312,66 @@ function sendTkInvites(id, update){
             u.email = usr.email;
             attendees.push(u);
         });
+
+            
+        //send the invitation to the organizer
+        //build an email to send the organizer and attendee in email and iCal
+        var orgMessage = composeOrgMessage(meeting,update);
+        //build invites for organizer and attendee
+        var orgInvText = composeOrgInvite(meeting);
+        var orgInvite = initTkInvite(meeting,orgUrlString,organizer,attendees,orgInvText);
+        mail.from = volerroSender; //invitation@volerro.com
+        mail.to = organizer.email;
+        if (!update)
+            mail.subject = 'A New Revu.Me Meeting You Organized'
+        else
+            mail.subject = 'A Change to Your Revu.Me Meeting'        
+        mail.text = orgMessage;
+        mail.attachments = [{filename:'invite.ics',
+                     content: orgInvite.toString()
+                    }];
+        transporter.sendMail(mail);
+
+        //send mail to the attendees;
+        mail.from = volerroSender;
+        if (!update)
+            mail.subject = 'Invitation from '+oName+' to join a Revu.me Meeting';
+        else
+            mail.subject = oName+' made a change to your Revu.me Meeting';            
+        meeting.attendees.forEach(function(usr){
+            var url = attUrlString+'?uid='+usr._id;
+            var attMessage = composeAttMessage(meeting,update,usr._id);
+            var attInvText = composeAttInvite(meeting,usr._id);
+            var attInvite = initTkInvite(meeting,attUrlString,organizer,attendees,attInvText);
+            mail.to = usr.email;
+            mail.text = attMessage;
+            mail.attachments = [{filename:'invite.ics',
+                             content: attInvite.toString()
+                            }];
+            transporter.sendMail(mail);
+        });
+    }).catch(function(err){
+        console.log('buildInvites error: ',err);
+    });
+    
+};
+/* old version 1/5/16
+function sendTkInvites(id, update){
+    var invites = {};
+    var mail = {};
+    var meeting = getSession(id).then(function(meeting){
+        var oName = meeting.organizer.firstName+' '+meeting.organizer.lastName;
+        var attUrlString = meeting.baseUrl+'/#/app/attsessions/'+meeting._id;
+        var orgUrlString = meeting.baseUrl+'/#/app/sessions/'+meeting._id;
+        orgUrlString += '?uid='+meeting.organizer._id;
+        var organizer={name:oName,email:meeting.organizer.email};
+        var attendees =[];
+        meeting.attendees.forEach(function(usr){
+            var u = {};
+            u.name = usr.firstName+' '+usr.lastName;
+            u.email = usr.email;
+            attendees.push(u);
+        });
         //build invites for organizer and attendee
         var orgInvite = initTkInvite(meeting,orgUrlString,organizer,attendees);
         var attInvite = initTkInvite(meeting,attUrlString,organizer,attendees);
@@ -303,6 +415,7 @@ function sendTkInvites(id, update){
     });
     
 };
+*/
 // build a user friendly meeting id from the session uuid
 function userFriendlyId (_id){
     var rawNumbers = _id.match(/\d+/g);
@@ -595,6 +708,7 @@ session.put('/sessions/resend/:id',function(req,res){
     console.log('done and sent');
     res.send('success');
 });
+
 //DELETE
 //delete a single session by id
 session.delete('/sessions/:id',function(req,res){

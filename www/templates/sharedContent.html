@@ -1,5 +1,4 @@
-<div parent-height ng-controller="sharedContentCtrl">
-<ion-content>
+<div parent-height top=125 ng-controller="sharedContentCtrl">
         <file-box close-on-select="true"></file-box>
         <div ng-show="eva.Data.ready">
             <div class="flow-drop-zone centered-container" 
@@ -29,22 +28,22 @@
                 </ion-item>
             </ion-list>
         </div>
-        <ion-list style="margin-bottom:56px">
-            <ion-item ng-repeat="deck in sb.decks" class="item-thumbnail-left item-button-right" >
-                <img ng-src="{{firesize(deck.thumb,80,80)}}" alt="New" ng-class="{'alt':deck.thumb==undefined}">
-                <h2>{{deck.name}} <span ng-show="deck.added" class="add-color heavy">-Added-</span></h2>
-                <p>{{deck.user.firstName}} {{deck.user.lastName}}</p>
-                <p>{{deck.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
-                <button class="ion-plus-circled button icon button-icon add-color" 
-                        ng-click="sb.addDeck($index)"
-                        ng-show="!deck.added">
-                </button>
-                <button class="ion-minus-circled button icon button-icon del-color" 
-                        ng-click="sb.delDeck($index)"
-                        ng-show="deck.added">
-                </button>
-            </ion-item>
-        </ion-list>
-
-    </ion-content>
+        <ion-scroll direction="y" parent-height top=250>
+            <ion-list style="margin-bottom:56px">
+                <ion-item ng-repeat="deck in sb.decks" class="item-thumbnail-left item-button-right" >
+                    <img ng-src="{{firesize(deck.thumb,80,80)}}" alt="New" ng-class="{'alt':deck.thumb==undefined}">
+                    <h2>{{deck.name}} <span ng-show="deck.added" class="add-color heavy">-Added-</span></h2>
+                    <p>{{deck.user.firstName}} {{deck.user.lastName}}</p>
+                    <p>{{deck.createdDate | date:"MM/dd/yyyy  h:mma"}}</p>
+                    <button class="ion-plus-circled button icon button-icon add-color" 
+                            ng-click="step.addDeck($index)"
+                            ng-show="!deck.added">
+                    </button>
+                    <button class="ion-minus-circled button icon button-icon del-color" 
+                            ng-click="step.delDeck($index)"
+                            ng-show="deck.added">
+                    </button>
+                </ion-item>
+            </ion-list>
+        </ion-scroll>
 </div>

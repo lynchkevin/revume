@@ -1,6 +1,19 @@
-<div parent-height ng-controller="datetimeCtrl">
+<div parent-height top=125 ng-controller="datetimeCtrl">
 <div class="centered-container wizard-content">
-         <h3 style="color:white">What Date and Time?</h3>
+    <h3 style="color:white">Title and Description</h3>
+    <div class="list">
+      <label class="item item-input">
+        <input ng-model="step.name" 
+               ng-change="step.changeName()"
+               type="text" placeholder="Title">
+      </label>
+      <label class="item item-input" style="margin-top:10px">
+        <input ng-model="step.description" 
+               ng-change="step.changeDescription()"
+               type="text" placeholder="Description">
+      </label>
+    </div>
+    <h3 style="color:white">What Date and Time?</h3>
     <div style="display:block;width:100%;margin-top:15px">
         <ionic-datepicker input-obj="step.datepickerObject">
          <i class="icon ion-calendar" 
@@ -19,5 +32,18 @@
         </button>
     </ionic-timepicker>
     </div>
+  <div style="margin-top:20px">
+     <h3 style="color:white;display:inline-block;line-height:23px;vertical-align:text-bottom">Conference Bridge?</h3>
+     <label class="toggle toggle-calm" style="display:inline-block;margin-left:10px;vertical-align:text-bottom">
+       <input ng-model="step.bridge" 
+              type="checkbox"
+              ng-change="step.changeBridge()">
+       <div class="track">
+         <div class="handle"></div>
+       </div>
+     </label>
+    </div>
+
+
 </div>
 </div>

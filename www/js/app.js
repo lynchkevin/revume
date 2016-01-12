@@ -54,9 +54,14 @@ function($ionicPlatform,$rootScope,$window,$http,
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
     }
+    //hide the status bar and make headers only 44px
+
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
+      StatusBar.hide();
+      ionic.Platform.fullScreen();
+    
+      //StatusBar.styleDefault();
     }
     window.shouldRotateToOrientation = function(degrees) {
      return true;
@@ -213,10 +218,13 @@ function($ionicPlatform,$rootScope,$window,$http,
            return false;
     };
     $rootScope.firesize = function(src,w,h){
-        if(h && w)
-            var resizeUrl = 'https://ftad3z7hfmbl.firesize.com/'+w.toString()+'x'+h.toString()+'/g_none/'+src;
-        else if (w != undefined)
-            var resizeUrl = 'https://ftad3z7hfmbl.firesize.com/'+w.toString()+'x'+'/g_none/'+src;
+        var baseUrl = 'https://api.thumbr.io/';
+        var size;
+        if(h&w)
+            size = w.toString()+'x'+h.toString()+'c';
+        else if(w!=undefined)
+            size = w.toString()+'x';
+        var resizeUrl = thumbrio(src,size,undefined,baseUrl);
         return resizeUrl;
     }
     $window.addEventListener("beforeunload", function (e) {

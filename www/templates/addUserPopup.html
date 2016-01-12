@@ -1,0 +1,31 @@
+<form name="userForm" nonvalidate>
+    <ion-list >
+          <ion-item class="item" style="padding:0px">
+          <label class="item-input item-floating-label">
+            <span class="input-label">First Name</span>
+            <input type="text" placeholder="First Name"
+                   ng-model=step.firstName
+                   required>
+          </label>
+          </ion-item>
+              <ion-item class="item" style="padding:0px">
+          <label class="item-input item-floating-label">
+            <span class="input-label">Last Name</span>
+            <input type="text" placeholder="Last Name"
+                   ng-model=step.lastName
+                   required>
+          </label>
+          </ion-item>
+          <ion-item class="item" style="padding:0px">
+          <label class="item-input item-floating-label">
+            <span class="input-label">Email</span>
+            <input type="text" placeholder="Email"
+                   ng-model=step.email
+                   required>
+          </label>
+          </ion-item>
+    </ion-list>
+    <input style="width:10%" type="checkbox" ng-model="step.addMultiple">
+    <p class="dark" style="line-height:normal;display:inline">I'm Adding a Few, Don't Close</p>
+    <p class="assertive" style="text-align:center">{{step.message}}</p>
+</form>

@@ -32,11 +32,11 @@ function (screenleap,$http,$q,$ionicPopup,$rootScope,baseUrl,onEvent,$window,$co
     
 
     //get the clients external IP address (needed for screenleap)
-    var json = 'http://ipv4.myexternalip.com/json';
+    var json = 'https://api.ipify.org/?format=json';
     $http.get(json).then(function(result) {
         $.clientIP = result.data.ip;
     }, function(e) {
-        alert("error");
+        console.log('Screenleap Service - error getting IP');
     });
     $.downloadAndStart = function(){
         $.screenleap.downloadAndStartNativeApp();

@@ -114,9 +114,10 @@ function get(path,res){
             var items = JSON.parse(response.body);
             }
             catch(e){
-                res.send(RestResponse().fail(0,'invalid JSON'));
+                console.log('invalid JSON:',response.body);
+                res.send(new RestResponse().fail(0,'invalid JSON'));
             }
-            if(items[0] == undefined || items[0].errorCode == undefined){
+            if(items && (items[0] == undefined || items[0].errorCode == undefined)){
                 res.send(items);
             } else {
                 var code = items[0].errorCode;
@@ -138,9 +139,10 @@ function query(sql,res){
             var items = JSON.parse(response.body);
             }
             catch(e){
-                res.send(RestResponse().fail(0,'invalid JSON'));
+                console.log('invalid JSON:',response.body);
+                res.send(new RestResponse().fail(0,'invalid JSON'));
             }
-            if(items[0] == undefined || items[0].errorCode == undefined){
+            if(items && (items[0] == undefined || items[0].errorCode == undefined)){
                 res.send(items);
             } else {
                 var code = items[0].errorCode;
@@ -158,26 +160,35 @@ salesforce.get('/sfdc/objects',function(req,res){
     get('/sobjects',res);
 });
             
-salesforce.get('/sfdc/account/:id',function(req,res){
-    var path = '/sobjects/Account/'+req.params.id;
+
+salesforce.get('/sfdc/account',function(req,res){
+    var path = '/sobjects/Account/describe/';
     get(path,res);
 });
-
 salesforce.get('/sfdc/contact/:id',function(req,res){
     var path = '/sobjects/Contact/'+req.params.id;
     get(path,res);
 });
-
+salesforce.get('/sfdc/contact',function(req,res){
+    var path = '/sobjects/Contact/describe/';
+    get(path,res);
+});
 salesforce.get('/sfdc/lead/:id',function(req,res){
     var path = '/sobjects/Lead/'+req.params.id;
     get(path,res);
 });
-
+salesforce.get('/sfdc/lead',function(req,res){
+    var path = '/sobjects/Lead/describe/';
+    get(path,res);
+});
 salesforce.get('/sfdc/opportunity:/id',function(req,res){
     var path = '/sobjects/Opportunity/'+req.params.id;
     get(path,res);
 });
-
+salesforce.get('/sfdc/opportunity',function(req,res){
+    var path = '/sobjects/Opportunity/describe/';
+    get(path,res);
+});
 function encode(rawSql){
     var items = rawSql.split(" ");
     var encodedSql = items.join('+');
@@ -190,7 +201,7 @@ salesforce.get('/sfdc/query',function(req,res){
 });
 
 salesforce.get('/sfdc/test',function(req,res){
-    var sql = "Select name from Account where owner.firstname='Kevin' AND Owner.lastname='Lynch'";
+    var sql = "Select name from Contact where owner.Name='Kevin Lynch'";
     query(encode(sql),res);
 });
     

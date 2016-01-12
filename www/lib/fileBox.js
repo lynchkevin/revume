@@ -47,8 +47,8 @@ angular.module('ngHello', [])
 function(helloProvider,helloInitParams,redirectUrl) {
     helloProvider.init(helloInitParams,{redirect_uri:redirectUrl});
 }])
-.run(['$ionicPlatform','$rootScope','hello',
-function($ionicPlatform,$rootScope,hello) {
+.run(['$ionicPlatform','$rootScope','$timeout','hello',
+function($ionicPlatform,$rootScope,$timeout,hello) {
   $ionicPlatform.ready(function() {
     hello.on("auth.login", function (r) {
         var auth = r.authResponse;
@@ -56,7 +56,10 @@ function($ionicPlatform,$rootScope,hello) {
         $rootScope[network] = auth;
         var event = 'auth.'+network;
         console.log(auth);
-        $rootScope.$broadcast(event,auth);
+        //wait for all services to instantiate before firing
+        $timeout(function(){
+            $rootScope.$broadcast(event,auth);
+        },1500);
     });
   });
 }]);
@@ -298,6 +301,7 @@ function($rootScope,$scope, FileNav){
                     'BoxService',
                     'GoogleService',
                     'WindowsService',
+                    'SalesforceService',
                     'Evaporate',
                     '$ionicModal',
                     '$ionicLoading',
@@ -310,6 +314,7 @@ function($rootScope,$scope, FileNav){
               BoxService,
               GoogleService,
               WindowsService,
+              SalesforceService,
               Evaporate,
               $ionicModal,
               $ionicLoading,
@@ -327,6 +332,7 @@ function($rootScope,$scope, FileNav){
     $.box = BoxService;
     $.google = GoogleService;
     $.windows = WindowsService;
+    $.sfdc = SalesforceService; //this ensures that our service is instantiated before authentication broadcast fires
     
     $.attach = function($scope){
         $.scope = $scope;
@@ -1418,20 +1424,28 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
         auth: baseRoute+'authData',
         query: baseRoute+'query',
     };
-
-    
-    //just in case we are instantiated after the auth broadcast from rootscope
-    if($rootScope.hasOwnProperty('sfdc'))
-        $.authData = $rootScope['sfdc'];
     
     var sfdc = hello('sfdc');
     var encodedScope= encodeURIComponent('api id full web refresh_token');
-    var options = {scope:encodedScope,force:true};
+    var options = {scope:encodedScope};
     var noop = function(){};
     $.loggedIn = false;
     
     onEvent.attach($);
+    
+    //we need the native user to make queries into salesforxe
+    $.getNativeUser = function(){
+        var deferred = $q.defer();
+        if(!$.loggedIn)
+            $.getUser().then(function(){
+                deferred.resolve($.authData.sfdcUser);
+            })
+        else
+            deferred.resolve($.authData.sfdcUser);
+        return deferred.promise;
+    }
 
+        
     //get the user information
     $.getUser = function(){
         var deferred = $q.defer();
@@ -1441,6 +1455,7 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
             user.lastName = u.last_name;
             user.email = u.email;
             user.accountId = u.user_id;
+            $.authData.sfdcUser = u.display_name;
             return user;
         }
         if(!$.loggedIn){
@@ -1494,22 +1509,26 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
         return deferred.promise;
     }
     
-    $.getInvitees = function(){
-    }
-        
-    
-    $rootScope.$on('auth.sfdc',function(event,auth){
+   $.processAuth = function(event,auth){
         $.authData = auth;
         $http.post($.routes.auth,$.authData)
         .then(function(response){
+            if(response.data.error != undefined)
+                throw(response.data.error.message);
             $.loggedIn = true;
             $.userInfo = response;
-            $.$fire('auth');
             console.log('/api/sfdc/authData success: ',response);
+            return $.getUser();
+        }).then(function(){
+            $.$fire('auth');
         }).catch(function(response){
             console.log('/api/sfdc/authData error: ',response);
         });
-    });
+   }
+   $rootScope.$on('auth.sfdc',function(event,auth){
+       $.processAuth(event,auth);
+
+   });
                     
 }])
 .service('SigninPartners',['authService',
@@ -1539,10 +1558,12 @@ function(authService,GoogleService,WindowsService,DropboxService,BoxService,Sale
             getUser : BoxService.getUser,
             helloService:'box',
         },
+        
         Salesforce: {
             getUser : SalesforceService.getUser,
             helloService:'sfdc',
         },
+        
         authService : authService,
     };
 }]);

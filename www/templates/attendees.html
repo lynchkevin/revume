@@ -1,10 +1,13 @@
-<div parent-height ng-controller="attendeesCtrl">
+<div parent-height top=125 ng-controller="attendeesCtrl">
     <ion-content>
         <div class="centered-container">
             <div class="button-bar">
                 <a ng-repeat="view in step.views"
                    class="button" 
-                   ng-click="step.setView($index)">{{::view.name}}</a>
+                   ng-click="step.setView($index)">{{::view.name}}
+                    <img ng-if="view.img!=undefined"
+                         ng-src={{view.img}}
+                         style="height:20px;margin-bottom:-5px"></a>
             </div>
         <!--Invitees -->
         <div class="revu-list-header calm-bg"
@@ -13,45 +16,10 @@
                     ng-click="step.toggleShowDelete()"></button> 
                 Invitees
             <button class="button button-icon icon ion-plus-circled revu-list-button revu-right"
-                    ng-click="step.toggleShowAdd()"></button>
+                    ng-click="step.addUserPopup()"></button>
         </div> 
-        <form name="userForm" nonvalidate
-              ng-show="step.showAdd && step.currentView == 0">
-            <ion-list >
-                  <ion-item class="item" style="padding:0px">
-                  <label class="item-input item-floating-label">
-                    <span class="input-label">First Name</span>
-                    <input type="text" placeholder="First Name"
-                           ng-model=step.firstName
-                           required>
-                  </label>
-                  </ion-item>
-                      <ion-item class="item" style="padding:0px">
-                  <label class="item-input item-floating-label">
-                    <span class="input-label">Last Name</span>
-                    <input type="text" placeholder="Last Name"
-                           ng-model=step.lastName
-                           required>
-                  </label>
-                  </ion-item>
-                  <ion-item class="item" style="padding:0px">
-                  <label class="item-input item-floating-label">
-                    <span class="input-label">Email</span>
-                    <input type="text" placeholder="Email"
-                           ng-model=step.email
-                           required>
-                  </label>
-                  </ion-item>
-                  <button class="button button-assertive"
-                          ng-click="step.toggleShowAdd()">Close</button>
-                  <button class="button button-calm"
-                          ng-click="step.addUser()"
-                          ng-disabled = !userForm.$valid>Add Invitee
-                 </button>
-            </ion-list>
-        </form>
-        <ion-list   ng-show="step.currentView==0"
-                    show-delete="step.showDelete">
+        <ion-scroll direction="y" parent-height top=225 ng-show="step.currentView == 0">
+        <ion-list  show-delete="step.showDelete">
             <ion-item ng-repeat="attendee in step.attendees" class="item" >
                 <p>{{::attendee.firstName}} {{::attendee.lastName}} <b>|</b> {{::attendee.email}} </p>
                 <ion-delete-button class="ion-minus-circled" 
@@ -60,18 +28,21 @@
                 </ion-delete-button>
             </ion-item>
         </ion-list>
+        </ion-scroll>
         <!-- Teams -->
-        <ion-list ng-show="step.currentView==1" >
-            <ion-item ng-repeat="team in teams" class="item-checkbox" >
-                <label class="checkbox">
-                    <input ng-model="team.included" 
-                           ng-change="step.teamChange($index)"
-                           type="checkbox">
-                </label
-                    <h2> {{::team.name}} </h2>
-                    <p>Total Members: {{::team.members.length}}</p>
-            </ion-item>
-        </ion-list>
+        <ion-scroll direction="y" parent-height top=225 ng-show="step.currentView == 1">
+            <ion-list >
+                <ion-item ng-repeat="team in teams" class="item-checkbox" >
+                    <label class="checkbox">
+                        <input ng-model="team.included" 
+                               ng-change="step.teamChange($index)"
+                               type="checkbox">
+                    </label
+                        <h2> {{::team.name}} </h2>
+                        <p>Total Members: {{::team.members.length}}</p>
+                </ion-item>
+            </ion-list>
+        </ion-scroll>
         <!-- salesforce -->
         <ion-list ng-show="step.currentView==2" >
             <ion-item ng-repeat="item in step.sfdcItems" class="item" >

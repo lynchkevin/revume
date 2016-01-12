@@ -190,16 +190,18 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBui
         $scope.init();
     });
     
-    //catch when we have hit new meeting from the main menu
-    $scope.$on('$stateChangeSuccess',function(event,toState,toParams,fromState,fromParams){
-        if(toState.name == 'app.newMeeting' && $scope.sb != undefined)
-            $timeout(function(){
-                $scope.newSession();
-            },1000);
-    });
-    $scope.$on('Revu.Me:NewMeeting',function(){
-        $scope.newSession();
-    });
+    //catch when we have hit new meeting from the main menu but only do it from the new meeting state
+    if($state.current.name == 'app.newMeeting'){
+        $scope.$on('$stateChangeSuccess',function(event,toState,toParams,fromState,fromParams){
+            if(toState.name == 'app.newMeeting' && $scope.sb != undefined)
+                $timeout(function(){
+                    $scope.newSession();
+                },1000);
+        });
+        $scope.$on('Revu.Me:NewMeeting',function(){
+            $scope.newSession();
+        });
+    }
     $scope.$on('Revu.Me:Archive',function(event){
         //close the delete button
         if($ionicListDelegate.$getByHandle('att').showDelete())
@@ -240,6 +242,7 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     // session is now resolved in the state transition
     $scope.session = session;
     $scope.baseUrl = baseUrl;
+    $scope.meetingUrl = $scope.baseUrl.endpoint+'/#/app/session/'+session._id;
     
     $scope.init = function(){
         if(session._id != undefined){

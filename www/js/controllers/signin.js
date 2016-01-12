@@ -13,7 +13,7 @@ angular.module('RevuMe')
 
        $scope.doSignIn = function(){
            var credentials = {};
-           credentials.email = $scope.forms.signin.email;
+           credentials.email = $scope.forms.signin.email.toLowerCase();
            credentials.password = $scope.forms.signin.password;
            
            authService.authenticate(credentials).then(function(result){
@@ -68,7 +68,7 @@ angular.module('RevuMe')
                         DoConfirm.confirm({id:user._id});
                         var credentials = {};
                         credentials.oldPassword = '';
-                        credentials.email = $scope.forms.signup.email;
+                        credentials.email = $scope.forms.signup.email.toLowerCase();
                         credentials.password = $scope.forms.signup.password;
                         authService.resetPassword(credentials).then(function(result){
                            if(result.success){
@@ -96,7 +96,7 @@ angular.module('RevuMe')
                    var newUser = {};
                    newUser.firstName = $scope.forms.signup.firstName;
                    newUser.lastName = $scope.forms.signup.lastName;    
-                   newUser.email = $scope.forms.signup.email;
+                   newUser.email = $scope.forms.signup.email.toLowerCase();
                    newUser.password = $scope.forms.signup.password;
                    authService.signUp(newUser).then(function(user){
                        //validate email since they're new
@@ -221,7 +221,7 @@ angular.module('RevuMe')
                    var newUser = {};
                    newUser.firstName = $scope.forms.signup.firstName;
                    newUser.lastName = $scope.forms.signup.lastName;    
-                   newUser.email = $scope.forms.signup.email;
+                   newUser.email = $scope.forms.signup.email.toLowerCase();
                    newUser.password = $scope.forms.signup.password;
                    authService.signUp(newUser).then(function(user){
                        //validate email
@@ -239,7 +239,7 @@ angular.module('RevuMe')
    function ($scope,$rootScope,authService,$timeout,$ionicPopup) {
        $scope.resetPassword = function(){
            var credentials = {};
-           credentials.email = $scope.forms.resetPw.email;
+           credentials.email = $scope.forms.resetPw.email.toLowerCase();
            credentials.oldPassword = $scope.forms.resetPw.oldPassword;
            credentials.password = $scope.forms.resetPw.newPassword;
            credentials.repeat = $scope.forms.resetPw.repeat;
