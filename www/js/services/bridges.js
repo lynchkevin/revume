@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-* a service to manage users  
+* a service to manage conference bridges 
 */
 angular.module('RevuMe')
 

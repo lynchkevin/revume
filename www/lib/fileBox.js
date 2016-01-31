@@ -198,7 +198,9 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 });
                 element[0].innerHTML = $sce.trustAsHtml(html);
                 $compile(element.contents())(scope);
-                $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                $timeout(function(){
+                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                },0);
             }
         
             scope.updateLinksBox = function(){
@@ -219,11 +221,15 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                     html+=newPart;
                     element[0].innerHTML = $sce.trustAsHtml(html);
                     $compile(element.contents())(scope);
-                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                    $timeout(function(){
+                        $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                    },0);
                 }else{
                     element[0].innerHTML = $sce.trustAsHtml(html);
                     $compile(element.contents())(scope);
-                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                    $timeout(function(){
+                        $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                    },0);
                 }
             }
             scope.updateLinksGoogle = function(){
@@ -241,7 +247,9 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 });
                 element[0].innerHTML = $sce.trustAsHtml(html);
                 $compile(element.contents())(scope);
-                $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                $timeout(function(){
+                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                },0);
             
             }
             scope.updateLinksWindows = function(){
@@ -259,7 +267,9 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
                 });
                 element[0].innerHTML = $sce.trustAsHtml(html);
                 $compile(element.contents())(scope);
-                $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                $timeout(function(){
+                    $ionicScrollDelegate.$getByHandle('path').scrollBottom(true);
+                },0);
             
             }
             scope.$watch(model,function(model){
@@ -288,13 +298,16 @@ function($sce,$parse,$compile,$timeout,$ionicScrollDelegate){
 //controller for the fileNavigator view (template)      
 .controller('fileNavCtrl',['$rootScope','$scope','FileNav',
 function($rootScope,$scope, FileNav){
+    //attach to the service when scope is created.
+    //This just hangs some objects off the scope that is used by the template
     FileNav.attach($scope);
-    //connect to fileNav service when we enter a new view
-    $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
-        FileNav.attach($scope);
-    });
+    $scope.commands = {};
+    $scope.commands.show = function(service, closeOnSelect){
+        $scope.fileNavigator.show($scope, service, closeOnSelect);
+    }
 }])
-.service('FileNav',['$state',
+.service('FileNav',['$rootScope',
+                    '$state',
                     '$timeout',
                     'baseUrl',
                     'DropboxService',
@@ -307,7 +320,8 @@ function($rootScope,$scope, FileNav){
                     '$ionicLoading',
                     '$ionicScrollDelegate',
                     'onEvent',
-    function($state,
+    function( $rootScope,
+              $state,
               $timeout,
               baseUrl,
               DropboxService,
@@ -320,8 +334,8 @@ function($rootScope,$scope, FileNav){
               $ionicLoading,
               $ionicScrollDelegate,
               onEvent){
+    // shorthand
     var $ = this;
-
     //enable events on this service
     onEvent.attach($);
     // this service fires a file event when a file has been selected 
@@ -332,18 +346,12 @@ function($rootScope,$scope, FileNav){
     $.box = BoxService;
     $.google = GoogleService;
     $.windows = WindowsService;
-    $.sfdc = SalesforceService; //this ensures that our service is instantiated before authentication broadcast fires
-    
+    $.sfdc = SalesforceService;  
+        
     $.attach = function($scope){
-        $.scope = $scope;
-        $.scope.eva = $.eva;
-        $.scope.fileNavigator = $.fileNavigator;
-        // create a modal to show the fileNavigator
-        $ionicModal.fromTemplateUrl('templates/fileNavigator.html', {
-            scope: $.scope
-        }).then(function(modal) {
-            $.fileModal = modal;
-        });
+        //allow the thin controller to connect to the service
+        $scope.eva = $.eva;
+        $scope.fileNavigator = $.fileNavigator;
     }
     //dropbox and box services 'file' event callback                    
     $.selectedCallback = function(file){
@@ -382,7 +390,9 @@ function($rootScope,$scope, FileNav){
     }
     $.loadEnd = function(){
         $ionicLoading.hide();
-        $ionicScrollDelegate.$getByHandle('fileNavigator').scrollTop();
+        $timeout(function(){
+            $ionicScrollDelegate.$getByHandle('fileNavigator').scrollTop();   
+        },0);
     }
     // connect to the service events
     $.dropBox.$on('loadStart',$.loadStart);
@@ -408,20 +418,26 @@ function($rootScope,$scope, FileNav){
         Windows : {  service:$.windows,
                     template:$.windowsTemplate,
               },
-        show : function(service,closeOnSelect){
+        show : function($scope,service,closeOnSelect){
                     if(this.hasOwnProperty(service) && closeOnSelect != undefined){
                         var svc = this[service];
                         this.active = svc.service;
                         this.active.template = svc.template; 
                         this.active.closeOnSelect = closeOnSelect;
                         this.active.showRoot();
-                        $.fileModal.show();
+                        $ionicModal.fromTemplateUrl('templates/fileNavigator.html', {
+                            scope: $scope
+                        }).then(function(modal) {
+                            $.fileModal = modal;
+                            $.fileModal.show();
+                        }); 
                     }
                 },
         hide : function(){
                     $.fileModal.hide();
+                    $.fileModal.remove();
                 },
-    }  
+    }    
 }])
 //service that models both dropbox and box rest APIs
 .service('onEvent',[function(){
@@ -1430,13 +1446,14 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
     var options = {scope:encodedScope};
     var noop = function(){};
     $.loggedIn = false;
+
     
     onEvent.attach($);
     
     //we need the native user to make queries into salesforxe
     $.getNativeUser = function(){
         var deferred = $q.defer();
-        if(!$.loggedIn)
+        if(!$.loggedIn )
             $.getUser().then(function(){
                 deferred.resolve($.authData.sfdcUser);
             })
@@ -1445,7 +1462,6 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
         return deferred.promise;
     }
 
-        
     //get the user information
     $.getUser = function(){
         var deferred = $q.defer();
@@ -1494,16 +1510,18 @@ function($rootScope,hello,$timeout,$sce,onEvent,$q,$ionicPopup,$http,baseUrl){
             }).then(function(response){
                 if(response.data.error == undefined){
                     deferred.resolve(response.data);
-                } else
+                } else{
                     deferred.reject(response.data.error);
+                }
             });
         } else {
             var options = {params:{'sql':sql}}
             $http.get($.routes.query,options).then(function(response){
                 if(response.data.error == undefined){
                     deferred.resolve(response.data);
-                } else
+                } else{
                     deferred.reject(response.data.error);
+                }
             });
         }   
         return deferred.promise;

@@ -2,11 +2,11 @@
 
  angular.module('config', [])
 
-.constant('baseUrl', {name:'development',endpoint:'http://10.1.10.216:9000',volerro:'https://rb.volerro.com'})
+.constant('baseUrl', {name:'development',endpoint:'http://192.168.1.166:9000',volerro:'https://rb.volerro.com'})
 
-.constant('buildDate', 'Tue Jan 12 2016 11:02:40 GMT-0600 (CST)')
+.constant('buildDate', 'Fri Jan 29 2016 11:45:07 GMT-0600 (CST)')
 
-.constant('clientTokenPath', 'http://10.1.10.216:9000/api/braintree/client_token')
+.constant('clientTokenPath', 'http://192.168.1.166:9000/api/braintree/client_token')
 
 .constant('redirectUrl', 'http://localhost:9000')
 

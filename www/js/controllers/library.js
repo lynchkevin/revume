@@ -19,7 +19,7 @@ angular.module('RevuMe')
                              '$ionicScrollDelegate',
                              '$ionicListDelegate',
                              '$ionicPopup',
-                             'SessionBuilder',
+                             'wizardService',
                              'baseUrl',
                              'shareMediator',
                              'slideShow',
@@ -28,7 +28,7 @@ angular.module('RevuMe')
 function ($scope,$rootScope,$state,
            $window,$timeout,$resource,Library,
            $ionicScrollDelegate,$ionicListDelegate,
-           $ionicPopup,SessionBuilder,baseUrl,
+           $ionicPopup,wizardService,baseUrl,
            shareMediator,slideShow,$q,ionicToast) {
       
     $scope.w = angular.element($window);
@@ -37,7 +37,6 @@ function ($scope,$rootScope,$state,
     $scope.init = function(){
         $scope.updating = false;
         $scope.scrollDelegate = $ionicScrollDelegate;
-        SessionBuilder.init($scope);
         $timeout(function(){
             $scope.title = "Slide Library";
             $scope.navItemsShowing = true;
@@ -47,7 +46,6 @@ function ($scope,$rootScope,$state,
         $scope.baseUrl = baseUrl.endpoint;
         $scope.slidePartial = baseUrl.endpoint+"/templates/slideItems.html";
         $scope.navPartial = baseUrl.endpoint+"/templates/navItems.html"
-        $scope.sb=SessionBuilder;
         //pnFactory.init(); this is now done once in rootScope
         reAspect();
         $scope.user={};
@@ -88,10 +86,8 @@ function ($scope,$rootScope,$state,
             return "Done";
         return "Edit";
     };
-    $scope.buildSession = function(navItem){
-        $scope.sb.init($scope).then(function(){
-            return $scope.sb.build(navItem);
-        }).then(function(){
+    $scope.buildSession = function(navItem, index){
+        wizardService.build($scope,navItem,index).then(function(){
             $scope.slideBack();
             ionicToast.show('A New Meeting has been Created','top',false,2000);
         }).catch(function(err){
@@ -172,17 +168,14 @@ function ($scope,$rootScope,$state,
         switch(model){
             case 'files': 
                 $scope.listName = "Uploaded Files"
-                $scope.showEdit = false;
                 Library.setModel($scope,Library.files);
                 break;
             case 'decks': 
                 $scope.listName = "Your Decks";
-                $scope.showEdit = true;
                 Library.setModel($scope,Library.decks);
                 break;
             case 'categories':
                 $scope.listName = "Your Categories";
-                $scope.showEdit = true;
                 Library.setModel($scope,Library.categories);
                 break;
         }
@@ -388,11 +381,11 @@ function ($scope,$rootScope,$state,
         if($scope.modelName == 'files'){
             Library.newDeckFromFile($scope.navItems[index])
             .then(function(navItem){
-                $scope.buildSession(navItem);
+                $scope.buildSession(navItem, 0); //assume that the new deck is first
                 $scope.navItems[index].action.selected = $scope.navItems[index].actions[0]; 
             });
         } else {
-            $scope.buildSession($scope.navItems[index]);
+            $scope.buildSession($scope.navItems[index],index);
             $scope.navItems[index].action.selected = $scope.navItems[index].actions[0];    
         }
     }

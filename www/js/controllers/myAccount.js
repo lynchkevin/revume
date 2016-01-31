@@ -305,7 +305,10 @@ angular.module('RevuMe')
                     $scope.init();
                 },0);                
     });
-    
+    $scope.$on('$destroy',function(){
+        if($scope.seatModal != undefined)
+            $scope.seatModal.remove();
+    })
     if($rootScope.user.script == undefined)
         $rootScope.$on('Revu.Me:Ready',function(event, data){
             $scope.init();

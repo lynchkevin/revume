@@ -76,6 +76,8 @@ module.exports = function(grunt) {
               box:'11rseev2g1yripmmx833cp5jhiqy82v2',
               google:'945597499290-106uaa9etsaft53ln0olrv8dbse6h9an.apps.googleusercontent.com',
               windows:'000000004C17505E',
+              sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7o4tBdvBgDi8S7KMxAOEvtS4wwwdhHSi5N681cL3LHUcN8HrE4D8A74u31ax'
+
             }
         }
       }
@@ -169,7 +171,8 @@ module.exports = function(grunt) {
     },
     uglify:{
         options: {
-            banner: '/* RevuMe - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */'
+            banner: '/* RevuMe - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */',
+            mangle: false,
         },
         javascript: {
             files: [{src:'../www/js/**/*.js', dest:'../www/revume.min.js'}]
@@ -281,12 +284,15 @@ module.exports = function(grunt) {
       grunt.task.run([
           'ngtemplates:RevuMe'
       ]);
+
       grunt.task.run([
           'uglify:javascript'
       ]);
+
       grunt.task.run([
           'dev_prod_switch'
-      ]);   
+      ]);  
+
       grunt.task.run([
           'compress'
       ]);

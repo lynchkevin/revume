@@ -77,6 +77,8 @@ function ($scope, $rootScope, $stateParams,
     
     $scope.cleanUp = function(){
         $scope.channel.unsubscribe();
+        if($scope.signupModal != undefined)
+            $scope.signupModal.remove()
     };
       
     $scope.doSignUp = function(){
@@ -223,8 +225,7 @@ function ($scope, $rootScope, $stateParams,
                         console.log("distracted");
                         $scope.channel.publish(msg);
                       };
-    
-    
+
     $scope.goFullScreen = function(){
         function launchFullScreen(element) {
         if (element.requestFullscreen)

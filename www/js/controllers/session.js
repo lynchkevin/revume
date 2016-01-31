@@ -10,12 +10,12 @@ angular.module('RevuMe')
                             'Decks',
                             '$ionicListDelegate',      
                             '$ionicPopup',
-                            'SessionBuilder',
+                            'wizardService',
                             '$state',
                             '$timeout',
                             'ionicToast',
                             
-function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBuilder,$state,$timeout,ionicToast) {
+function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,wizardService,$state,$timeout,ionicToast) {
 
     $scope.titles = {};
        
@@ -30,9 +30,6 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBui
                 return Sess.attSessions.get({id:_id,isArchived:$rootScope.archiveOn()}).$promise;
             }).then(function(as){
                 $scope.attSessions = as;
-                $scope.sb = SessionBuilder;
-                return $scope.sb.init($scope);
-            }).then(function(){
                 $scope.bridge = {};
                 if($state.current.name == 'app.newMeeting')
                     $scope.newSession();
@@ -107,22 +104,20 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBui
         Decks.get({id:_id}).$promise.then(function(deck){
             if(deck._id!= undefined){
                 $scope.orgSessions[idx].decks[0] = deck;
-                return $scope.sb.init($scope);
             }
-        }).then(function(){
-            return $scope.sb.edit($scope.orgSessions[idx]);
+            return wizardService.edit($scope,$scope.orgSessions[idx]);
         }).then(function(){
             $scope.doRefresh();
-            ionicToast.show('Meeting has been updated','top',false,2000);
-        });
+        }).catch(function(){
+            console.log('Edit Canceled');
+        })
     };
     
     $scope.newSession = function(){
-        $rootScope.showLoading();
-        $scope.sb.init($scope).then(function(){
-            return $scope.sb.new();
-        }).then(function(){
+        wizardService.new($scope).then(function(){
             $scope.doRefresh();
+        }).catch(function(){
+            console.log('New Cancelled')
         });
     };
     
@@ -190,14 +185,17 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBui
         $scope.init();
     });
     
-    //catch when we have hit new meeting from the main menu but only do it from the new meeting state
-    if($state.current.name == 'app.newMeeting'){
-        $scope.$on('$stateChangeSuccess',function(event,toState,toParams,fromState,fromParams){
-            if(toState.name == 'app.newMeeting' && $scope.sb != undefined)
+    $scope.$on('$stateChangeSuccess',
+        function(event,toState,toParams,fromState,fromParams){
+            if(toState.name == 'app.newMeeting' && $rootScope.user._id != undefined)
                 $timeout(function(){
                     $scope.newSession();
-                },1000);
-        });
+                },50);
+        }
+    );
+    //catch when we have hit new meeting from the main menu but only do it from the new meeting state
+    if($state.current.name == 'app.newMeeting'){
+        
         $scope.$on('Revu.Me:NewMeeting',function(){
             $scope.newSession();
         });
@@ -232,11 +230,11 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,SessionBui
                             '$state', 
                             'BridgeService',
                             '$timeout',
-                            'SessionBuilder',
+                            'wizardService',
                             'ionicToast',
                             'baseUrl',
 function($scope,$rootScope, $stateParams,Sess,session, Decks,
-          presAnalyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout,SessionBuilder,ionicToast,baseUrl) {
+          presAnalyzer,$ionicModal,$ionicPopup,$state,BridgeService,$timeout,wizardService,ionicToast,baseUrl) {
     // set the bridge service in the scope so it can be accessed directly
     $scope.bridgeService = BridgeService;
     // session is now resolved in the state transition
@@ -247,8 +245,6 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     $scope.init = function(){
         if(session._id != undefined){
             // next 2 lines are new
-            $scope.sb = SessionBuilder;
-            $scope.sb.init($scope);
             $scope.activeMeeting = false;
             $scope.bridgeService.findBridge($scope.session.ufId)
             $scope.session.confId = $scope.session.ufId.replace(/-/g,'');
@@ -274,10 +270,11 @@ function($scope,$rootScope, $stateParams,Sess,session, Decks,
     }
         
     $scope.editSession = function(){
-        $scope.sb.edit($scope.session)
+        wizardService.edit($scope,$scope.session)
         .then(function(updated){
-            ionicToast.show('Your meeting has been updated','top',false,2000);
             $scope.session = updated;
+        }).catch(function(){
+            console.log('Edit Canceled');
         });
     }
     //create a handy dialer for mobile users

@@ -6,7 +6,7 @@ var THUMBRIO_BASE_URLS = [
     'http://api.thumbr.io/', 'https://api.thumbr.io/'
 ];
 
-function thumbrio(url, size, thumbName, queryArguments, baseUrl) {
+function thumbrio(url, size, thumbName, baseUrl, queryArguments) {
     thumbName = thumbName || 'thumb.png';
     baseUrl = baseUrl || THUMBRIO_BASE_URLS[0];
 
@@ -37,7 +37,7 @@ function thumbrio(url, size, thumbName, queryArguments, baseUrl) {
     // In node.js: var token = crypto.createHmac('md5', THUMBRIO_SECRET_KEY)
     //                  .update(baseUrl + path).digest('hex');
     var token = Crypto.HMAC(Crypto.MD5, baseUrl + path, THUMBRIO_SECRET_KEY);
-    return baseUrl + token + '/' + path;
+    return THUMBRIO_BASE_URLS[1] + token + '/' + path;
 }
 
 function _thumbrioUrlencode(str) {

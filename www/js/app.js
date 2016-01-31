@@ -41,11 +41,12 @@ angular.module('RevuMe',
       '$ionicHistory',
       'Library',
       'ScriptService',
+      'logService',
       '$q',
 function($ionicPlatform,$rootScope,$window,$http,
           userService,pnFactory,$timeout,$location,$state,
           $cookieStore,authService,$ionicLoading,
-          $ionicHistory,Library,ScriptService,$q) {
+          $ionicHistory,Library,ScriptService,logService,$q) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -133,7 +134,7 @@ function($ionicPlatform,$rootScope,$window,$http,
                 });
             }
             pnFactory.init(user._id);
-            $rootScope.mainChannel = pnFactory.newChannel("volerro_user");
+            $rootScope.mainChannel = pnFactory.newChannel("Revu.Me:User");
             $rootScope.mainChannel.setUser($rootScope.user.name);
             $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
             //set up the authorization headers
@@ -187,6 +188,8 @@ function($ionicPlatform,$rootScope,$window,$http,
     $rootScope.showArchive = false;
     // listen for authenticated routes and force login if needed
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+        //log all state changes for sales monitoring
+        logService.log(event,fromState,toState); //send user activity over pubnub for monitoring
         authService.listen(event,toState);
     });
 
@@ -224,7 +227,7 @@ function($ionicPlatform,$rootScope,$window,$http,
             size = w.toString()+'x'+h.toString()+'c';
         else if(w!=undefined)
             size = w.toString()+'x';
-        var resizeUrl = thumbrio(src,size,undefined,baseUrl);
+        var resizeUrl = thumbrio(src,size,'thumb');
         return resizeUrl;
     }
     $window.addEventListener("beforeunload", function (e) {

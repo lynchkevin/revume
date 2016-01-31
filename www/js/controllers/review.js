@@ -266,6 +266,24 @@ function ($scope, $rootScope, $stateParams,
         $scope.cleanUp();
     });
     
+    //handle visibility events
+    $scope.$on('visibilityChanged', function(event, isHidden) {
+        if (document.hidden) { 
+            var msg = { action:'engagement',
+                        status: "distracted",
+                        who: userName,
+                        id:$rootScope.user._id,
+                        };
+            console.log("distracted");
+        }else{
+            var msg = {action:'engagement',
+                       status: "engaged",
+                       who: userName,
+                       id:$rootScope.user._id,
+                      };
+            console.log("engaged");
+        }
+    });
 
     // bring up a revu.me welcome splash 
     if($scope.session.leaveBehind){
@@ -276,6 +294,7 @@ function ($scope, $rootScope, $stateParams,
             //show for 5 seconds then hide
             $timeout(function(){
                 $scope.welcomeModal.hide();
+                $scope.welcomeModal.remove();
             },3500);   
         });
     }else{

@@ -8,7 +8,7 @@
       <button class="button button-clear" ng-click="fileNavigator.hide()">Close</button>
     </div>
   </ion-header-bar>
-  <ionc-header-bar class="bar bar-subheader">
+  <ion-header-bar class="bar bar-subheader">
     <ion-scroll direction="x" 
                 class="path-scroll"
                 delegate-handle="path">
@@ -21,7 +21,7 @@
               on-Change="fileNavigator.active.showFolder">
         </span>
     </ion-scroll>
- </ionc-header-bar>
+ </ion-header-bar>
   <ion-content class="has-header has-subheader" delegate-handle="fileNavigator">
       <div ng-if="fileNavigator.active.name == 'Dropbox'">
         <ion-list >

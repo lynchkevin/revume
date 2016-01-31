@@ -104,7 +104,8 @@ angular.module('RevuMe')
         $scope.screenleap.startFromClick();
     }
     $scope.$on('$destroy',function(){
-        $scope.instructions.remove();
+        if($scope.instructions!=undefined)
+            $scope.instructions.remove();
     });    
     function sendEnd(){
         var m = {action:"end"};

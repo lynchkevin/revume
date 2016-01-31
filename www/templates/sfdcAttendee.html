@@ -1,5 +1,5 @@
 <ion-modal-view >  
-    <ion-content ng-controller="sfdcCtrl" class="ParentMarker">
+    <ion-content class="ParentMarker">
     <div class="centered-container"
          style="width:100%;height:44px;background-color:rgb(10,154,215);">
         <div class="row no-padding centered-container sfdcBanner">
@@ -48,6 +48,7 @@
                         <label class="checkbox">
                             <input ng-model="user.included" 
                                    ng-change="sfdc.changeAttendee($index)"
+                                   ng-if="user.Email != undefined || user.Contact.Email != undfined"
                                    type="checkbox">
                         </label
                             <h2 ng-if="user.Name"> {{::user.Name}} </h2>
@@ -67,7 +68,7 @@
   <ion-footer-bar class="bar-positive">
       <div class="centered-container">
           <button class="button button-calm"
-                  ng-click="step.hideSalesforce()">
+                  ng-click="hideSalesforce()">
               Close
           </button>
       </div>

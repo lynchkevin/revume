@@ -2,12 +2,18 @@
     <ion-content>
         <div class="centered-container">
             <div class="button-bar">
-                <a ng-repeat="view in step.views"
-                   class="button" 
-                   ng-click="step.setView($index)">{{::view.name}}
-                    <img ng-if="view.img!=undefined"
-                         ng-src={{view.img}}
-                         style="height:20px;margin-bottom:-5px"></a>
+                <!--Manual Attendee Entry -->
+                <a class="button"
+                   ng-click="step.setView(0)">{{::step.views[0].name}}</a>
+                <!--Team Attendee Entry -->
+                <a class="button"
+                   ng-click="step.setView(1)">{{::step.views[1].name}}</a>
+                <a ng-controller="sfdcCtrl"
+                   class="button"
+                   ng-click="showSalesforce(true)">
+                   <img ng-src="{{sfdc.img}}"
+                        style="height:20px;margin-bottom:-5px">
+                </a>
             </div>
         <!--Invitees -->
         <div class="revu-list-header calm-bg"
