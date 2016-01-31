@@ -184,18 +184,20 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,wizardServ
     $scope.$on('userID',function(event,user){
         $scope.init();
     });
-    
-    $scope.$on('$stateChangeSuccess',
-        function(event,toState,toParams,fromState,fromParams){
-            if(toState.name == 'app.newMeeting' && $rootScope.user._id != undefined)
-                $timeout(function(){
-                    $scope.newSession();
-                },50);
-        }
-    );
-    //catch when we have hit new meeting from the main menu but only do it from the new meeting state
+    //only listen if we are the new meeting controller
     if($state.current.name == 'app.newMeeting'){
-        
+        $scope.$on('$stateChangeSuccess',
+            function(event,toState,toParams,fromState,fromParams){
+                if(toState.name == 'app.newMeeting' && $rootScope.user._id != undefined)
+                    $timeout(function(){
+                        $scope.newSession();
+                    },50);
+            }
+        );
+    }
+    //catch when we have hit new meeting from the main menu but only do it from the new meeting state
+ 
+    if($state.current.name == 'app.newMeeting'){
         $scope.$on('Revu.Me:NewMeeting',function(){
             $scope.newSession();
         });
