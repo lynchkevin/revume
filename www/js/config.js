@@ -4,7 +4,7 @@
 
 .constant('baseUrl', {name:'production',endpoint:'https://m.revu.me',volerro:'https://rb.volerro.com'})
 
-.constant('buildDate', 'Sun Jan 31 2016 12:27:40 GMT-0600 (CST)')
+.constant('buildDate', 'Sun Jan 31 2016 16:22:09 GMT-0600 (CST)')
 
 .constant('clientTokenPath', 'https://m.revu.me/api/braintree/client_token')
 

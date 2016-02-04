@@ -202,9 +202,26 @@ function ($scope, $rootScope, $stateParams,
         $ionicSlideBoxDelegate.slide(current);
     };
     
-
+    //handle pause and resume events
+    $scope.$on('Revu.Me::Pause',function(){
+        var msg = {action:'engagement',
+                   status: "distracted",
+                   who: userName,
+                   id:$rootScope.user._id,
+                  };
+        console.log("Pause:distracted");
+        $scope.channel.publish(msg);
+    });
+    $scope.$on('Revu.Me::Resume',function(){
+        var msg = {action:'engagement',
+                   status: "engaged",
+                   who: userName,
+                   id:$rootScope.user._id,
+                  };
+        console.log("Resume:engaged");
+        $scope.channel.publish(msg);
+    });
     //handle focus events
-    
     $scope.w = $window;
     $window.onfocus = function(event) { 
                         var msg = {action:'engagement',

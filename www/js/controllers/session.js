@@ -31,8 +31,6 @@ function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,wizardServ
             }).then(function(as){
                 $scope.attSessions = as;
                 $scope.bridge = {};
-                if($state.current.name == 'app.newMeeting')
-                    $scope.newSession();
             }).catch(function(err){
                 console.log(err);
             });

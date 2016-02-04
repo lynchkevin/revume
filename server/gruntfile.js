@@ -273,29 +273,31 @@ module.exports = function(grunt) {
     
     
     grunt.registerTask('prod', function () {
-      grunt.config.data.dev_prod_switch.options.environment = 'prod';
-      
-      grunt.task.run([
+        grunt.log.writeln('nocompress is: ', grunt.option('nocompress'));
+        grunt.config.data.dev_prod_switch.options.environment = 'prod';
+
+        grunt.task.run([
         'env:production'
-      ]);   
-      grunt.task.run([
+        ]);   
+        grunt.task.run([
         'ngconstant:production'
-      ]);
-      grunt.task.run([
+        ]);
+        grunt.task.run([
           'ngtemplates:RevuMe'
-      ]);
+        ]);
 
-      grunt.task.run([
+        grunt.task.run([
           'uglify:javascript'
-      ]);
+        ]);
 
-      grunt.task.run([
+        grunt.task.run([
           'dev_prod_switch'
-      ]);  
-
-      grunt.task.run([
-          'compress'
-      ]);
+        ]);  
+        if(grunt.option('nocompress') == undefined){
+            grunt.task.run([
+            'compress'
+            ]);
+        }
     });
 
 };

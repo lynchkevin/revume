@@ -24,7 +24,8 @@
                 <div class="centered-container" style="width:100%">
                 <ion-slide-box disable-scroll="false"  
                                show-pager="false"
-                               style="position:relative">
+                               style="position:relative"
+                               on-slide-changed="wizard.setStep(index)">
                     <ion-slide ng-repeat="step in wizard.steps"
                                class="positive-bg">
                         <div class="centered-container"

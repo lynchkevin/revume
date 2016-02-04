@@ -55,8 +55,8 @@ function($ionicPlatform,$rootScope,$window,$http,
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
     }
+      
     //hide the status bar and make headers only 44px
-
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.hide();
@@ -67,6 +67,16 @@ function($ionicPlatform,$rootScope,$window,$http,
     window.shouldRotateToOrientation = function(degrees) {
      return true;
     }
+    //catch the pause and resume events
+     document.addEventListener("pause", function() {
+         console.log('got Pause event!!');
+         $rootScope.$broadcast('Revu.Me::Pause');
+    
+      }, false);
+      document.addEventListener("resume", function() {
+        console.log('got Resume event!!');
+         $rootScope.$broadcast('Revu.Me::Resume');
+      }, false);
   });
     //initialize some globals
     $rootScope.deepLink = false;

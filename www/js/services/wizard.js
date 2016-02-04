@@ -782,6 +782,7 @@ function($rootScope,$scope, wizardService){
     $.current = 0;
     $.sb = SessionBuilder;
     $.action = undefined;
+    $.ignoreSlide = false;
      
     // enable events for this service
     onEvent.attach($);
@@ -867,39 +868,47 @@ function($rootScope,$scope, wizardService){
         return 'step'+stepNumber.toString()+'.'+event;
     }
     $.setStep = function(stepNumber) {
-        if(stepNumber <= 0)
-            stepNumber = 0;    
-        // otherwise we're a normal step so handle accordingly
-        if($.steps[$.current].valid == true || stepNumber <= $.current){
-            //fire onExit for current step
-            var c = $.current;
-            var n = stepNumber;
-            // fire onExit for current step
-            $.$fire(eventName(c,'exit'));
-            if($.steps[c].type == 'modal' && $.modal != undefined){
-                $.modal.hide();
-                $.modal.remove();
-                $.modal = undefined;
-            }
-            // fire onEnter for next Step
-            $.$fire(eventName(n,'enter'));
-            $.current = stepNumber;
-            $.nextEnabled = true;
-            if(stepNumber > 0)
-                $.prevEnabled = true;
-            if($.steps[$.current].type == 'pane'){
+        if(!$.ignoreSlide){
+            if(stepNumber <= 0)
+                stepNumber = 0;    
+            // otherwise we're a normal step so handle accordingly
+            if($.steps[$.current].valid == true || stepNumber <= $.current){
+                //fire onExit for current step
+                var c = $.current;
+                var n = stepNumber;
+                // fire onExit for current step
+                $.$fire(eventName(c,'exit'));
+                if($.steps[c].type == 'modal' && $.modal != undefined){
+                    $.modal.hide();
+                    $.modal.remove();
+                    $.modal = undefined;
+                }
+                // fire onEnter for next Step
+                $.$fire(eventName(n,'enter'));
+                $.current = stepNumber;
+                $.nextEnabled = true;
+                if(stepNumber > 0)
+                    $.prevEnabled = true;
+                if($.steps[$.current].type == 'pane'){
+                    $ionicSlideBoxDelegate.slide($.current);
+                    $ionicSlideBoxDelegate.update();
+                }else if ($.steps[$.current].type == 'modal'){
+                    var step = $.steps[$.current];
+                    $ionicModal.fromTemplateUrl(step.template,{
+                        scope:$.scope,
+                        animation:'slide-in-up'
+                    }).then(function(modal){
+                        $.modal = modal;
+                        $.modal.show();
+                    });
+                }
+            }else {//user swiped to invalid step so go back
+                //since we're sliding back - ignore the next event
+                $.ignoreSlide = true;
                 $ionicSlideBoxDelegate.slide($.current);
-                $ionicSlideBoxDelegate.update();
-            }else if ($.steps[$.current].type == 'modal'){
-                var step = $.steps[$.current];
-                $ionicModal.fromTemplateUrl(step.template,{
-                    scope:$.scope,
-                    animation:'slide-in-up'
-                }).then(function(modal){
-                    $.modal = modal;
-                    $.modal.show();
-                });
             }
+        }else{
+            $.ignoreSlide=false;
         }
     }
     //build the wizard steps
