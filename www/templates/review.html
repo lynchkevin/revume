@@ -8,12 +8,23 @@
                    ng-disabled="!prevEnabled"></a>
             </div>
             <div class="col col-90" >
-                <ion-slide-box disable-scroll="true"  class="bordered-drop-shadow" show-pager="false">
+                <!--ion-slide-box disable-scroll="true"  class="bordered-drop-shadow" on-slide-changed="setSlide($index)" show-pager="false"-->
+                <ion-slide-box class="bordered-drop-shadow" on-slide-changed="swipeSlide($index)" show-pager="false">
                     <ion-slide ng-repeat="slide in presentation.slides">
 
                         <div ng-switch on="slide.type">
                             <div ng-switch-when="img">
+                                <ion-scroll direction="xy" 
+                                scrollbar-x="false" 
+                                scrollbar-y="false"
+                                zooming="true" 
+                                min-zoom="1.0" 
+                                style="width: 100%; height: 100%"
+                                delegate-handle="scrollHandle{{$index}}" 
+                                on-scroll="updateSlideStatus(current)" 
+                                on-release="updateSlideStatus(current)">
                                 <img ng-src="{{slide.src}}" class="slide-content" >
+                                </ion-scroll>
                             </div>
                             <div ng-switch-when="video">                            
                                 <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}></video>                      

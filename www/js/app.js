@@ -133,20 +133,26 @@ function($ionicPlatform,$rootScope,$window,$http,
                 console.log("message from presence service",message);
             };
             $rootScope.pHandler = function(message){
-                $rootScope.mainChannel.resolveUsers(message).then(function(users){
-                    $rootScope.users = users;
-                    console.log("got a status message", message);
-                    $timeout(function(){
-                        $rootScope.$broadcast("presence_change");
-                    },0);
-                }).catch(function(err){
-                    console.log(err);
-                });
+                //don't check the user_log server in the database
+                if(message.uuid != 'user_log'){
+                    $rootScope.mainChannel.resolveUsers(message).then(function(users){
+                        $rootScope.users = users;
+                        console.log("got a status message", message);
+                        $timeout(function(){
+                            $rootScope.$broadcast("presence_change");
+                        },0);
+                    }).catch(function(err){
+                        console.log(err);
+                    });
+                }
             }
             pnFactory.init(user._id);
-            $rootScope.mainChannel = pnFactory.newChannel("Revu.Me:User");
-            $rootScope.mainChannel.setUser($rootScope.user.name);
-            $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
+            if($rootScope.mainChannel == undefined){
+                $rootScope.connected = true;
+                $rootScope.mainChannel = pnFactory.newChannel("Revu.Me:User");
+                $rootScope.mainChannel.setUser($rootScope.user.name);
+                $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
+            }
             //set up the authorization headers
             //$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.user.authdata; // jshint ignore:line
             if(!options.stealthMode) {
@@ -184,6 +190,7 @@ function($ionicPlatform,$rootScope,$window,$http,
     device.currentPlatform = ionic.Platform.platform();
     device.currentPlatformVersion = ionic.Platform.version();
     device.notMobileOS = !device.isIOS && !device.isIPad && !device.isAndroid && !device.isWindowsPhone;
+    device.userAgent = ionic.Platform.navigator.userAgent;
     $rootScope.device = device;
     console.log('device is: ',$rootScope.device);
     //test to see if cordova.js is available if so - we're on a mobile device

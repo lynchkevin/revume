@@ -15,12 +15,13 @@ angular.module('RevuMe')
                            '$window',
                            'session',
                            '$ionicSlideBoxDelegate',
+                           '$ionicScrollDelegate',
                            '$ionicModal',
                            'EngagementMetrics',
                            'Revu',
                            '$q',
 function ($scope, $rootScope, $stateParams, 
-           $timeout, $window,session,$ionicSlideBoxDelegate,$ionicModal,EngagementMetrics,Revu,$q) {
+           $timeout, $window,session,$ionicSlideBoxDelegate,$ionicScrollDelegate,$ionicModal,EngagementMetrics,Revu,$q) {
   
 
     var filename = "";
@@ -28,6 +29,8 @@ function ($scope, $rootScope, $stateParams,
     var userId = $rootScope.user._id;
     var userName = $rootScope.user.name;
     var timeLimit = 5.0 * 60 * 1000.0; //timeout in 5 minutes;
+    //enable swipe slide
+    $ionicSlideBoxDelegate.enableSlide(true);
     
     if (!Date.now) {
         Date.now = function() { return new Date().getTime(); }
@@ -53,6 +56,7 @@ function ($scope, $rootScope, $stateParams,
             });
         };
         current = 0;
+        $scope.current = current;
         $scope.nextEnabled = true;
         $scope.prevEnabled = false;
         $scope.metrics = {};
@@ -201,8 +205,7 @@ function ($scope, $rootScope, $stateParams,
         logView($scope);
     };
       
-    
-    $scope.setSlide = function(slideNumber) {
+    function validateSlide(slideNumber){
         if(slideNumber >= $scope.deckLength-1) {
             //go to the next deck if it exists at start at slide 1
             if($scope.deckIdx <$scope.session.decks.length-1){
@@ -232,8 +235,28 @@ function ($scope, $rootScope, $stateParams,
             $scope.nextEnabled = true;
             $scope.prevEnabled = true;
         }
+    }
+    
+    $scope.swipeSlide = function(slideNumber){
+        current = slideNumber;
+        validateSlide(slideNumber);
+        logView($scope);
+    }
+    
+    $scope.setSlide = function(slideNumber) {
+        validateSlide(slideNumber);
         $scope.viewingSlide = $scope.presentation.slides[current+$scope.offset];
         $ionicSlideBoxDelegate.slide(current+$scope.offset);
+    };
+    
+    //handle pinch and zoom
+    $scope.updateSlideStatus = function(slide) {
+      var zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
+      if (zoomFactor == 1.0) {
+        $ionicSlideBoxDelegate.enableSlide(true);
+      } else {
+        $ionicSlideBoxDelegate.enableSlide(false);
+      }
     };
     //handle pause and resume events
     $scope.$on('Revu.Me::Pause',function(){

@@ -22,11 +22,13 @@ users.get('/users',function(req,res){
 
 //get a single user by id
 users.get('/users/:id',function(req,res){
-    User.findAsync({_id:new ObjectId(req.params.id)}).then(function(user){
-        res.send(user[0]);
-    }).catch(function(err){
-        res.send(err);
-    });
+    if(req.params != undefined && req.params.id != undefined){
+        User.findAsync({_id:new ObjectId(req.params.id)}).then(function(user){
+            res.send(user[0]);
+        }).catch(function(err){
+            res.send(err);
+        });
+    }
 });
 //get a single user by email
 users.get('/users/email/:email',function(req,res){

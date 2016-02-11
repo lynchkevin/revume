@@ -100,6 +100,24 @@ var ScriptSchema = new mongoose.Schema({
     customerId:String,
     braintreeId:String
 });
+//track the user's path through the app
+var ActivitySchema = new mongoose.Schema({
+    date: {type: Date, default: Date.now},
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    device : {
+        platform    : String,
+        isAndroid   : Boolean,
+        isIOS       : Boolean,
+        isIPad      : Boolean,
+        isWebView   : Boolean,
+        isWindowsPhone : Boolean,
+        notMobileOS : Boolean,
+        userAgent   : String
+    },
+    fromState : String,
+    toState : String,
+    elapsed: Number,
+});
 
 var Model = mongoose.model('Model',Container);    
 var Team = mongoose.model('Team',TeamSchema);
@@ -112,6 +130,7 @@ var Session = mongoose.model('Session',SessionSchema);
 var SessionInteraction = mongoose.model('SessionInteraction',SessionInteractionSchema);
 var Share = mongoose.model('Share',ShareSchema);
 var Script = mongoose.model('Script',ScriptSchema);
+var Activity = mongoose.model('Activity',ActivitySchema);
 
 var entries = [
 {firstName:"Kevin", lastName:"Lynch", email:"klynch@volerro.com"},
@@ -146,3 +165,4 @@ module.exports.Session = Session;
 module.exports.SessionInteraction = SessionInteraction;
 module.exports.Share = Share;
 module.exports.Script = Script;
+module.exports.Activity = Activity;

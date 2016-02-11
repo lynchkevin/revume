@@ -6,8 +6,8 @@
 angular.module('RevuMe')
 
 .factory('UserLog', ['$resource','baseUrl',function ($resource,baseUrl) {
-    var target = baseUrl.endpoint+'/api/userLog/:id';  
-    return $resource(target,{id:'@id'});
+    var target = baseUrl.endpoint+'/api/userLog/';  
+    return $resource(target);
 }])
 .service('logService', ['$rootScope','UserLog','pnFactory','$q',
 function ($rootScope,UserLog,pnFactory,$q) {
@@ -38,7 +38,8 @@ function ($rootScope,UserLog,pnFactory,$q) {
                 device:$.device,
                 fromState:fromState,
                 toState:toState,
-                elapsedTime:elapsed
+                elapsedTime:elapsed,
+                date:now,
             }
             $.logChannel.publish(m);
         } 
