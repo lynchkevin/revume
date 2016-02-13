@@ -13,9 +13,9 @@
                 <p ng-if="session.bridge && !isMobile"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160{{session.bridgeNumber}}</p>  
                 <p ng-if="session.bridge && isMobile"><strong>Dial in: </strong>&#160&#160&#160&#160&#160&#160<a href="tel:{{session.bridgeNumber}},,,{{session.confId}}#">{{session.bridgeNumber}}</a></p>  
                 <p><strong>meeting id: </strong>    {{session.ufId}}</p>
-                <p ng-if="!bridgeService.activeBridge()"
+                <p ng-if="session.bridge && !bridgeService.activeBridge()"
                    class="notice">Join to Open Bridge</p>
-                <p ng-if="bridgeService.activeBridge()"
+                <p ng-if="session.bridge && bridgeService.activeBridge()"
                    class="advise">Bridge is Open</p>
                 <button class="button button-positive"
                         ng-click="go(session._id,0)">
