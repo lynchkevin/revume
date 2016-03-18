@@ -23,6 +23,7 @@ var     box = require('./routes/box');
 var     signer = require('./routes/signer');
 var     screenleap = require('./routes/screenleap');
 var     activityLog = require('./routes/activityLog');
+var     dashboard = require('./routes/dashboard');
 var     app = express();
 var     connectString = 'mongodb://'+mongo+'/revume';
 var     crypto = require('crypto');
@@ -55,6 +56,7 @@ if(process.env.NODE_ENV == 'production'){
     console.log('using forceSSL...');
     app.use(forceSSL);
 }
+
 // Middleware for convenience
 app.use(bodyParser());          // pull information from html in POST
 app.use(methodOverride());      // simulate DELETE and PUT
@@ -102,6 +104,7 @@ app.use('/api',box);
 app.use('/api',signer);
 app.use('/api',screenleap);
 app.use('/api',activityLog);
+app.use('/api',dashboard);
 
 
 

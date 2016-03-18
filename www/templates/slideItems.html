@@ -1,6 +1,7 @@
 
 <ion-scroll elem-height="0.90" 
-            overflow-scroll="true">
+            overflow-scroll="true"
+            delegate-handle="slideItems">
     <div ng-repeat="slide in slides" 
          class="thumbnail" 
          ng-class="{'thumb-selected':tap.on && tap.index==$index}"

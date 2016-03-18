@@ -20,6 +20,14 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
     $.steps = [];
     $.currentStep = 0;
     
+    var calloutStyles = {
+        none    : 'tour-tip-container',
+        top     : 'tour-tip-container top',
+        left    : 'tour-tip-container left',
+        topLeft : 'tour-tip-container topLeft',
+        topRight: 'tour-tip-container topRight',
+    };
+    
     function transitionTo(step){
         var state ;
         if(step.state == '')
@@ -139,59 +147,83 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
         return step;
     };
         
-    function newPosition(topSmall,top,left){
+    function newPosition(topSmall,top,left,smallClass,Class){
         var position = {};
         var position = {};
         if($rootScope.smallScreen()){
             position.left = '20px';
             position.top = topSmall;
+            position.class= smallClass || 'tour-tip-container';
         }else{
             position.top = top;
             position.left = left;
+            position.class = Class || 'tour-tip-container';
         }
         return position;
     };
     
+    function next(pos){
+        pos.small += 60;
+        pos.smallText = pos.small+'px';
+        pos.large += 60;
+        pos.largeText = pos.large+'px';
+        return pos;
+    }
+    
     $.configure = function(){
         // Menu Tour
-        var position = newPosition('60%','30%','275px');
+        var cas = calloutStyles;
+        var pos = {small:50,large:-18};
+        var position = newPosition('60%','30%','275px',cas.none,cas.left);
         var rootStep = $.newStep('',
                               'Let\'s start with the menu. Click the corner to open and close',
                                position,
                               function(){$ionicSideMenuDelegate.toggleLeft(true)});
         $.steps.push(rootStep);
-        position = newPosition('110px','7%','275px');
+        pos = next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
                               'Settings let you change your password and log out.',
                                position)
                      );
-        position = newPosition('170px','102px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
+        $.steps.push($.subStep(rootStep,
+                              'Dashboard gives you engagement and other statistics at a glance.',
+                               position)
+                     );     
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
                               'Schedule or Start a New Meeting with One Click.',
                                position)
                      );     
-        position = newPosition('230px','160px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
-                              'The Library Stores all your Pitch Decks.',
+                              'The Library Stores all your Pitch Decks. Build a new deck just like making a playlist',
                                position)
                      );       
-    
-        position = newPosition('290px','220px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
                               'Teams Let You Share Pitch Decks and other items',
                                position)
                      );  
-        position = newPosition('350px','280px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
                               'These are all the meetings you\'ve organized',
                                position)
                      );  
-        position = newPosition('410px','340px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         $.steps.push($.subStep(rootStep,
                               'Here are Invitations to Meetings you can Attend',
                                position)
                      );  
-        position = newPosition('470px','400px','275px');
+        pos=next(pos);
+        position = newPosition(pos.smallText,pos.largeText,'275px',cas.topLeft,cas.left);
         if(!$rootScope.isMobile || $rootScope.showArchive)
         $.steps.push($.subStep(rootStep,
                               'The Archive Holds All your Old Pitches and Meetings',
@@ -200,7 +232,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                      );  
         
         // Show them the library
-        position = newPosition('47%','47%','30px');
+        position = newPosition('44%','330px','30px',cas.top,cas.top);
         var state;
         if($rootScope.smallScreen())
             state = 'app.mobileLib';
@@ -211,12 +243,12 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
                                position,
                               function(){$ionicSideMenuDelegate.toggleLeft(false)});
         $.steps.push(libStep);
-        position = newPosition('16%','16%px','120px');
+        position = newPosition('16%','106px','30px',cas.top,cas.top);
         $.steps.push($.subStep(libStep,
                               'You can categorize your slides for quick re-use. For example: file type, subject, industry, funnel-stage etc.',
                                position)
                      );  
-        position = newPosition('20%','20%px','50px');
+        position = newPosition('16%','106px','50px',cas.topRight,cas.topRight);
         $.steps.push($.subStep(libStep,
                               'Combine your slides into pitch \'decks\' using \'Pitch Perfect\'. Just add a new deck, name it, and start adding the slides you need. Click (or Tap) on the slide to re-order and then Tap again on another slide. The slide will be placed in front of the slide you tap (or click).',
                                position)

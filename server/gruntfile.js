@@ -32,8 +32,8 @@ module.exports = function(grunt) {
               google:'945597499290-u6mqigu75s49u8dihb4npueh5hcbft9q.apps.googleusercontent.com',
               windows:'000000004817AFBB',
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
-
             },
+            mainChannel:{name:'Revu.Me:User:Development'},
         }
       },
       development: {
@@ -56,6 +56,7 @@ module.exports = function(grunt) {
               windows:'000000004817AFBB',
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
             },
+          mainChannel:{name:'Revu.Me:User:Development'},
         }
       },
       production: {
@@ -77,8 +78,8 @@ module.exports = function(grunt) {
               google:'945597499290-106uaa9etsaft53ln0olrv8dbse6h9an.apps.googleusercontent.com',
               windows:'000000004C17505E',
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7o4tBdvBgDi8S7KMxAOEvtS4wwwdhHSi5N681cL3LHUcN8HrE4D8A74u31ax'
-
-            }
+            },
+            mainChannel:{name:'Revu.Me:User'},
         }
       }
     },
@@ -110,22 +111,25 @@ module.exports = function(grunt) {
         //Shared Options Hash 
         },
         home : {
+          MAIN_CHANNEL:'Revu.Me:User:Development',
           options : {
               replace : {
                   BASE_URL : grunt.option('home_ip'),
-                  PORT:grunt.option('port')
+                  PORT:grunt.option('port'),
               },
           }
         },
         development : {
+          MAIN_CHANNEL:'Revu.Me:User:Development',
           options : {
               replace : {
                   BASE_URL : grunt.option('ip'),
-                  PORT:grunt.option('port')
+                  PORT:grunt.option('port'),
               },
           }
         },
         production : {
+            MAIN_CHANNEL:'Revu.Me:User',
             options : {
                 replace : {
                     BASE_URL : 'm.revu.me',

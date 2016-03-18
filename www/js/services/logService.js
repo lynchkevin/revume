@@ -6,8 +6,8 @@
 angular.module('RevuMe')
 
 .factory('UserLog', ['$resource','baseUrl',function ($resource,baseUrl) {
-    var target = baseUrl.endpoint+'/api/userLog/';  
-    return $resource(target);
+    var target = baseUrl.endpoint+'/api/userLog/:id';  
+    return $resource(target,{id:'@id'});
 }])
 .service('logService', ['$rootScope','UserLog','pnFactory','$q',
 function ($rootScope,UserLog,pnFactory,$q) {
@@ -25,7 +25,7 @@ function ($rootScope,UserLog,pnFactory,$q) {
         $.ready = true;
     })
 
-    //determine an active bridge is running
+    //log the users activity - it is published and stored in the database.
     $.log = function(event,fromState,toState){
         if($.ready){
             var now = new Date().getTime();
@@ -34,15 +34,47 @@ function ($rootScope,UserLog,pnFactory,$q) {
             console.log('User is: ',$.user,'Device is: ',$.device);
             console.log('Elapsed Time is: ',elapsed,' seconds');
             var m = {
-                user:$.user,
+                user:$rootScope.user, //changed this to support impersonation
                 device:$.device,
                 fromState:fromState,
                 toState:toState,
-                elapsedTime:elapsed,
+                elapsed:elapsed,
                 date:now,
             }
             $.logChannel.publish(m);
         } 
     };
+    $.getRecentHistory = function(numDaysPast){
+        var deferred = $q.defer();
+        UserLog.query({days:numDaysPast}).$promise.then(function(activities){
+            //activities will be sorted from most recent to oldest
+            deferred.resolve(activities);
+        }).catch(function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    
+    $.getUserHistory = function(userId){
+        var deferred = $q.defer();
+        UserLog.query({id:userId}).$promise.then(function(activities){
+            //activities will be sorted from most recent to oldest
+            deferred.resolve(activities);
+        }).catch(function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    
+    $.getRecentUserHistory = function(userId,numDaysPast){
+        var deferred = $q.defer();
+        UserLog.query({id:userId,days:numDaysPast}).$promise.then(function(activities){
+            //activities will be sorted from most recent to oldest
+            deferred.resolve(activities);
+        }).catch(function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    }
     
 }]);

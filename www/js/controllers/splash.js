@@ -49,7 +49,7 @@ angular.module('RevuMe')
             $ionicSideMenuDelegate.toggleLeft(true);
             $timeout(function(){
                 $ionicSideMenuDelegate.toggleLeft(false);
-            },5000);
+            },3000);
         }
     };
 

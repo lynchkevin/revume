@@ -11,6 +11,8 @@
       <link href="lib/ionic/css/app.css" rel="stylesheet"> 
       <link href="css/style.css" rel="stylesheet"> 
 
+    <!-- chart.js styles -->
+    <link rel="stylesheet" href="lib/angular-chart-js/angular-chart.css">
       
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
@@ -59,8 +61,13 @@
     <script type="text/javascript" src="https://crypto-js.googlecode.com/files/2.5.3-crypto-md5-hmac.js"></script>
     <script type="text/javascript" src="lib/thumbr.js"></script>
     
+    <!-- angular-chart.js -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+    <script type="text/javascript" src="lib/angular-chart-js/angular-chart.js"></script>
 
-
+    <!--moment.js -->
+    <script type="text/javascript" src="lib/moment.js"></script>
+      
     <!--
       it's absolutely essential to add evaporate's config before including angular-evaporate module
       these options are passed directly into EvaporateJS itself
@@ -141,6 +148,7 @@
     <script src="js/services/screenleap.js"></script>
     <script src="js/services/wizard.js"></script>
     <script src="js/services/logService.js"></script>
+    <script src="js/services/dashboard.js"></script>
 
 
     <script src="js/controllers/presentationCtlr.js"></script>
@@ -159,6 +167,8 @@
     <script src="js/controllers/myAccount.js"></script>
     <script src="js/controllers/payment.js"></script>
     <script src="js/controllers/changeCard.js"></script>
+    <script src="js/controllers/dashboard.js"></script>
+    <script src="js/controllers/systemMonitor.js"></script>
 
     <!-- env:dev:end -->
   </head>

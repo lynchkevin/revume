@@ -1,0 +1,241 @@
+<ion-view view-title="Dashboard">
+    <ion-nav-buttons side="right">
+     <button class="button button-calm icon-left ion-compass"
+             ng-click="tourService.start()">&nbsp Start Tour
+      </button>
+    </ion-nav-buttons>
+    <ion-content> 
+        <div class="centered-container dashboard-container">
+            <div class="button-bar" style="margin-top:15px">
+              <a ng-repeat="button in navButtons.buttons"
+                 ng-click="navButtons.click($index)" 
+                 ng-class="button.clicked?navButtons.clickedClass:navButtons.class">{{button.name}}</a>
+            </div>
+            <div ng-if="navButtons.buttons[navButtons.todayButton].clicked" >
+                <div class="row responsive-sm">
+                    <div class="col">
+                        <h2 class="positive">Meetings at a Glance</h2>
+                    </div>
+                </div>
+                <div class="row responsive-sm">
+                    <div class="col col-50">
+                        <h3>Today</h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center" ng-click="goMeetings()">{{meetings.today.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="meetings.today.data" 
+                                    chart-labels="meetings.today.labels"
+                                    chart-colours="meetings.today.colors"
+                                    chart-options="meetings.today.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+
+                    </div>
+                    <div class="col col-50">
+                        <h3>This Week </h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center" ng-click="goMeetings()">{{meetings.thisWeek.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="meetings.thisWeek.data" 
+                                    chart-labels="meetings.thisWeek.labels"
+                                    chart-colours="meetings.thisWeek.colors"
+                                    chart-options="meetings.thisWeek.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="centered-container">
+                        <h2 class="positive" style="margin-top:10px;margin-bottom:20px">Recent Interactions</h2>
+                        <ion-list ng-if="minWidth">
+                          <ion-item ng-repeat="i in interactions" 
+                                    ng-click="showInteraction($index)">
+                                <h2><span class="positive">When:</span>&nbsp {{i.date | date:'medium'}} &nbsp &nbsp 
+                                  <span class="positive">Contact:</span>&nbsp{{i.contact}}</h2>
+                                <p> <span style="color:black">Meeting:</span> &nbsp {{i.meetingName}} &nbsp 
+                                  <span style="color:black">Time Engaged(sec):</span> &nbsp{{i.totalTime | number:1}} &nbsp
+                                  <span style="color:black">Total Slides:</span> &nbsp {{i.totalSlides}}
+                                </p>
+                                <div ng-if="interactions[$index].isShowing">
+                                    <canvas class="chart chart-line" 
+                                            chart-data="iChart.data"
+                                            chart-labels="iChart.labels" 
+                                            chart-series="iChart.series"
+                                            chart-colours="iChart.colors"
+                                            chart-legend="true"
+                                            chart-options="iChart.options">
+                                    </canvas> 
+                                </div>
+                          </ion-item>
+                        </ion-list>
+                        <ion-list  ng-if="!minWidth">
+                          <ion-item ng-repeat="i in interactions" 
+                                    ng-click="showInteraction($index)">
+                              <h2><span class="positive">When:</span>&nbsp {{i.date | date:'medium'}} </h2>
+                              <h2><span class="positive">Contact:</span>&nbsp{{i.contact}}</h2>
+                              <p><span style="color:black">Meeting:</span> &nbsp {{i.meetingName}} &nbsp</p> 
+                              <p><span style="color:black">Time Engaged(sec):</span> &nbsp{{i.totalTime | number:1}} &nbsp
+                                  <span style="color:black">Total Slides:</span> &nbsp {{i.totalSlides}}
+                              </p>
+                              <div ng-if="interactions[$index].isShowing">
+                                <canvas class="chart chart-line" 
+                                        chart-data="iChart.data"
+                                        chart-labels="iChart.labels" 
+                                        chart-series="iChart.series"
+                                        chart-colours="iChart.colors"
+                                        chart-legend="true"
+                                        chart-options="iChart.options">
+                                </canvas> 
+                             </div>
+                          </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="navButtons.buttons[navButtons.engageButton].clicked" >
+                <div class="row responsive-sm">
+                    <div class="col">
+                        <h2 class="positive">Viewer Engagement</h2>
+                    </div>
+                </div>
+                <div class="row responsive-md">
+                    <div class="col col-50">
+                        <div class="row">
+                            <div class="col">
+                                <h3 style="margin-bottom:20px">Past Month</h3>
+                                <div style="position:relative">
+                                    <h2 class="doughnut-center">{{engagement.recentChart.center | number:0}}</h2>
+                                    <canvas class="chart chart-doughnut"
+                                            chart-data="engagement.recentChart.data" 
+                                            chart-labels="engagement.recentChart.labels"
+                                            chart-colours="engagement.recentChart.colors"
+                                            chart-options="engagement.recentChart.options"
+                                            chart-legend="true">
+                                    </canvas> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h3 style="margin-bottom:20px">Details Past Month</h3>
+                                    <canvas class="chart chart-line" 
+                                            chart-data="engagement.rDetailChart.data"
+                                            chart-labels="engagement.rDetailChart.labels" 
+                                            chart-series="engagement.rDetailChart.series"
+                                            chart-colours="engagement.rDetailChart.colors"
+                                            chart-legend="true"
+                                            chart-options="engagement.rDetailChart.options">
+                                    </canvas> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col col-50">
+                        <div class="row">
+                            <div class="col">
+                                <h3 style="margin-bottom:20px">Overall </h3>
+                                <div style="position:relative">
+                                    <h2 class="doughnut-center">{{engagement.overallChart.center| number:0}}</h2>
+                                    <canvas class="chart chart-doughnut"
+                                            chart-data="engagement.overallChart.data" 
+                                            chart-labels="engagement.overallChart.labels"
+                                            chart-colours="engagement.overallChart.colors"
+                                            chart-options="engagement.overallChart.options"
+                                            chart-legend="true">
+                                    </canvas> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h3 style="margin-bottom:20px">Details Overall</h3>
+                                    <canvas class="chart chart-line" 
+                                            chart-data="engagement.oDetailChart.data"
+                                            chart-labels="engagement.oDetailChart.labels" 
+                                            chart-series="engagement.oDetailChart.series"
+                                            chart-colours="engagement.oDetailChart.colors"
+                                            chart-legend="true"
+                                            chart-options="engagement.oDetailChart.options">
+                                    </canvas> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="navButtons.buttons[navButtons.fileButton].clicked">
+                <div class="row responsive-sm">
+                    <div class="col">
+                        <h2 class="positive">File Activities</h2>
+                    </div>
+                </div>
+                <div class="row responsive-md">
+                    <div class="col col-50">
+                        <h3>Recent File Uploads</h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center">{{files.recent.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="files.recent.data" 
+                                    chart-labels="files.recent.labels"
+                                    chart-colours="files.recent.colors"
+                                    chart-options="files.recent.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+
+                    </div>
+                    <div class="col col-50">
+                        <h3>Files: Active &amp Archived </h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center">{{files.native.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="files.native.data" 
+                                    chart-labels="files.native.labels"
+                                    chart-colours="files.native.colors"
+                                    chart-options="files.recent.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+                    </div>
+                </div>
+                <div class="row responsive-md">
+                    <div class="col col-50">
+                        <h3>Decks Recently Created</h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center">{{decks.recent.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="decks.recent.data" 
+                                    chart-labels="decks.recent.labels"
+                                    chart-colours="decks.recent.colors"
+                                    chart-options="decks.recent.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+
+                    </div>
+                    <div class="col col-50">
+                        <h3>Decks: Active &amp Archived</h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center">{{decks.native.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="decks.native.data" 
+                                    chart-labels="decks.native.labels"
+                                    chart-colours="decks.native.colors"
+                                    chart-options="decks.recent.options"
+                                    chart-legend="true">
+                            </canvas> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ion-content>
+<div class="bar bar-footer" 
+     ng-class="{'bar-positive':user.daysLeft>=14,'bar-energized':(user.daysLeft < 14 && user.daysLeft > 7), 'bar-assertive':(user.daysLeft <= 7),'bar-tall':smallScreen()}"
+     ng-if="user.script!=undefined && user.script.autoRenew == false">
+  <div class="title">Your {{user.script.type}} Subsction has {{user.daysLeft}} days left</div>
+  <button class="button button-calm"
+          ng-class="{'bar-button-bottom':smallScreen()}"
+          ng-if="user.script.type!='Elite' && user.daysLeft < 21">{{buyButton.text}}</button>
+</div>
+</ion-view>

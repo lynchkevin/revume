@@ -221,10 +221,13 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope,Base
     
     //get all users
     $.getAll = function($scope){
+        var deferred = $q.defer();
         Users.byId.query().$promise.then(function(users){
             $scope.allUsers = users;
             $scope.user.email = 'klynch@volerro.com'
+            deferred.resolve();
         });
+        return deferred.promise;
     };
     //find just the users that are in my teams
     $.usersIKnow = function(query){
@@ -240,38 +243,39 @@ function (Users,TeamUsers,pnFactory,$q,$ionicPopup,$ionicPopover,$rootScope,Base
     // old function for dropdown
     $.getUser = function($scope){
         var defer = $q.defer();
-        $.getAll($scope);
-          var myPopup = $ionicPopup.show({
+        $.getAll($scope).then(function(){
+            var myPopup = $ionicPopup.show({
 //            template: '<input type="email" ng-model="user.email">',
-            template: '<select ng-model="user.email"><option ng-repeat="user in allUsers">{{user.email}}</option></select>',
-            title: 'Select Your Email',
-            scope: $scope,
-            buttons: [
-              { text: 'Cancel' },
-              {
-                text: '<b>Save</b>',
-                type: 'button-positive',
-                onTap: function(e) {
-                  if (!$scope.user.email) {
-                    //don't allow the user to close unless he enters email
-                    e.preventDefault();
-                  } else {
-                    return $scope.user.email;
-                  }
-                }
-              }
-            ]
-          });
-          myPopup.then(function(email) {
+                template: '<select ng-model="user.email"><option ng-repeat="user in allUsers">{{user.email}}</option></select>',
+                title: 'Select Your Email',
+                scope: $scope,
+                buttons: [
+                    { text: 'Cancel' },
+                    {
+                        text: '<b>Save</b>',
+                        type: 'button-positive',
+                        onTap: function(e) {
+                            if (!$scope.user.email) {
+                            //don't allow the user to close unless he enters email
+                            e.preventDefault();
+                            } else {
+                                return $scope.user.email;
+                            }
+                        }
+                    }
+                ]
+            });
+            myPopup.then(function(email) {
               return $.user.byEmail.get({email:email}).$promise;
-          }).then(function(user){
+            }).then(function(user){
               //user found return the user object
               if(user._id == undefined)
                   defer.reject('not found');
               defer.resolve(user);
-          }).catch(function(err){
+            }).catch(function(err){
               defer.reject(err);
-          });
+            });
+        });
         return defer.promise;
      };  
      //check if a user exists in the database

@@ -197,12 +197,12 @@ function ($scope, $rootScope, $stateParams,
 
     $scope.nextSlide = function() {
         $scope.setSlide(++current);
-        logView($scope);
+        //logView($scope); //when slide is set it calls swipe slide and that logs view
     };
     
     $scope.prevSlide = function() {
         $scope.setSlide(--current);
-        logView($scope);
+        //logView($scope);
     };
       
     function validateSlide(slideNumber){

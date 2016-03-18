@@ -1,0 +1,133 @@
+<ion-view title="System Monitor" >
+    <ion-content>  
+        <div class="centered-container dashboard-container">
+            <div class="button-bar" style="margin-top:15px">
+              <a ng-repeat="button in navButtons.buttons"
+                 ng-click="navButtons.click($index)" 
+                 ng-class="button.clicked?navButtons.clickedClass:navButtons.class">{{button.name}}</a>
+            </div>
+           <div ng-if="navButtons.buttons[navButtons.nowButton].clicked" >
+                <div class="row responsive-sm">
+                    <div class="col">
+                        <h2 class="positive">Users Online Now</h2>
+                    </div>
+                </div>
+                <div class="row responsive-md">
+                    <div class="col col-50">
+                        <h3>Users Online</h3>
+                        <div style="position:relative">
+                            <h2 class="doughnut-center no-legend" ng-click="goMeetings()">{{uChart.guage.center}}</h2>
+                            <canvas class="chart chart-doughnut"
+                                    chart-data="uChart.guage.data" 
+                                    chart-labels="uChart.guage.labels"
+                                    chart-colours="uChart.guage.colors"
+                                    chart-options="uChart.guage.options"
+                                    chart-legend="false">
+                            </canvas> 
+                        </div>
+
+                    </div>
+                    <div class="col col-50" >
+                        <h3>User Timeline </h3>
+                        <canvas class="chart chart-bar" 
+                                chart-data="uChart.timeline.data"
+                                chart-labels="uChart.timeline.labels" 
+                                chart-series="uChart.timeline.series"
+                                chart-colours="uChart.timeline.colors"
+                                chart-legend="false"
+                                chart-options="uChart.timeline.options">
+                        </canvas> 
+                    </div>
+                </div>
+                <div style="margin-top:30px">
+                    <ion-list>
+                      <div class="item item-divider item-positive" >
+                        Users Online
+                      </div>
+                      <ion-item class="item-icon-left"
+                                style="text-align:left"
+                                ng-repeat="user in users"
+                                ng-click="showHistory($index)">
+                          <i class="icon ion-android-contact positive"></i>
+                        <h2 ng-if="user.name != 'undefined undefined'">{{user.userName}}</h2>
+                        <p>Total Time: {{user.totalTime | handyTime}}</p>     
+                        <p>Current State: {{user.history[0].toState}}</p>
+                        <ion_list ng-if="user.showHistory">
+                            <ion-item style="test-align:left"
+                                      ng-repeat="item in user.history">
+                                <p><span class="balanced">{{item.date | date:'h:mm a'}}</span> &nbsp {{item.fromState}} -> {{item.toState}}</p>
+                                <p><span class="dark">Time: {{item.elapsed | handyTime}}</span></p>
+                            </ion-item>
+                        </ion_list>
+                      </ion-item>
+                    </ion-list>  
+                </div>
+            </div>
+           <div ng-if="navButtons.buttons[navButtons.trendsButton].clicked" >
+                <div class="row responsive-sm">
+                    <div class="col">
+                        <h2 class="positive">Week and Month Trends</h2>
+                    </div>
+                </div>
+                <div class="row responsive-md">
+                    <div class="col col-50">
+                        <h3>This Week</h3>
+                        <div style="position:relative">
+                            <canvas class="chart chart-bar" 
+                                    chart-data="trendChart.week.data"
+                                    chart-labels="trendChart.week.labels" 
+                                    chart-series="trendChart.week.series"
+                                    chart-colours="trendChart.week.colors"
+                                    chart-legend="false"
+                                    chart-options="trendChart.week.options">
+                            </canvas> 
+                        </div>
+
+                    </div>
+                    <div class="col col-50" >
+                        <h3>Past Month </h3>
+                        <canvas class="chart chart-line" 
+                                chart-data="trendChart.month.data"
+                                chart-labels="trendChart.month.labels" 
+                                chart-series="trendChart.month.series"
+                                chart-colours="trendChart.month.colors"
+                                chart-legend="false"
+                                chart-options="trendChart.month.options">
+                        </canvas> 
+                    </div>
+                </div>
+                <div style="margin-top:30px">
+                    <ion-list  ng-repeat="day in trends.byDay">
+                      <div class="item item-divider item-positive">
+                          {{day.date | date : 'MMM dd yyyy'}}
+                      </div>
+                      <div class="list" 
+                           ng-repeat="item in day.userData"
+                           style="margin-bottom:0px">
+                              <div class="item item-divider item-calm item-icon-left">
+                                <i class="icon ion-android-contact" style="color:white"></i>
+                                  {{item.user.firstName}}&nbsp{{item.user.lastName}}
+                              </div>
+                              <div class="item item-divider" 
+                                   style="background-color:#EDEDED"
+                                   ng-click="toggleUserData($parent.$index,$index)">
+                                  Total Time: {{item.visitTime | handyTime}}
+                              </div>
+                              <div class="item "
+                                   style="text-align:left"
+                                    ng-repeat="visit in item.data"
+                                   ng-if="item.show == true">
+                                <div class="item-percent-bar" style="width:{{(visit.elapsed/item.visitTime)*100}}%"></div>
+                                <h2> {{visit.fromState}} -> {{visit.toState}} </h2>
+                                <p>Total Time: {{visit.elapsed | handyTime}}</p>     
+                              </div>
+                     </div>
+
+                    </ion-list>  
+                </div>
+            </div>
+        </div>  
+    </ion-content>
+</ion-view>
+                    
+                
