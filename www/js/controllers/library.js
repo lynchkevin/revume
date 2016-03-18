@@ -247,6 +247,7 @@ function ($scope,$rootScope,$state,
       $scope.selectedNavId = id;
       Library.updateSlides($scope).then(function(){
         $rootScope.hideLoading();
+        $ionicScrollDelegate.$getByHandle('slideItems').scrollTop();
       });
     };
 

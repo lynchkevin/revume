@@ -568,6 +568,7 @@ session.get('/sessions/organizer/:id',function(req,res){
             res.send(err);
         });
 });
+
 //get all sessions where I am an attendee
 session.get('/sessions/attendee/:id',function(req,res){
     var sessions;

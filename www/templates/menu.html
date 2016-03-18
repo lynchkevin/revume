@@ -28,6 +28,9 @@
         <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/settings">
         <i class='ion-gear-b menu-icon dark'></i>{{user.name}}
         </ion-item>
+        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/dashboard">
+           <i class='ion-compass menu-icon dark'></i>Dashboard
+        </ion-item>
         <ion-item nav-clear menu-close ng-if="!archive.menu" ng-click="newMeeting('app.newMeeting')">
           <i class='ion-ios-monitor-outline menu-icon balanced'></i>New Meeting
         </ion-item>
@@ -49,9 +52,7 @@
         <ion-item ng-if="(!archive.menu&&!isMobile) || (!achive.menu && isMobile && showArchive)" nav-clear menu-close ng-click="toggleArchive()">
            <i class='ion-filing menu-icon energized'></i>Archive
         </ion-item>
-        <ion-item ng-if="!archive.menu" nav-clear menu-close href="#/app/tour">
-           <i class='ion-compass menu-icon dark'></i>Restart Tour
-        </ion-item>
+
         <!-- Archive Menu Items -->
         <ion-item ng-if="archive.menu" nav-clear menu-close ng-click="toggleArchive()">
         <i class='ion-arrow-left-b menu-icon dark'></i>Main Menu

@@ -15,6 +15,9 @@ angular.module('RevuMe')
         $state.go('app.myAccount');
     };
     $scope.logOut = function(){
+        //unsubscribe from the main pubnub channel
+        if($rootScope.mainChannel != undefined)
+            $rootScope.mainChannel.unsubscribe();
         $cookieStore.remove('user');
         $rootScope.user._id = undefined;
         if($rootScope.user.network != undefined){

@@ -93,6 +93,10 @@ function ($scope,
         $state.go('app.userAdmin');
     }
     
+    $scope.systemMonitor = function(){
+        $state.go('app.systemMonitor');
+    }
+    
     $scope.setToTrial = function(){
         ScriptService.setToTrial()
         .then(function(script){
@@ -106,7 +110,7 @@ function ($scope,
         });
     }
     
-    $scope.utility = {actions:[
+    $scope.utility = {actions:[ {name:'System Monitor',action:$scope.systemMonitor},
                                 {name:'Clear User Cookie',action:$scope.clearUserCookie},
                                 {name:'Log In As..',action:$scope.logInAs},
                                 {name:'Set Intro Content',action:$scope.setIntroContent},

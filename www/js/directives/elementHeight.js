@@ -5,7 +5,7 @@
 */
 
 angular.module('RevuMe')
-    .directive('elemHeight', ['$window','$timeout',function ($window, $timeout) {
+.directive('elemHeight', ['$window','$timeout',function ($window, $timeout) {
       return {
           restrict : 'A',
           link : function(scope, element, attrs){

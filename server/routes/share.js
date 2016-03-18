@@ -107,6 +107,10 @@ function getSharedItems(userId,model){
     })
 }
 
+//export getSharedItems for other modules
+share.getShared = function(modelName,userId){
+    return getSharedItems(userId,modelName);
+};
 
 //save a sharing object
 share.post('/share',function(req,res){

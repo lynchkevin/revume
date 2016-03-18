@@ -18,18 +18,30 @@ angular.module('RevuMe',
     'ionic-datepicker',
     'ionic-timepicker',
     'ionic-toast',
+    'chart.js',
 ]
 )
-
-//.constant("baseUrl",{"endpoint": "http://192.168.1.167:5000",
-//                     "volerro": "https://rb.volerro.com"})
-//.constant("baseUrl",{"endpoint": "https://m.volerro.com",
-//                    "volerro": "https://rb.volerro.com"})
+.provider('$moment',function(){
+     this.$get = function(){
+         return moment;
+     };
+})
+.constant('$PALLET',{
+        '$light':'#dcdcdc',
+        '$positive':'#1D75B7', 
+        '$balanced':'#5ECC93',  
+        '$calm':'#9FDDCF',
+        '$royal':'#105594',
+        '$dark':'#404040', 
+        '$energized':'#f0b840', 
+        '$assertive':'#ef4e3a'
+})
 
 .run(["$ionicPlatform",
       "$rootScope",
       "$window",
       "$http",
+      'mainChannel',
       "userService",
       "pnFactory",
       '$timeout',
@@ -44,7 +56,7 @@ angular.module('RevuMe',
       'logService',
       '$q',
 function($ionicPlatform,$rootScope,$window,$http,
-          userService,pnFactory,$timeout,$location,$state,
+          mainChannel,userService,pnFactory,$timeout,$location,$state,
           $cookieStore,authService,$ionicLoading,
           $ionicHistory,Library,ScriptService,logService,$q) {
   $ionicPlatform.ready(function() {
@@ -131,6 +143,7 @@ function($ionicPlatform,$rootScope,$window,$http,
             //manage user presence on the rootScope so all controllers can use
             $rootScope.mHandler = function(message){
                 console.log("message from presence service",message);
+                $rootScope.$broadcast('Revu.Me.Activity', message);
             };
             $rootScope.pHandler = function(message){
                 //don't check the user_log server in the database
@@ -149,7 +162,7 @@ function($ionicPlatform,$rootScope,$window,$http,
             pnFactory.init(user._id);
             if($rootScope.mainChannel == undefined){
                 $rootScope.connected = true;
-                $rootScope.mainChannel = pnFactory.newChannel("Revu.Me:User");
+                $rootScope.mainChannel = pnFactory.newChannel(mainChannel.name);
                 $rootScope.mainChannel.setUser($rootScope.user.name);
                 $rootScope.mainChannel.subscribe($rootScope.mHandler,$rootScope.pHandler);
             }
@@ -267,10 +280,18 @@ function($ionicPlatform,$rootScope,$window,$http,
   })  
   .state('app.welcome', {
     url: "/welcome",
+    /*
     views: {
       'menuContent': {
         templateUrl: "templates/splash.html",
         controller: 'splashCtrl',
+      }
+    }
+    */  
+    views: {
+      'menuContent': {
+        templateUrl: "templates/dashboardTemplate.html",
+        controller: 'dashboardCtrl'
       }
     }
   })
@@ -642,7 +663,7 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   }) 
-    .state('app.changeCard', {
+ .state('app.changeCard', {
     url: "/changeCard",
     views: {
       'menuContent': {
@@ -651,7 +672,24 @@ function($ionicPlatform,$rootScope,$window,$http,
       }
     }
   })
-
+ .state('app.dashboard', {
+    url: "/dashboard",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/dashboardTemplate.html",
+        controller: 'dashboardCtrl'
+      }
+    }
+  })
+    .state('app.systemMonitor', {
+    url: "/systemMonitor",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/systemMonitor.html",
+        controller: 'systemMonitorCtrl'
+      }
+    }
+  })
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/signup');
     
