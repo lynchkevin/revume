@@ -745,6 +745,12 @@ div.progress-value {
     top:12px;
     left:8px;
 }
+.button.pull-left {
+    position:absolute;
+    top:5px;
+    left:5px;
+    bottom:5px;
+}
 .centered-checkbox{
     margin-left:30%;
 }
@@ -897,6 +903,18 @@ div.progress-value {
   -moz-transition: opacity 1s ease-in-out;
   -o-transition: opacity 1s ease-in-out;
   transition: opacity 1s ease-in-out;
+}
+.last-buffer{
+    margin-bottom:100px;
+}
+.v-center {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    -webkit-transform:translate(-50%,-50%);
+    -moz-transform:translate(-50%,-50%);
+    -ms-transform:translate(-50%,-50%);
 }
 <!-- MEDIA QUERIES --------->
 

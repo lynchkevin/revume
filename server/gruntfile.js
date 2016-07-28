@@ -2,6 +2,7 @@ module.exports = function(grunt) {
     grunt.option('port','9000');
     grunt.option('ip','http://10.1.10.216:'+grunt.option('port'));
     grunt.option('home_ip','http://192.168.1.166:'+grunt.option('port'));
+    //grunt.option('home_ip','http://192.168.1.109:'+grunt.option('port'));
     grunt.option('buildDate',new Date().toString('mmm d, yyyy h:M'));
     
     grunt.initConfig({
@@ -34,6 +35,7 @@ module.exports = function(grunt) {
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
             },
             mainChannel:{name:'Revu.Me:User:Development'},
+            IntercomToken:'kjyp8m8d',
         }
       },
       development: {
@@ -57,6 +59,7 @@ module.exports = function(grunt) {
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7rVL3IC9m79cM1uHudxEU6AoBtcQieypG.x7fj20dawZZ29LEudyxayDkMCj'
             },
           mainChannel:{name:'Revu.Me:User:Development'},
+          IntercomToken:'kjyp8m8d',
         }
       },
       production: {
@@ -80,6 +83,7 @@ module.exports = function(grunt) {
               sfdc:'3MVG9sG9Z3Q1RlbdEH3x71mLE7o4tBdvBgDi8S7KMxAOEvtS4wwwdhHSi5N681cL3LHUcN8HrE4D8A74u31ax'
             },
             mainChannel:{name:'Revu.Me:User'},
+            IntercomToken:'nqthq6k8',
         }
       }
     },
@@ -290,9 +294,14 @@ module.exports = function(grunt) {
           'ngtemplates:RevuMe'
         ]);
 
-        grunt.task.run([
-          'uglify:javascript'
-        ]);
+        if(grunt.option('nouglify') == undefined){
+            grunt.task.run([
+            'uglify:javascript'
+            ]);
+        } else {
+            grunt.log.writeln('Uglify off - Setting Dev Prod to Dev');
+            grunt.config.data.dev_prod_switch.options.environment = 'dev';
+        }
 
         grunt.task.run([
           'dev_prod_switch'

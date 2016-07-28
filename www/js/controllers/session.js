@@ -8,18 +8,22 @@ angular.module('RevuMe')
                             '$rootScope',
                             'Sess', 
                             'Decks',
-                            '$ionicListDelegate',      
+                            '$ionicListDelegate',  
+                            '$ionicNavBarDelegate',
                             '$ionicPopup',
                             'wizardService',
                             '$state',
                             '$timeout',
                             'ionicToast',
                             
-function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicPopup,wizardService,$state,$timeout,ionicToast) {
+function($scope, $rootScope,Sess,Decks,$ionicListDelegate,$ionicNavBarDelegate,
+          $ionicPopup,wizardService,$state,$timeout,ionicToast) {
 
     $scope.titles = {};
        
     $scope.init = function(){
+        //make sure back button is enabled
+        $ionicNavBarDelegate.showBackButton(true);
         var _id = $rootScope.user._id;
         $scope.setTitles();
         $scope.action = {selected:$scope.actions[0]};

@@ -1,7 +1,8 @@
 <ion-view view-title="{{presentation.name}}">
     <ion-content class="has-header presentation-background" scroll="false" id="slideshow" fullscreen>
-        <div class="centered-container slide" elem-size controls=true host=false>
-        <div class="row" ng-class="{'vert-center':screenSize().width < screenSize().height}">
+        <div class="centered-container slide v-center" elem-size controls=true host=false>
+        <!--div class="row" ng-class="{'vert-center':screenSize().width < screenSize().height}"-->
+        <div class="row">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
                    ng-click="previousClicked();$event.preventDefault(); $event.stopPropagation();"
@@ -29,10 +30,13 @@
                                                     style="width: 100%; height: 100%"
                                                     delegate-handle="scrollHandle{{$index}}" 
                                                     on-scroll="updateSlideStatus(boxCurrent)" 
-                                                    on-release="updateSlideStatus(boxCurrent)">
-                                <img ng-src="{{slide.src}}" class="slide-content"
+                                                    on-release="updateSlideStatus(boxCurrent)"
+                                                    scroll-height="0.80">
+                                <img ng-src="{{slide.src}}" 
+                                     class="slide-content"
                                      on-swipe-left="nextClicked()"
-                                     on-swipe-right="previousClicked()">
+                                     on-swipe-right="previousClicked()"
+                                     image-height>
                                 </ion-scroll>
                             </div>
                             <div ng-switch-when="video">                            

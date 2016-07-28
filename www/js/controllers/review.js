@@ -25,7 +25,6 @@ function ($scope, $rootScope, $stateParams,
   
 
     var filename = "";
-    var current = 0;
     var userId = $rootScope.user._id;
     var userName = $rootScope.user.name;
     var timeLimit = 5.0 * 60 * 1000.0; //timeout in 5 minutes;
@@ -43,20 +42,20 @@ function ($scope, $rootScope, $stateParams,
     
     //call init to setup the session and the deck and connect to the review channel
     $scope.init = function() {
-        $scope.deckIdx = 0;
-        $scope.deckLength = $scope.session.decks[$scope.deckIdx].slides.length;
-        $scope.offset = 0;
         $scope.presentation ={};
-        angular.extend($scope.presentation, $scope.session.decks[$scope.deckIdx]);
+        angular.extend($scope.presentation, $scope.session.decks[0]);
         $scope.presentation.slides = [];
         for(var i = 0; i<$scope.session.decks.length; i++){
             var deck = $scope.session.decks[i];
+            var idx = 0;
             deck.slides.forEach(function(slide){
+                slide.deckIdx = i;
+                slide.index = idx++;
                 $scope.presentation.slides.push(slide);
             });
         };
-        current = 0;
-        $scope.current = current;
+        $scope.totalSlides = $scope.presentation.slides.length;
+        $scope.current = 0;
         $scope.nextEnabled = true;
         $scope.prevEnabled = false;
         $scope.metrics = {};
@@ -101,10 +100,30 @@ function ($scope, $rootScope, $stateParams,
     //log a page view
     function logView($scope){
         var view = {};
+        var slide = $scope.presentation.slides[$scope.current];
         stopTimeout($scope);
         view.timeStamp = Date.now();
-        view.deckIdx = $scope.deckIdx;
-        view.page = current;
+        view.deckIdx = slide.deckIdx;
+        view.page = slide.index;
+        //log the duration of the previous view.
+        var length = $scope.metrics.views.length;
+        if(length>0){
+            var lastView = $scope.metrics.views[length-1];
+            lastView.duration = (view.timeStamp-lastView.timeStamp)/1000.0;
+        };
+        //push the new view
+        $scope.metrics.views.push(view);  
+        if(view.page >= 0) //page is -1 on endRevu
+            startTimeout($scope);
+    };
+    //log the final page view before leaving
+    function logLastView($scope){
+        var view = {};
+        var slide = $scope.presentation.slides[$scope.current];
+        stopTimeout($scope);
+        view.timeStamp = Date.now();
+        view.deckIdx = slide.deckIdx;
+        view.page = -1;
         //log the duration of the previous view.
         var length = $scope.metrics.views.length;
         if(length>0){
@@ -184,8 +203,8 @@ function ($scope, $rootScope, $stateParams,
     };
     //end a revu session via timeout or page unload    
     function endRevu($scope){
-        current = -1; //mark the end of the revu session
-        logView($scope);
+        logLastView($scope);
+        $scope.current = -1; //mark the end of the revu session
         var si = buildMetrics($scope);
         saveMetrics(si).then(function(){
             //sendMail
@@ -196,57 +215,40 @@ function ($scope, $rootScope, $stateParams,
     };
 
     $scope.nextSlide = function() {
-        $scope.setSlide(++current);
-        //logView($scope); //when slide is set it calls swipe slide and that logs view
+        $scope.setSlide(++$scope.current);
     };
     
     $scope.prevSlide = function() {
-        $scope.setSlide(--current);
-        //logView($scope);
+        $scope.setSlide(--$scope.current);
     };
       
     function validateSlide(slideNumber){
-        if(slideNumber >= $scope.deckLength-1) {
-            //go to the next deck if it exists at start at slide 1
-            if($scope.deckIdx <$scope.session.decks.length-1){
-                $scope.offset += $scope.deckLength;
-                $scope.deckIdx++;
-                $scope.deckLength = $scope.session.decks[$scope.deckIdx].slides.length;
-                current = 0;
-            } else {
-                current = $scope.session.decks[$scope.deckIdx].slides.length-1;
+        if(slideNumber >= $scope.totalSlides-1) {
                 $scope.nextEnabled = false;
                 $scope.prevEnabled = true;
-            }
-        } else if(slideNumber < 0) {
-            //go to the previous deck and start at the last slide
-            if($scope.deckIdx>0){
-                $scope.deckIdx--;
-                $scope.deckLength = $scope.session.decks[$scope.deckIdx].slides.length;
-                $scope.offset -= $scope.deckLength;
-                current = $scope.session.decks[$scope.deckIdx].slides.length-1;
-            } else{
-                current = 0;
+                $scope.current = $scope.totalSlides-1;
+        } else if(slideNumber <= 0) {
+                $scope.current = 0;
                 $scope.prevEnabled = false;
-                $scope.nextEnabled = true;
-            }   
+                $scope.nextEnabled = true; 
         } else {   
-            $scope.current = slideNumber;
             $scope.nextEnabled = true;
             $scope.prevEnabled = true;
         }
     }
     
     $scope.swipeSlide = function(slideNumber){
-        current = slideNumber;
+        $scope.current = slideNumber;
         validateSlide(slideNumber);
         logView($scope);
     }
     
     $scope.setSlide = function(slideNumber) {
-        validateSlide(slideNumber);
-        $scope.viewingSlide = $scope.presentation.slides[current+$scope.offset];
-        $ionicSlideBoxDelegate.slide(current+$scope.offset);
+        if(slideNumber >=0 && slideNumber < $scope.totalSlides)
+            $ionicSlideBoxDelegate.slide($scope.current);
+        else
+            validateSlide(slideNumber);
+        //this will automatically call swipeslide which does the rest....
     };
     
     //handle pinch and zoom

@@ -14,7 +14,8 @@ angular.module('RevuMe')
                            '$q',
                            '$sce',
                            '$controller',
-function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
+                           'intercomService',
+function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller,intercomService) {
     
     var $ = this;
     $.steps = [];
@@ -53,12 +54,15 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
     
     $.start = function(){
         $.currentStep = 0;
-        if($.steps.length>0)
+        intercomService.trackEvent('tour_started');
+        if($.steps.length>0){
             var step = $.steps[0];
             transitionTo(step);
+        }
     };
     
     $.next = function(){
+        intercomService.trackEvent('tour_next');
         $.steps[$.currentStep].hide();
         if($.steps[$.currentStep].after == 'ext')
             $.steps[$.currentStep].ext();
@@ -72,6 +76,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
     };
     
     $.previous = function(){
+        intercomService.trackEvent('tour_prev');
         $.steps[$.currentStep].hide();
         $.steps[$.currentStep].after();
         if($.currentStep > 0){
@@ -96,6 +101,7 @@ function($rootScope,$state,$ionicSideMenuDelegate,$q,$sce,$controller) {
     
     $.end = function(){
         $.currentStep = 0;
+       intercomService.trackEvent('tour_ended');
         $.hideAll();
     };
     

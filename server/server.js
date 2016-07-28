@@ -134,8 +134,31 @@ setInterval(function(){
     minutes += 0.5;
     console.log('Minutes: ',minutes);
 },30*1000);
+/*
+var sfdc = require('./routes/salesforce');
+var session = {
+    _id:'558dd6caccd628db0dd45d45',
+    name:'Deep Dive',
+    description:'A demonstration meeting',
+    baseUrl:"http://10.1.10.216:5000",
+    bridge:true,
+    invite:true,
+    length:30,
+    time:new Date(),
+    date:new Date(),
+    bridgeNumber: '(805) 436-7615',
+    ufId:'558-662-804',
+    attendees:[{Name:'Rose Gonzalez',Email:'rose@edge.com',Id:'0031a0000033kvRAAQ',isSalesForce:true},
+               {Name:'Sean Forbes',Email:'sean@edge.com',Id:'0031a0000033kvSAAQ',isSalesForce:true}],
+}
 
+    
+    if(minutes == 1.0){
+        sfdc.newEvent(session).then(function(result){
+            console.log('result: ',result);
+        }).catch(function(err){
+            console.log('error: ',err);
+        });
+    }
 
-
-
-
+*/

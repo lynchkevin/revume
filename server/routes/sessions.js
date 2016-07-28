@@ -17,7 +17,7 @@ var transporter = nodemailer.createTransport({
         pass: pw
     }
 });
-
+var sfdc = require('./salesforce');
 var Session = schema.Session;
 var defaultBridgeNumber = '(805) 436-7615' //format works for android and iphone  
 //set the bucket on the signer
@@ -517,7 +517,14 @@ session.post('/sessions',function(req,res){
     }).then(function(session){
         console.log('session add new :',session[0]._id.toString());
         sendTkInvites(session[0]._id.toString(),false);
-        res.send('success');
+        if(sent.sfIds.length>0){
+            sent._id = session[0]._id;
+            sfdc.newEvent(sent).then(function(result){
+                res.send('success');
+            }).catch(function(err){
+                res.send(err);
+            });
+        }
     }).catch(function(err){
         res.send(err);
     });

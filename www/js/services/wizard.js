@@ -89,7 +89,7 @@ function($rootScope,
     $scope.sObjects = [{
             name : 'Account',
             query: {
-                base: 'Select (Select Name, Email, Account.Name from Contacts @person) from Account @owner @company',
+                base: 'Select (Select Name, Id, Email, Account.Name from Contacts @person) from Account @owner @company',
                 where:{
                     company:"AND Name Like '@company%'",
                     person:"Where Name Like '@person%'",
@@ -108,6 +108,7 @@ function($rootScope,
                                 u.Name = Contact.Name;
                                 u.Email = Contact.Email;
                                 u.Company = Contact.Account.Name;
+                                u.Id = Contact.Id;
                                 items.push(u);
                             });              
                         }
@@ -127,7 +128,7 @@ function($rootScope,
         {
             name : 'Contact',
             query: {
-                base:"Select Name, Email, Account.Name from Contact @owner @company @person",
+                base:"Select Name, Id, Email, Account.Name from Contact @owner @company @person",
                 where : {
                     company:"AND Account.Name Like '@company%'",
                     person: "AND Name Like '@person%'"
@@ -146,7 +147,7 @@ function($rootScope,
         {
             name : 'Lead',
             query: {
-                base: "Select Name, Email, Company from Lead @owner @company @person",
+                base: "Select Name, Id, Email, Company from Lead @owner @company @person",
                 where: {
                     company:"AND Company LIKE '@company%'",
                     person:"AND Name Like '@person%'",
@@ -165,7 +166,7 @@ function($rootScope,
         {
             name : 'Opportunity',
             query: {
-                base: 'Select Account.Name,(Select Contact.Name, Contact.Email from OpportunityContactRoles @person) from Opportunity @owner @company',
+                base: 'Select Account.Name,(Select Contact.Name, Contact.Id, Contact.Email from OpportunityContactRoles @person) from Opportunity @owner @company',
                 where:{
                     company:"AND Account.Name Like '@company%'",
                     person:"Where Contact.Name Like '@person%'",
@@ -195,6 +196,7 @@ function($rootScope,
                                     u.Name= cr.Contact.Name;
                                     u.Email = cr.Contact.Email;
                                     u.Company = accountName;
+                                    u.Id = cr.Contact.Id;
                                     items.push(u);
                                 });
                             }
@@ -275,6 +277,8 @@ function($rootScope,
             u.firstName = names[0];
             u.lastName = names[1];
             u.email = user.Email;
+            u.Id = user.Id;
+            u.isSalesForce = true;
             $scope.step.attendees.push(u);
             var msg = $.people[index].Name+' has been added';
             ionicToast.show(msg,'top',false,2000);
@@ -766,6 +770,7 @@ function($rootScope,$scope, wizardService){
                            '$q',
                            'ionicToast',
                            'onEvent',
+                           'intercomService',
  function ( $rootScope,
             $ionicSlideBoxDelegate,
             $ionicScrollDelegate,
@@ -773,7 +778,8 @@ function($rootScope,$scope, wizardService){
             SessionBuilder,
             $q,
             ionicToast,
-            onEvent) {
+            onEvent,
+            intercomService) {
      var $ = this;
     
     // the wizard has a group of steps it displays
@@ -996,6 +1002,7 @@ function($rootScope,$scope, wizardService){
     }
     // create a new session
     $.new = function($scope){
+        intercomService.trackEvent('new_meeting');
         $.action = 'New';
         $.deferred = $q.defer();
         $.init($scope).then(function(){
@@ -1019,6 +1026,7 @@ function($rootScope,$scope, wizardService){
     }
     // build a session from a deck
     $.build = function($scope,navItem,index){
+        intercomService.trackEvent('build_meeting');
         $.action = 'Build';
         $.deferred = $q.defer();
         $.init($scope).then(function(){
@@ -1044,6 +1052,7 @@ function($rootScope,$scope, wizardService){
     }
     // edit an existing session
     $.edit = function($scope,session){
+        intercomService.trackEvent('edit_meeting');
         $.action = 'Edit';
         $.deferred = $q.defer();
         $.init($scope).then(function(){
@@ -1065,7 +1074,16 @@ function($rootScope,$scope, wizardService){
         });
         return $.deferred.promise;       
     }
-    
+    // check to see if any attendees are from salesforce or external partners
+    function checkExternalAttendees(session){
+        session.sfIds = [];
+        session.attendees.forEach(function(attendee){
+            if(attendee.hasOwnProperty('isSalesForce'))
+                session.sfIds.push(attendee.Id)
+        });
+        if(session.sfIds.length>0)
+            session.utcDate = session.date.toUTCString();
+    }
     // navigation controls
     $.complete = function(){
         $.sb.disconnect();
@@ -1078,6 +1096,7 @@ function($rootScope,$scope, wizardService){
         switch($.action){
             case 'New':    
             case 'Build':
+                checkExternalAttendees($.sb.session);
                 $.sb.saveSession().then(function(){
                     $.wizardModal.hide();
                     if($.wizardModal)

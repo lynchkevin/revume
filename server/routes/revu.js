@@ -2,12 +2,12 @@ var express = require('express');
 var revu = express.Router();
 var moment = require('moment');
 var nodemailer = require('nodemailer');
-var volerroSender = 'message@volerro.com';
+var volerroSender = 'activity@revu.me';
 var transporter = nodemailer.createTransport({
     service:'gmail',
     auth:{
         user: volerroSender,
-        pass: 'UtWTyy1d' 
+        pass: '1wL6AmFBpPom' 
     }
 });
 
@@ -39,6 +39,7 @@ revu.post('/revu/start',function(req,res){
     msg += user.name+' is online and reviewing your meeting now\n\n';
     
     mail.text = msg;
+    console.log('/revu/start sending email',mail);
     transporter.sendMail(mail);
     res.send('success');
 });

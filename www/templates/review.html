@@ -1,6 +1,6 @@
 <ion-view view-title="{{name}}" >
     <ion-content class="has-header presentation-background" scroll="false">
-        <div class="centered-container slide" elem-size controls=true>
+        <div class="centered-container slide v-center" elem-size controls=true>
         <div class="row">
             <div class="col col-5">
                 <a class="button icon-left ion-chevron-left button-clear button-dark slider-button" 
@@ -22,12 +22,15 @@
                                 style="width: 100%; height: 100%"
                                 delegate-handle="scrollHandle{{$index}}" 
                                 on-scroll="updateSlideStatus(current)" 
-                                on-release="updateSlideStatus(current)">
-                                <img ng-src="{{slide.src}}" class="slide-content" >
+                                on-release="updateSlideStatus(current)"
+                                scroll-height="0.80">
+                                <img ng-src="{{slide.src}}" 
+                                     class="slide-content" 
+                                     image-height>
                                 </ion-scroll>
                             </div>
                             <div ng-switch-when="video">                            
-                                <video class="slide-content" controls="controls" v-source={{slide.src}}  v-follow={{$index}}></video>                      
+                                <video class="slide-content" controls="controls" v-source={{slide.src}} controls ></video>          
                              </div>                                     
 
 

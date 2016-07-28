@@ -578,7 +578,8 @@ library.get('/library/uploadedFiles/processFile/:filePath',function(req,res){
     var filePath = req.params.filePath;
     var userId = req.query.userId;    //strip the encodedUri Name
     var result = {};
-    filePath = filePath.replace(/%20/g, " ");
+    //filePath = filePath.replace(/%20/g, " ");
+    filePath= decodeURIComponent(filePath);
     console.log('filePath: ',filePath,'userId: ',userId);
     result.success = true; //return right away let pubsub handle events from here
     res.send(result);

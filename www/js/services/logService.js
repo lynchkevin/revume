@@ -9,8 +9,8 @@ angular.module('RevuMe')
     var target = baseUrl.endpoint+'/api/userLog/:id';  
     return $resource(target,{id:'@id'});
 }])
-.service('logService', ['$rootScope','UserLog','pnFactory','$q',
-function ($rootScope,UserLog,pnFactory,$q) {
+.service('logService', ['$rootScope','UserLog','intercomService','pnFactory','$q',
+function ($rootScope,UserLog,intercomService,pnFactory,$q) {
     var $ = this;
     
     $.remoteLog = UserLog;
@@ -33,6 +33,7 @@ function ($rootScope,UserLog,pnFactory,$q) {
             console.log('Log got: event: ',event,' state :',toState);
             console.log('User is: ',$.user,'Device is: ',$.device);
             console.log('Elapsed Time is: ',elapsed,' seconds');
+            var elapsedStr = elapsed + ' seconds';
             var m = {
                 user:$rootScope.user, //changed this to support impersonation
                 device:$.device,
@@ -42,6 +43,12 @@ function ($rootScope,UserLog,pnFactory,$q) {
                 date:now,
             }
             $.logChannel.publish(m);
+            var metadata = {
+                from_state:m.fromState.url,
+                to_state:m.toState.url,
+                elapsed:elapsedStr,
+            };
+            intercomService.trackEvent('page_change',metadata);
         } 
     };
     $.getRecentHistory = function(numDaysPast){
