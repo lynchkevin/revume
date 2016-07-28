@@ -172,6 +172,7 @@ function ($scope,$rootScope,$state,sbDelegate,$ionicScrollDelegate,$timeout,slid
                 console.log('slide disabled');
               }
           }
+          
         };
                  
 

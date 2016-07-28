@@ -26,6 +26,7 @@ angular.module('RevuMe',
          return moment;
      };
 })
+
 .constant('$PALLET',{
         '$light':'#dcdcdc',
         '$positive':'#1D75B7', 
@@ -54,11 +55,13 @@ angular.module('RevuMe',
       'Library',
       'ScriptService',
       'logService',
+      'intercomService',
       '$q',
 function($ionicPlatform,$rootScope,$window,$http,
           mainChannel,userService,pnFactory,$timeout,$location,$state,
           $cookieStore,authService,$ionicLoading,
-          $ionicHistory,Library,ScriptService,logService,$q) {
+          $ionicHistory,Library,ScriptService,logService,
+          intercomService,$q) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -181,6 +184,9 @@ function($ionicPlatform,$rootScope,$window,$http,
 
                 });
             }
+            //boot Intercom
+            intercomService.boot();
+            intercomService.trackEvent('Signed_In');
             return defer.resolve();
         });
         return defer.promise;
@@ -218,6 +224,8 @@ function($ionicPlatform,$rootScope,$window,$http,
     $rootScope.showArchive = false;
     // listen for authenticated routes and force login if needed
     $rootScope.$on('$stateChangeStart', function(event,toState,toParams,fromState,fromParams){
+        //update Intercom
+        intercomService.update();
         //log all state changes for sales monitoring
         logService.log(event,fromState,toState); //send user activity over pubnub for monitoring
         authService.listen(event,toState);

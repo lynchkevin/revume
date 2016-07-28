@@ -51,11 +51,12 @@ salesforce.get('/auth/sfdc',function(req,res){
 });
 */
 function RestResponse(){
-    this.success = undefined;
+    this.success = false;
     this.body = undefined;
     this.error = undefined;
+    this.isSalesForce = true;
 }
-RestResponse.prototype.success=function(body){
+RestResponse.prototype.succeed=function(body){
     var b = body || {};
     this.success = true;
     this.body = b;
@@ -131,6 +132,7 @@ function get(path,res){
         res.send(new RestResponse().fail(0,'not authorized - user sfdc/auth first'));
     }
 }
+
 function query(sql,res){
     if(sfdc != undefined){
         var queryUrl = sfdc.baseUrl+'/query?q='+sql;
@@ -201,11 +203,124 @@ salesforce.get('/sfdc/query',function(req,res){
 });
 
 salesforce.get('/sfdc/test',function(req,res){
-    var sql = "Select name from Contact where owner.Name='Kevin Lynch'";
+    var sql = "Select name,email,Id from Contact where owner.Name='Kevin Lynch'";
     query(encode(sql),res);
 });
-    
 
+salesforce.get('/sfdc/invite',function(req,res){
+    var timBarrId = '0031a0000033kvWAAQ';
+    var path = '/sobjects/EventRelation/';
+    var eventRelation = {
+        isInvitee:true,
+        EventId:sfdc.eventId,
+        RelationId:timBarrId
+    };
+    put(path,eventRelation,res);
+});
+
+salesforce.get('/sfdc/task',function(req,res){
+    var path = '/sobjects/Event/';
+    var event = {
+      // accountId:accountId,
+     //   type:'Meeting',
+        Subject: 'A New Revu.Me Meeting',
+        Location:'www.revu.me',
+        ActivityDateTime:new Date(),
+        DurationInMinutes:30,
+    };
+        
+    console.log('Event is : ',event);
+    put(path,event,res);
+    //res.send('Ok');
+    //query(encode(sql),res);
+});
+salesforce.post('/sfdc/newMeeting',function(req,res){
+    var session = req.body;
+    var event = {
+        Subject: session.name,
+        Description: session.description,
+        ActivityDateTime: session.time,
+        DurationInMinutes:session.length,
+        Location: session.link,
+        Phone: session
+    }
+});
+    
+function create(path,object,res){
+    var payload = object || {};
+    //return a promise while we create the object
+    return new Promise(function(resolve, reject){
+        if(sfdc != undefined && sfdc.authHeaders != undefined){
+            var authString = 'OAuth '+sfdc.authHeaders.auth.bearer;
+            var resourceUrl = sfdc.baseUrl+path;
+            var options = {
+                headers: {'Authorization':authString,
+                         'Content-Type':'application/json'},
+                url: resourceUrl,
+                method: 'POST',
+                json: payload
+            }
+            request.postAsync(options).spread(function(response){
+                if(response.statusCode != 201){//error
+                    var code = response.body[0].errorCode;
+                    var message = response.body[0].message;
+                    var text = '/sfdc'+path+' - error: ';
+                    console.log(text,message);
+                    reject(new RestResponse().fail(code,message));
+                }else {
+                    var newObject = response.body;
+                    resolve(new RestResponse().succeed(newObject));
+                }
+            });
+        } else {
+            var r = new RestResponse().fail(0,'Salesforce OAUTH required - SaleForce Insert Failed');
+            reject(r);
+        }
+    });
+}
+
+salesforce.newEvent = function(session){
+    //return a promise while we create the object
+    return new Promise(function(resolve, reject){
+        var event = {
+            Subject: session.name,
+            Description: session.description,
+            ActivityDateTime: session.utcDate,
+            DurationInMinutes:session.length,
+            Location: session.baseUrl+'/#/app/sessions/'+session._id,
+        };
+        create('/sobjects/Event/',event)
+        .then(function(restResponse){
+            if(restResponse.success){
+                var event = restResponse.body;
+                var promises = [];
+                session.sfIds.forEach(function(attendee){
+                    var path = '/sobjects/EventRelation/';
+                    var eventRelation = {
+                        isInvitee:true,
+                        EventId:event.id,
+                        Status:'Accepted',
+                        RelationId:attendee
+                    };
+                    promises.push(create('/sobjects/EventRelation/',eventRelation));
+                });
+                Promise.all(promises).then(function(responses){
+                    event.invites = [];
+                    responses.forEach(function(response){
+                        event.invites.push(response.body);
+                    });
+                    resolve(event);
+                }).catch(function(response){
+                    reject(response);
+                });
+            }else{
+                reject(restResponse);
+            }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 module.exports = salesforce;
 
 

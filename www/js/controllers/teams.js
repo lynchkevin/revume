@@ -8,12 +8,15 @@ angular.module('RevuMe')
                             '$rootScope',
                             'TeamService', 
                             'userService',
-                            '$ionicListDelegate',      
+                            '$ionicListDelegate',  
+                            '$ionicNavBarDelegate',
                             '$ionicPopup',
                             '$ionicModal',
                             '$state',
                             'ionicToast',
-function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPopup,$ionicModal,$state,ionicToast) {
+                            'intercomService',
+function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicNavBarDelegate,
+          $ionicPopup,$ionicModal,$state,ionicToast,intercomService) {
     
     //set edit team name if passed in
     switch($state.current.name){
@@ -26,6 +29,10 @@ function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPo
     }
     //initialize the controller
     $scope.init = function(){
+        
+        //make sure back button is enabled
+        $ionicNavBarDelegate.showBackButton(true);
+        
         var _id = $rootScope.user._id;
         $scope.forms = {};
                 
@@ -100,6 +107,8 @@ function($scope, $rootScope, teamService,userService,$ionicListDelegate,$ionicPo
                 return teamService.refreshTeams($scope);
             }).then(function(){
                 ionicToast.show('New Team Created','top',false,2000);
+                // set an event in intercom
+                intercomService.trackEvent('new-team');
                 if($scope.forms.teamForm != undefined)
                     $scope.forms.teamForm.$setPristine();
             }).catch(function(err){

@@ -99,7 +99,7 @@
                     </div>
                 </div>                    
             </div>
-            <ion-scroll elem-height=0.70 >
+            <ion-scroll elem-height=0.70>
               <ion-refresher
                 pulling-text="Pull to refresh..."
                 on-refresh="doRefresh()"
@@ -109,7 +109,7 @@
                 <ion-item 
                           ng-repeat="(itemIndex,item) in navItems" 
                           class="item-thumbnail-left" 
-                          ng-class="{'item-select':!archiveOn()}"
+                          ng-class="{'item-select':!archiveOn(),'last-buffer':$last}"
                           ng-click="setNavSelection($index)">
                         <ion-delete-button ng-if="!archiveOn()"
                                            class="ion-minus-circled" 

@@ -14,6 +14,7 @@ angular.module('RevuMe')
                                 '$timeout',
                                 '$state',
                                 '$filter',
+                                '$location',
                                 '$ionicScrollDelegate',
                                 '$ionicModal',
                                 '$ionicHistory',
@@ -29,6 +30,7 @@ angular.module('RevuMe')
                 $timeout,
                 $state,
                 $filter,
+                $location,
                 $ionicScrollDelegate,
                 $ionicModal,
                 $ionicHistory,
@@ -41,6 +43,7 @@ angular.module('RevuMe')
     
         //setup the color pallet so our charts match our color scheme
         $scope.w = angular.element($window);
+        $scope.initialized = false;
         $scope.doughnutOptions = {
             percentageInnerCutout : 60,
         }
@@ -408,6 +411,10 @@ angular.module('RevuMe')
             }
             if($rootScope.user._id != undefined)
                 $scope.init();
+            $scope.urlParams = $location.search();
+            if($scope.urlParams.tour != undefined)
+                tourService.start();
+                
         });
         $scope.$on('$ionicView.beforeLeave',function(){
             //this will remove all chart canvas elements to avoid a resize error
@@ -426,29 +433,31 @@ angular.module('RevuMe')
             testWidth(); 
         });
         $scope.$on('Revu.Me:Ready',function(){
-            //create a splash modal
-            $ionicModal.fromTemplateUrl('templates/splashModal.html',{
-                scope: $scope,
-                animation:'slide-in-up'
-            }).then(function(modal){
-                $scope.splash = modal;
-            // splash screen for 3 seconds
-                $scope.splash.show();
-                $timeout(function(){
-                    $scope.splash.hide().then(function(){
-                        $scope.splash.remove();
-                        //slide the menu over if this is the first log in
-                        if($rootScope.firstLogin != undefined && $rootScope.firstLogin == true){
-                            $rootScope.firstLogin = false;
-                            $ionicSideMenuDelegate.toggleLeft(true);
-                            $timeout(function(){
-                                $ionicSideMenuDelegate.toggleLeft(false);
-                            },2000);
-                        }
-                    });
+            if($scope.urlParams == undefined || $scope.urlParams.tour == undefined){
+                //create a splash modal
+                $ionicModal.fromTemplateUrl('templates/splashModal.html',{
+                    scope: $scope,
+                    animation:'slide-in-up'
+                }).then(function(modal){
+                    $scope.splash = modal;
+                // splash screen for 3 seconds
+                    $scope.splash.show();
+                    $timeout(function(){
+                        $scope.splash.hide().then(function(){
+                            $scope.splash.remove();
+                            //slide the menu over if this is the first log in
+                            if($rootScope.firstLogin != undefined && $rootScope.firstLogin == true){
+                                $rootScope.firstLogin = false;
+                                $ionicSideMenuDelegate.toggleLeft(true);
+                                $timeout(function(){
+                                    $ionicSideMenuDelegate.toggleLeft(false);
+                                },2000);
+                            }
+                        });
 
-                },3000);
-            }); 
+                    },3000);
+                }); 
+            }
         });
     /* 
         Statistic Types:

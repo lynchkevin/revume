@@ -182,7 +182,7 @@ function ($rootScope,Session,Decks,UploadedFiles,userService,$ionicModal,
     
     $.loadDecks = function(){
         var deferred = $q.defer();
-        $rootScope.showLoading();
+        $rootScope.showLoading();                
         shareMediator.getItems(Decks).then(function(decks){
             $rootScope.hideLoading();
             if(decks.length>0){

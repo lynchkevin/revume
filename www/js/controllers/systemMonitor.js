@@ -268,7 +268,8 @@ angular.module('RevuMe')
         //do the grouping and calculate totals
         trends.forEach(function(trend){
             var idx = $moment().dayOfYear() - $moment(trend.date).dayOfYear();
-            sorted.byDay[idx].data.push(trend)
+            if(idx>=0 && idx<daysBack)
+                sorted.byDay[idx].data.push(trend)
         });
         return sorted;
     }

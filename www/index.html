@@ -94,7 +94,11 @@
     <!-- box and dropbox module -->
     <script src="lib/fileBox.js"></script>
 
-      
+    <!-- intercom.io acquire code stub -->
+    <script>
+    (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/kjyp8m8d';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()
+    </script>
+
     <!-- all lib modules have to be included independently as uglify only looks at js directory -->
     <!-- env:prod --#>
     <script src="revume.min.js"></script>
@@ -126,6 +130,7 @@
     <script src="js/directives/standardTimeMeridian.js"></script>
     <script src="js/directives/parentHeight.js"></script>
     <script src="js/directives/resizeWidth.js"></script>
+    <script src="js/directives/slideBoxSizing.js"></script>
       
     <script src="js/services/pnFactory.js"></script>
     <script src="js/services/userService.js"></script>
@@ -149,6 +154,7 @@
     <script src="js/services/wizard.js"></script>
     <script src="js/services/logService.js"></script>
     <script src="js/services/dashboard.js"></script>
+    <script src="js/services/intercomService.js"></script>
 
 
     <script src="js/controllers/presentationCtlr.js"></script>

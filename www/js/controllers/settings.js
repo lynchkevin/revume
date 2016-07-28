@@ -8,13 +8,15 @@
  * Controller of the barebonesApp
  */
 angular.module('RevuMe')
-  .controller('settingsCtrl', ['$scope', '$rootScope','$state', '$cookieStore','hello','SigninPartners',
-                             function ($scope,$rootScope,$state,$cookieStore,hello,SigninPartners) {
+  .controller('settingsCtrl', ['$scope', '$rootScope','$state', '$cookieStore','hello','SigninPartners','intercomService',
+function ($scope,$rootScope,$state,$cookieStore,hello,SigninPartners,intercomService) {
 
     $scope.myAccount = function(){
         $state.go('app.myAccount');
     };
     $scope.logOut = function(){
+        //Sign out of Intercom
+        intercomService.shutdown();
         //unsubscribe from the main pubnub channel
         if($rootScope.mainChannel != undefined)
             $rootScope.mainChannel.unsubscribe();
